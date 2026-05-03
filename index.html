@@ -82,6 +82,11 @@
     pointer-events: none;
     z-index: 0;
     opacity: 0.4;
+    display: block;
+  }
+
+  html, body {
+    overflow-x: hidden;
   }
 
   /* ── TOP BANNER ── */
@@ -1611,6 +1616,7 @@ document.addEventListener('visibilitychange', () => {
 })();
 
 resize();
+createParticles();
 animate();
 window.addEventListener('resize', () => { resize(); createParticles(); });
 

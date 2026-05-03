@@ -95,7 +95,7 @@
     background: rgba(79,255,176,0.06);
     border-bottom: 1px solid rgba(79,255,176,0.1);
     font-size: 13px;
-    color: var(--muted);
+    color: #e5e7eb;
     position: relative;
     z-index: 101;
     text-align: center;
@@ -251,25 +251,40 @@
   h1 {
     font-family: 'Syne', sans-serif;
     font-weight: 800;
-    font-size: clamp(36px, 7vw, 88px);
-    line-height: 1.0;
+    font-size: clamp(40px, 6vw, 80px);
+    line-height: 1.05;
     letter-spacing: -0.03em;
-    max-width: 900px;
+    max-width: 820px;
     margin-bottom: 24px;
     opacity: 0;
     animation: fadeUp 0.8s 0.4s forwards;
+    color: var(--white);
   }
 
-  h1 .highlight {
+  #typedWord {
+    display: inline-block;
     background: linear-gradient(135deg, var(--accent), var(--accent2));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    position: relative;
+    transition: opacity 0.15s;
   }
+  #typedWord::after {
+    content: '|';
+    position: absolute;
+    right: -10px;
+    top: 0;
+    -webkit-text-fill-color: var(--accent);
+    color: var(--accent);
+    animation: blink 0.8s step-end infinite;
+    font-weight: 300;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
   .hero-sub {
     font-size: clamp(15px, 2vw, 18px);
-    color: var(--muted);
+    color: #c9cdd6;
     max-width: 520px;
     line-height: 1.7;
     margin-bottom: 48px;
@@ -342,7 +357,7 @@
   .stat-num span { color: var(--accent); }
   .stat-label {
     font-size: 13px;
-    color: var(--muted);
+    color: #9ca3af;
     margin-top: 4px;
     letter-spacing: 0.03em;
   }
@@ -1011,8 +1026,8 @@
 <!-- HERO -->
 <div class="hero">
   <div class="hero-badge" role="status">Inteligência de Leads B2B</div>
-  <h1>Encontre seus próximos<br><span class="highlight">10.000 clientes</span><br>em segundos.</h1>
-  <p class="hero-sub">Filtre 40M+ empresas brasileiras por segmento, cidade, porte e receita. Exporte leads qualificados instantaneamente.</p>
+  <h1>Encontre <span class="highlight" id="typedWord">clientes</span> agora.</h1>
+  <p class="hero-sub">Filtre <strong style="color:#f0f0f0">40M+ empresas brasileiras</strong> por segmento, cidade, porte e receita. Exporte leads qualificados instantaneamente.</p>
   <div class="hero-actions">
     <button class="btn-primary" onclick="openModal('signup')">Teste grátis — 10 leads agora</button>
     <button class="btn-secondary" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">Ver como funciona →</button>
@@ -1562,8 +1577,27 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
+// ── TYPEWRITER HERO ──
+(function() {
+  const words = ['clientes', '10.000 leads', 'compradores', 'parceiros', 'oportunidades'];
+  let wi = 0, ci = 0, deleting = false;
+  const el = document.getElementById('typedWord');
+  if (!el) return;
+  function tick() {
+    const word = words[wi];
+    if (!deleting) {
+      el.textContent = word.slice(0, ++ci);
+      if (ci === word.length) { deleting = true; return setTimeout(tick, 1800); }
+    } else {
+      el.textContent = word.slice(0, --ci);
+      if (ci === 0) { deleting = false; wi = (wi + 1) % words.length; return setTimeout(tick, 300); }
+    }
+    setTimeout(tick, deleting ? 55 : 90);
+  }
+  setTimeout(tick, 1400);
+})();
+
 resize();
-createParticles();
 animate();
 window.addEventListener('resize', () => { resize(); createParticles(); });
 

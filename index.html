@@ -1305,13 +1305,22 @@
 <footer>
   <div class="footer-logo">Wexio<span>Lead</span></div>
   <ul class="footer-links">
-    <li><a href="#">Privacidade</a></li>
-    <li><a href="#">Termos</a></li>
-    <li><a href="#">LGPD</a></li>
-    <li><a href="#">Contato</a></li>
+    <li><a href="#" onclick="openPolicy('privacidade'); return false;">Privacidade</a></li>
+    <li><a href="#" onclick="openPolicy('termos'); return false;">Termos de Uso</a></li>
+    <li><a href="#" onclick="openPolicy('lgpd'); return false;">LGPD</a></li>
+    <li><a href="mailto:suporte@wexiolead.com.br">Contato</a></li>
   </ul>
-  <div class="footer-copy">© 2025 WexioLead. Todos os direitos reservados.</div>
+  <div class="footer-copy">© 2025 WexioLead. Todos os direitos reservados. CNPJ: a definir.</div>
 </footer>
+
+<!-- ── MODAL POLÍTICAS ── -->
+<div class="modal-overlay" id="policyModal" role="dialog" aria-modal="true" aria-labelledby="policyTitle" style="align-items:flex-start;padding:40px 20px;overflow-y:auto;">
+  <div class="modal" style="max-width:680px;width:100%;max-height:80vh;overflow-y:auto;padding:40px;">
+    <button class="modal-close" onclick="document.getElementById('policyModal').classList.remove('open');document.body.style.overflow='';" aria-label="Fechar">✕</button>
+    <h2 id="policyTitle" style="margin-bottom:20px;"></h2>
+    <div id="policyContent" style="font-size:14px;color:#d1d5db;line-height:1.8;"></div>
+  </div>
+</div>
 
 <!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -1327,11 +1336,20 @@ const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 async function checkSession() {
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
-    // redirect logged-in users to app
-    // window.location.href = '/app';
+    // Usuário já logado — atualizar nav
+    updateNavForLoggedUser(session.user);
   }
 }
 checkSession();
+
+function updateNavForLoggedUser(user) {
+  const navRight = document.querySelector('.nav-right');
+  if (!navRight) return;
+  const loginBtn = navRight.querySelector('.btn-nav-login');
+  const ctaBtn = navRight.querySelector('.nav-cta');
+  if (loginBtn) { loginBtn.textContent = 'Minha conta →'; loginBtn.href = '/dashboard.html'; loginBtn.onclick = null; }
+  if (ctaBtn) ctaBtn.style.display = 'none';
+}
 
 // ── MODAL ──
 function openModal(tab = 'signup') {
@@ -1477,8 +1495,8 @@ async function handleLogin() {
     if (error) throw error;
     closeModal();
     showToast('Login realizado com sucesso!');
-    // Redirect to app after short delay
-    setTimeout(() => { window.location.href = '/app'; }, 1200);
+    // Redirect to dashboard after short delay
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1200);
   } catch (err) {
     const msg = err.message || 'Erro ao entrar.';
     if (msg.includes('Invalid login')) {
@@ -1512,6 +1530,88 @@ async function handleForgotPassword() {
 // Enter key on forms
 document.getElementById('signupPassword').addEventListener('keydown', e => { if (e.key === 'Enter') handleSignup(); });
 document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
+
+// ── POLÍTICAS ──
+const POLICIES = {
+  privacidade: {
+    title: 'Política de Privacidade',
+    content: `
+      <p style="margin-bottom:16px"><strong style="color:#f0f0f0">Última atualização: 01/01/2025</strong></p>
+      <p style="margin-bottom:14px">A WexioLead valoriza e respeita a sua privacidade. Esta Política descreve como coletamos, usamos e protegemos seus dados pessoais.</p>
+      <h3 style="color:#f0f0f0;margin:20px 0 8px">1. Dados coletados</h3>
+      <p style="margin-bottom:14px">Coletamos nome completo, e-mail, senha (criptografada) e dados de uso da plataforma para oferecer nossos serviços.</p>
+      <h3 style="color:#f0f0f0;margin:20px 0 8px">2. Uso dos dados</h3>
+      <p style="margin-bottom:14px">Seus dados são utilizados exclusivamente para: (a) criação e gestão da sua conta; (b) prestação do serviço de leads; (c) comunicações relacionadas ao serviço; (d) melhoria contínua da plataforma.</p>
+      <h3 style="color:#f0f0f0;margin:20px 0 8px">3. Compartilhamento</h3>
+      <p style="margin-bottom:14px">Não vendemos seus dados pessoais. Podemos compartilhá-los com prestadores de serviço essenciais (infraestrutura, pagamento) sob contrato de confidencialidade.</p>
+      <h3 style="color:#f0f0f0;margin:20px 0 8px">4. Segurança</h3>
+      <p style="margin-bottom:14px">Utilizamos criptografia, controles de acesso e infraestrutura segura (Supabase/AWS) para proteger seus dados.</p>
+      <h3 style="color:#f0f0f0;margin:20px 0 8px">5. Seus direitos</h3>
+      <p style="margin-bottom:14px">Você tem direito a acessar, corrigir, portabilizar e excluir seus dados. Para exercê-los, entre em contato: <a href="mailto:privacidade@wexiolead.com.br" style="color:#4fffb0">privacidade@wexiolead.com.br</a></p>
+      <h3 style="color:#f0f0f0;margin:20px 0 8px">6. Cookies</h3>
+      <p style="margin-bottom:14px">Utilizamos cookies essenciais para manter a sessão ativa e cookies analíticos (anônimos) para melhorar a experiência.</p>
+      <h3 style="color:#f0f0f0;margin:20px 0 8px">7. Contato</h3>
+      <p>Para dúvidas sobre privacidade: <a href="mailto:privacidade@wexiolead.com.br" style="color:#4fffb0">privacidade@wexiolead.com.br</a></p>
+    `
+  },
+  termos: {
+    title: 'Termos de Uso',
+    content: `
+      <p style="margin-bottom:16px"><strong style="color:#f0f0f0">Última atualização: 01/01/2025</strong></p>
+      <p style="margin-bottom:14px">Ao utilizar a plataforma WexioLead, você concorda com os termos abaixo. Leia atentamente antes de criar sua conta.</p>
+      <h3 style="color:#f0f0f0;margin:20px 0 8px">1. O serviço</h3>
+      <p style="margin-bottom:14px">A WexioLead é uma plataforma SaaS de geração de leads B2B que disponibiliza dados públicos de empresas brasileiras obtidos de fontes legítimas (Receita Federal, bases comerciais públicas).</p>
+      <h3 style="color:#f0f0f0;margin:20px 0 8px">2. Uso permitido</h3>
+      <p style="margin-bottom:14px">Os dados obtidos podem ser utilizados para prospecção comercial B2B legítima, conforme limites do plano contratado. É proibido: revenda de dados, uso para spam massivo, scraping automatizado não autorizado.</p>
+      <h3 style="color:#f0f0f0;margin:20px 0 8px">3. Cotas e limites</h3>
+      <p style="margin-bottom:14px">Cada plano possui limites mensais de exportação. Cotas não utilizadas não acumulam para o mês seguinte. A WexioLead pode ajustar limites com aviso prévio de 30 dias.</p>
+      <h3 style="color:#f0f0f0;margin:20px 0 8px">4. Pagamento e cancelamento</h3>
+      <p style="margin-bottom:14px">Assinaturas são cobradas mensalmente. O cancelamento pode ser feito a qualquer momento e tem efeito no fim do período vigente. Não há reembolso proporcional.</p>
+      <h3 style="color:#f0f0f0;margin:20px 0 8px">5. Disponibilidade</h3>
+      <p style="margin-bottom:14px">Buscamos 99% de disponibilidade mensal. Manutenções programadas são avisadas com antecedência. Não garantimos resultado de vendas com uso dos dados.</p>
+      <h3 style="color:#f0f0f0;margin:20px 0 8px">6. Responsabilidade</h3>
+      <p style="margin-bottom:14px">O usuário é responsável pelo uso ético e legal dos dados exportados. A WexioLead não se responsabiliza por práticas de vendas dos clientes.</p>
+      <h3 style="color:#f0f0f0;margin:20px 0 8px">7. Foro</h3>
+      <p>Fica eleito o foro da Comarca de São Paulo/SP para dirimir quaisquer controvérsias.</p>
+    `
+  },
+  lgpd: {
+    title: 'LGPD — Lei Geral de Proteção de Dados',
+    content: `
+      <p style="margin-bottom:16px"><strong style="color:#f0f0f0">Conformidade com a Lei nº 13.709/2018</strong></p>
+      <p style="margin-bottom:14px">A WexioLead opera em total conformidade com a LGPD (Lei Geral de Proteção de Dados Pessoais).</p>
+      <h3 style="color:#f0f0f0;margin:20px 0 8px">Dados das empresas (leads)</h3>
+      <p style="margin-bottom:14px">Os dados de empresas disponibilizados na plataforma são dados públicos obtidos de fontes legítimas como a Receita Federal do Brasil. Dados de pessoas jurídicas têm tratamento diferenciado pela LGPD. Dados de sócios são tratados com base na <strong style="color:#f0f0f0">legítima expectativa de contato comercial</strong>, conforme Art. 7º, IX da LGPD.</p>
+      <h3 style="color:#f0f0f0;margin:20px 0 8px">Dados dos usuários da plataforma</h3>
+      <p style="margin-bottom:14px">Coletamos dados pessoais dos usuários com base no <strong style="color:#f0f0f0">consentimento expresso</strong> (Art. 7º, I) e na <strong style="color:#f0f0f0">execução de contrato</strong> (Art. 7º, V).</p>
+      <h3 style="color:#f0f0f0;margin:20px 0 8px">Encarregado de Dados (DPO)</h3>
+      <p style="margin-bottom:14px">Nosso Encarregado pode ser contatado em: <a href="mailto:lgpd@wexiolead.com.br" style="color:#4fffb0">lgpd@wexiolead.com.br</a></p>
+      <h3 style="color:#f0f0f0;margin:20px 0 8px">Direitos dos titulares</h3>
+      <ul style="margin-bottom:14px;padding-left:20px;display:flex;flex-direction:column;gap:6px;">
+        <li>Acesso aos dados pessoais tratados</li>
+        <li>Correção de dados incompletos ou desatualizados</li>
+        <li>Anonimização, bloqueio ou eliminação de dados</li>
+        <li>Portabilidade dos dados</li>
+        <li>Revogação do consentimento a qualquer momento</li>
+        <li>Oposição ao tratamento</li>
+      </ul>
+      <h3 style="color:#f0f0f0;margin:20px 0 8px">Como exercer seus direitos</h3>
+      <p>Envie solicitação para <a href="mailto:lgpd@wexiolead.com.br" style="color:#4fffb0">lgpd@wexiolead.com.br</a>. Respondemos em até 15 dias úteis.</p>
+    `
+  }
+};
+
+function openPolicy(key) {
+  const policy = POLICIES[key];
+  if (!policy) return;
+  document.getElementById('policyTitle').textContent = policy.title;
+  document.getElementById('policyContent').innerHTML = policy.content;
+  document.getElementById('policyModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+document.getElementById('policyModal').addEventListener('click', function(e) {
+  if (e.target === this) { this.classList.remove('open'); document.body.style.overflow = ''; }
+});
 
 // ── MOBILE MENU ──
 document.getElementById('hamburger').addEventListener('click', () => {

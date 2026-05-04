@@ -507,9 +507,80 @@ tbody td { padding: 11px 14px; font-size: 13px; color: var(--text); }
 @media (max-width: 480px) {
   .stats-grid { grid-template-columns: 1fr; }
 }
+/* ── PAYWALL ── */
+.paywall-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(7,8,10,0.85);
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 24px;
+}
+.paywall-overlay.active { display: flex; }
+.paywall-box {
+  background: #0e1014;
+  border: 1px solid rgba(79,255,176,0.2);
+  border-radius: 24px;
+  padding: 48px 40px;
+  max-width: 520px;
+  width: 100%;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+}
+.paywall-icon { font-size: 40px; margin-bottom: 16px; }
+.paywall-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 26px; color: #fff; margin-bottom: 10px; letter-spacing: -0.02em; }
+.paywall-sub { font-size: 15px; color: #9ca3af; margin-bottom: 32px; line-height: 1.6; }
+.paywall-plans { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 24px; }
+.pw-plan { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 16px 12px; cursor: pointer; transition: all 0.2s; }
+.pw-plan:hover, .pw-plan.sel { border-color: rgba(79,255,176,0.4); background: rgba(79,255,176,0.06); }
+.pw-plan-name { font-family:'Syne',sans-serif; font-size:11px; font-weight:600; color:#9ca3af; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px; }
+.pw-plan-price { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; color:#fff; letter-spacing:-0.02em; }
+.pw-plan-price small { font-size:11px; font-weight:400; color:#9ca3af; }
+.pw-plan-feat { font-size:11px; color:#9ca3af; margin-top:6px; line-height:1.4; }
+.pw-cta { width:100%; padding:14px; background:var(--accent); color:#000; border:none; border-radius:10px; font-family:'DM Sans',sans-serif; font-weight:600; font-size:15px; cursor:pointer; transition:all 0.2s; margin-bottom:10px; }
+.pw-cta:hover { opacity:0.85; transform:translateY(-1px); }
+.pw-note { font-size:12px; color:#6b7280; }
+
+/* ── LOCKED LEAD ROW ── */
+.lead-locked { filter: blur(4px); pointer-events: none; user-select: none; position: relative; }
+.lock-row-overlay { position:absolute; inset:0; background:rgba(7,8,10,0.4); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+
 </style>
 </head>
 <body>
+
+<!-- PAYWALL OVERLAY -->
+<div class="paywall-overlay" id="paywallOverlay">
+  <div class="paywall-box">
+    <div class="paywall-icon">🔒</div>
+    <div class="paywall-title">Seus 10 leads gratuitos acabaram!</div>
+    <div class="paywall-sub">Você utilizou todos os leads do plano gratuito. Assine um plano para continuar prospeccionando sem limites.</div>
+    <div class="paywall-plans">
+      <div class="pw-plan sel" onclick="selectPaywallPlan('starter',this)">
+        <div class="pw-plan-name">Starter</div>
+        <div class="pw-plan-price">R$97<small>/mês</small></div>
+        <div class="pw-plan-feat">300 exportações · 50 curados</div>
+      </div>
+      <div class="pw-plan" onclick="selectPaywallPlan('pro',this)">
+        <div class="pw-plan-name">Pro ⭐</div>
+        <div class="pw-plan-price">R$197<small>/mês</small></div>
+        <div class="pw-plan-feat">1.000 exportações · Lead scoring</div>
+      </div>
+      <div class="pw-plan" onclick="selectPaywallPlan('agency',this)">
+        <div class="pw-plan-name">Agency</div>
+        <div class="pw-plan-price">R$397<small>/mês</small></div>
+        <div class="pw-plan-feat">Ilimitado · API · Suporte dedicado</div>
+      </div>
+    </div>
+    <button class="pw-cta" id="paywallCta" onclick="goToPlanPayment()">Assinar agora →</button>
+    <div class="pw-note">Pagamento seguro via Stripe · Cancele quando quiser</div>
+  </div>
+</div>
 
 <!-- LOADING -->
 <div id="loading-screen">
@@ -882,6 +953,13 @@ const LEADS_PER_PAGE = 15;
 // INIT
 // ══════════════════════════════════════════════════════
 window.addEventListener('load', async () => {
+  // Handle OAuth callback hash
+  const hash = window.location.hash;
+  if (hash && hash.includes('access_token')) {
+    // Supabase picks up the token automatically
+    await new Promise(r => setTimeout(r, 600));
+  }
+
   const { data: { session } } = await sb.auth.getSession();
   if (!session) {
     window.location.href = 'index.html';
@@ -892,6 +970,7 @@ window.addEventListener('load', async () => {
   await loadLeads();
   await loadExports();
   renderDashboard();
+  checkPaywall();
   document.getElementById('loading-screen').style.display = 'none';
 });
 
@@ -967,19 +1046,18 @@ function filterLeads() {
     return matchSearch && matchSeg && matchEst;
   });
 
-  // Free plan: max 10 leads visible
   const quota = currentProfile?.leads_quota || 10;
-  const isFree = currentProfile?.plan === 'free';
-  if (isFree) {
-    document.getElementById('leadsFreeNote').style.display = 'flex';
-    filteredLeads = filteredLeads.slice(0, quota);
-  }
+  const isFree = (currentProfile?.plan || 'free') === 'free';
+  const noteEl = document.getElementById('leadsFreeNote');
+  if (isFree && noteEl) noteEl.style.display = 'flex';
 
   leadsPage = 1;
   renderLeads();
 }
 
 function renderLeads() {
+  const quota = currentProfile?.leads_quota || 10;
+  const isFree = (currentProfile?.plan || 'free') === 'free';
   const total = filteredLeads.length;
   const pages = Math.ceil(total / LEADS_PER_PAGE) || 1;
   if (leadsPage > pages) leadsPage = pages;
@@ -993,9 +1071,20 @@ function renderLeads() {
     return;
   }
 
-  document.getElementById('leadsTbody').innerHTML = slice.map(l => {
+  document.getElementById('leadsTbody').innerHTML = slice.map((l, idx) => {
+    const globalIdx = (leadsPage-1)*LEADS_PER_PAGE + idx;
+    const locked = isFree && globalIdx >= quota;
     const score = l.score_lead || 0;
     const scoreColor = score >= 80 ? 'var(--accent)' : score >= 60 ? 'var(--yellow)' : 'var(--muted)';
+    if (locked) {
+      return `<tr style="position:relative;cursor:pointer;" onclick="document.getElementById('paywallOverlay').classList.add('active');document.body.style.overflow='hidden';">
+        <td style="filter:blur(5px);user-select:none;"><div style="font-weight:500;color:#fff;">██████████ ██████</div><div style="font-size:11px;color:var(--muted);">██████@██████.com.br</div></td>
+        <td style="filter:blur(5px);"><span class="badge b-gray">██████</span></td>
+        <td style="filter:blur(5px);color:var(--muted);">████████ · ██</td>
+        <td style="filter:blur(5px);color:var(--muted);font-size:12px;">██ █████-████</td>
+        <td style="text-align:center;">🔒</td>
+      </tr>`;
+    }
     return `<tr>
       <td>
         <div style="font-weight:500;color:#fff;">${l.nome_fantasia || l.razao_social || '—'}</div>
@@ -1051,7 +1140,8 @@ async function exportLeads() {
   const count = Math.min(filteredLeads.slice(0, 100).length, remaining);
 
   if (remaining <= 0) {
-    showToast('Você atingiu o limite de leads do seu plano este mês.', true);
+    document.getElementById('paywallOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
     return;
   }
 
@@ -1206,6 +1296,35 @@ async function loadTickets() {
 // ══════════════════════════════════════════════════════
 function selectPlan(plan) {
   showToast(`Para assinar o plano ${plan}, entre em contato: financeiro@wexiolead.com.br`);
+}
+
+// ══════════════════════════════════════════════════════
+// PAYWALL
+// ══════════════════════════════════════════════════════
+let selectedPaywallPlan = 'starter';
+
+function checkPaywall() {
+  const plan = currentProfile?.plan || 'free';
+  const used = currentProfile?.leads_used || 0;
+  const quota = currentProfile?.leads_quota || 10;
+  if (plan === 'free' && used >= quota) {
+    document.getElementById('paywallOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function selectPaywallPlan(plan, el) {
+  selectedPaywallPlan = plan;
+  document.querySelectorAll('.pw-plan').forEach(p => p.classList.remove('sel'));
+  el.classList.add('sel');
+  const labels = { starter: 'Assinar Starter — R$97/mês', pro: 'Assinar Pro — R$197/mês', agency: 'Assinar Agency — R$397/mês' };
+  document.getElementById('paywallCta').textContent = labels[plan] || 'Assinar agora →';
+}
+
+function goToPlanPayment() {
+  // When Stripe is integrated, redirect to payment link
+  showToast(`Para assinar o plano ${selectedPaywallPlan.charAt(0).toUpperCase()+selectedPaywallPlan.slice(1)}, envie e-mail para: financeiro@wexiolead.com.br`);
+  // Future: window.location.href = STRIPE_LINKS[selectedPaywallPlan];
 }
 
 // ══════════════════════════════════════════════════════

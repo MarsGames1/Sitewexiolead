@@ -941,6 +941,26 @@
   .reveal-right { opacity:0; transform:translateX(32px); transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1); }
   .reveal-right.visible { opacity:1; transform:translateX(0); }
   .delay-1 { transition-delay:0.1s; } .delay-2 { transition-delay:0.2s; } .delay-3 { transition-delay:0.3s; } .delay-4 { transition-delay:0.4s; } .delay-5 { transition-delay:0.5s; }
+  .btn-google {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px;
+    background: #fff;
+    color: #1f2937;
+    border: none;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 4px;
+  }
+  .btn-google:hover { background: #f3f4f6; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+
 </style>
 </head>
 <body>
@@ -958,7 +978,21 @@
   <div class="modal">
     <button class="modal-close" id="modalClose" aria-label="Fechar">✕</button>
     <h2 id="modalTitle">Comece grátis</h2>
-    <p class="modal-sub">10 leads gratuitos. Sem cartão de crédito.</p>
+    <p class="modal-sub" id="modalSubtitle">10 leads gratuitos. Sem cartão de crédito.</p>
+
+    <!-- Google Login -->
+    <button class="btn-google" id="btnGoogle" onclick="handleGoogleLogin()">
+      <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        <path fill="none" d="M0 0h48v48H0z"/>
+      </svg>
+      Continuar com Google
+    </button>
+
+    <div class="modal-divider">ou</div>
 
     <div class="modal-tabs" role="tablist">
       <button class="modal-tab active" role="tab" aria-selected="true" data-tab="signup">Criar conta</button>
@@ -985,7 +1019,7 @@
       <button class="btn-submit" id="btnSignup" onclick="handleSignup()">
         <span id="btnSignupText">Criar conta grátis →</span>
       </button>
-      <div class="modal-footer-text">Ao criar conta você concorda com os <a href="#">Termos</a> e <a href="#">Política de Privacidade</a></div>
+      <div class="modal-footer-text">Ao criar conta você concorda com os <a href="#" onclick="openPolicy('termos');return false;">Termos</a> e <a href="#" onclick="openPolicy('privacidade');return false;">Política de Privacidade</a></div>
     </div>
 
     <!-- Login form -->
@@ -1302,15 +1336,63 @@
 </div>
 
 <!-- FOOTER -->
-<footer>
-  <div class="footer-logo">Wexio<span>Lead</span></div>
-  <ul class="footer-links">
-    <li><a href="#" onclick="openPolicy('privacidade'); return false;">Privacidade</a></li>
-    <li><a href="#" onclick="openPolicy('termos'); return false;">Termos de Uso</a></li>
-    <li><a href="#" onclick="openPolicy('lgpd'); return false;">LGPD</a></li>
-    <li><a href="mailto:suporte@wexiolead.com.br">Contato</a></li>
-  </ul>
-  <div class="footer-copy">© 2025 WexioLead. Todos os direitos reservados. CNPJ: a definir.</div>
+<footer style="display:block;padding:0;">
+  <div style="max-width:1200px;margin:0 auto;padding:60px 60px 32px;">
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px;">
+      <!-- Brand col -->
+      <div>
+        <div class="footer-logo" style="font-size:22px;margin-bottom:12px;">Wexio<span>Lead</span></div>
+        <p style="font-size:13px;color:#9ca3af;line-height:1.7;max-width:280px;margin-bottom:20px;">A plataforma de geração de leads B2B mais completa do Brasil. Acesse 40M+ empresas brasileiras e feche mais negócios.</p>
+        <div style="display:flex;gap:12px;">
+          <a href="https://instagram.com/wexiolead" target="_blank" rel="noopener" style="width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;color:#9ca3af;text-decoration:none;transition:all 0.2s;" title="Instagram">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="https://linkedin.com/company/wexiolead" target="_blank" rel="noopener" style="width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;color:#9ca3af;text-decoration:none;transition:all 0.2s;" title="LinkedIn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          </a>
+          <a href="https://wa.me/5511999999999" target="_blank" rel="noopener" style="width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;color:#9ca3af;text-decoration:none;transition:all 0.2s;" title="WhatsApp">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          </a>
+        </div>
+      </div>
+      <!-- Produto -->
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:600;font-size:13px;color:#fff;margin-bottom:16px;letter-spacing:0.05em;text-transform:uppercase;">Produto</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;">
+          <li><a href="#how" style="font-size:13px;color:#9ca3af;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#9ca3af'">Como funciona</a></li>
+          <li><a href="#features" style="font-size:13px;color:#9ca3af;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#9ca3af'">Funcionalidades</a></li>
+          <li><a href="#pricing" style="font-size:13px;color:#9ca3af;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#9ca3af'">Preços</a></li>
+          <li><a href="#" onclick="openModal('signup');return false;" style="font-size:13px;color:#4fffb0;text-decoration:none;">Começar grátis →</a></li>
+        </ul>
+      </div>
+      <!-- Empresa -->
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:600;font-size:13px;color:#fff;margin-bottom:16px;letter-spacing:0.05em;text-transform:uppercase;">Empresa</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;">
+          <li><a href="mailto:suporte@wexiolead.com.br" style="font-size:13px;color:#9ca3af;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#9ca3af'">Contato</a></li>
+          <li><a href="mailto:parceiros@wexiolead.com.br" style="font-size:13px;color:#9ca3af;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#9ca3af'">Parcerias</a></li>
+          <li><a href="mailto:imprensa@wexiolead.com.br" style="font-size:13px;color:#9ca3af;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#9ca3af'">Imprensa</a></li>
+        </ul>
+      </div>
+      <!-- Legal -->
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:600;font-size:13px;color:#fff;margin-bottom:16px;letter-spacing:0.05em;text-transform:uppercase;">Legal</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;">
+          <li><a href="#" onclick="openPolicy('privacidade');return false;" style="font-size:13px;color:#9ca3af;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#9ca3af'">Política de Privacidade</a></li>
+          <li><a href="#" onclick="openPolicy('termos');return false;" style="font-size:13px;color:#9ca3af;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#9ca3af'">Termos de Uso</a></li>
+          <li><a href="#" onclick="openPolicy('lgpd');return false;" style="font-size:13px;color:#9ca3af;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#9ca3af'">LGPD</a></li>
+          <li><a href="mailto:lgpd@wexiolead.com.br" style="font-size:13px;color:#9ca3af;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#9ca3af'">DPO / Privacidade</a></li>
+        </ul>
+      </div>
+    </div>
+    <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div style="font-size:12px;color:#6b7280;">© 2025 WexioLead Tecnologia LTDA · CNPJ: a definir · São Paulo, SP · Brasil</div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div style="width:6px;height:6px;border-radius:50%;background:#4fffb0;animation:pulse 2s infinite;"></div>
+        <span style="font-size:12px;color:#6b7280;">Sistema operacional</span>
+      </div>
+    </div>
+  </div>
 </footer>
 
 <!-- ── MODAL POLÍTICAS ── -->
@@ -1331,6 +1413,27 @@ const SUPABASE_URL = 'https://heootuhrqwqacuveycpa.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_UL9D7RQtH62T2j-abknE9A_qm7MZA5m';
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── GOOGLE LOGIN ──
+async function handleGoogleLogin() {
+  const btn = document.getElementById('btnGoogle');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="border-color:rgba(0,0,0,0.15);border-top-color:#1f2937;width:16px;height:16px;"></div> Conectando...';
+  try {
+    const { error } = await sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + '/dashboard.html',
+        queryParams: { access_type: 'offline', prompt: 'consent' }
+      }
+    });
+    if (error) throw error;
+  } catch (err) {
+    showToast('Erro ao conectar com Google: ' + (err.message || 'tente novamente.'), true);
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Continuar com Google';
+  }
+}
 
 // ── SESSION CHECK ──
 async function checkSession() {

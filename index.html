@@ -4,285 +4,291 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>wexiolead — Conectando quem constrói o Brasil</title>
-<meta name="description" content="Plataforma SaaS de leads especializada em construção civil. Encontre construtoras e fornecedores qualificados. Score de lead, dados verificados, assistente IA Wex.">
+<meta name="description" content="Plataforma B2B de leads especializada em construção civil. Leads verificados, score inteligente, assistente IA Wex.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://wexiolead.com.br/">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://wexiolead.com.br/">
 <meta property="og:title" content="wexiolead — Leads para Construção Civil">
-<meta property="og:description" content="Conectando fornecedores e construtoras. Leads verificados, score inteligente e IA especializada no setor.">
+<meta property="og:description" content="Conectando fornecedores e construtoras. Leads verificados, score inteligente e IA especializada.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--w:#fff;--off:#f7f8fa;--off2:#f0f2f6;--bd:#e8eaf0;--bd2:#d6d9e4;--t:#0d0f14;--t2:#3a3f4d;--mu:#6b7280;--ac:#F97316;--ach:#ea6c0c;--acl:rgba(249,115,22,.10);--acl2:rgba(249,115,22,.18);--gn:#059669;--nav:68px;--r:12px;--fd:'Bricolage Grotesque',sans-serif;--fb:'DM Sans',sans-serif;}
+/* ─── RESET & BASE ─── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;scroll-padding-top:calc(var(--nav) + 16px);-webkit-text-size-adjust:100%;}
-body{background:var(--w);color:var(--t);font-family:var(--fb);font-weight:400;overflow-x:hidden;line-height:1.6;-webkit-font-smoothing:antialiased;}
+html{scroll-behavior:smooth;scroll-padding-top:90px;-webkit-text-size-adjust:100%;}
+body{background:#000;color:#fff;font-family:'Inter',sans-serif;font-weight:400;overflow-x:hidden;line-height:1.6;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
 
-/* NAV */
-#nav{position:fixed;top:0;left:0;right:0;z-index:200;height:var(--nav);display:flex;align-items:center;justify-content:space-between;padding:0 60px;background:rgba(255,255,255,.72);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid transparent;transition:background .35s,border-color .35s,box-shadow .35s;}
-#nav.sc{background:rgba(255,255,255,.96);border-bottom-color:var(--bd);box-shadow:0 1px 20px rgba(13,15,20,.06);}
-.logo{font-family:var(--fd);font-weight:800;font-size:19px;letter-spacing:-.5px;color:var(--t);text-decoration:none;}
-.logo span{color:var(--ac);}
-.nav-links{display:flex;gap:34px;list-style:none;}
-.nav-links a{color:var(--t2);text-decoration:none;font-size:14px;font-weight:400;transition:color .2s;}
-.nav-links a:hover{color:var(--t);}
-.nav-right{display:flex;align-items:center;gap:10px;}
-.btn-ng{color:var(--t2);font-family:var(--fb);font-size:14px;font-weight:500;background:transparent;border:1px solid var(--bd2);padding:8px 18px;border-radius:8px;cursor:pointer;text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;}
-.btn-ng:hover{color:var(--t);border-color:#c0c5d4;background:var(--off);}
-.btn-nc{color:#fff;font-family:var(--fb);font-size:14px;font-weight:600;background:var(--ac);border:none;padding:9px 22px;border-radius:8px;cursor:pointer;transition:background .2s,transform .2s,box-shadow .2s;display:inline-flex;align-items:center;}
-.btn-nc:hover{background:var(--ach);transform:translateY(-1px);box-shadow:0 6px 20px rgba(249,115,22,.3);}
-.hbg{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px;}
-.hbg span{display:block;width:20px;height:2px;background:var(--t);border-radius:2px;transition:all .3s;}
+/* ─── LIQUID GLASS ─── */
+.lg{background:rgba(0,0,0,0.4);background-blend-mode:luminosity;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:none;box-shadow:inset 0 1px 1px rgba(255,255,255,0.1);position:relative;overflow:hidden;}
+.lg::before{content:'';position:absolute;inset:0;border-radius:inherit;padding:1.4px;background:linear-gradient(180deg,rgba(255,255,255,0.3) 0%,rgba(255,255,255,0.1) 20%,rgba(255,255,255,0) 40%,rgba(255,255,255,0) 60%,rgba(255,255,255,0.1) 80%,rgba(255,255,255,0.3) 100%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;}
 
-/* HERO */
-.hero{min-height:100svh;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:60px;padding:calc(var(--nav) + 60px) 60px 80px;position:relative;overflow:hidden;}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 70% at 70% 50%,rgba(249,115,22,.07) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 15% 85%,rgba(249,115,22,.04) 0%,transparent 60%);pointer-events:none;}
-.hero::after{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(13,15,20,.055) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;mask-image:radial-gradient(ellipse at 72% 50%,black 25%,transparent 68%);-webkit-mask-image:radial-gradient(ellipse at 72% 50%,black 25%,transparent 68%);}
-.hero-l{position:relative;z-index:1;}
-.hero-tag{display:inline-flex;align-items:center;gap:8px;background:var(--acl);border:1px solid rgba(249,115,22,.22);padding:5px 14px;border-radius:100px;font-size:12px;font-weight:600;color:var(--ac);letter-spacing:.06em;text-transform:uppercase;margin-bottom:28px;opacity:0;animation:fu .7s .1s forwards;}
-.hero-tag::before{content:'';width:6px;height:6px;background:var(--ac);border-radius:50%;animation:bk 2s infinite;}
-@keyframes bk{0%,100%{opacity:1;}50%{opacity:.3;}}
-h1{font-family:var(--fd);font-weight:800;font-size:clamp(38px,4.8vw,68px);line-height:1.03;letter-spacing:-.03em;color:var(--t);margin-bottom:24px;opacity:0;animation:fu .7s .25s forwards;}
-h1 em{font-style:normal;color:var(--ac);}
-.hero-sub{font-size:clamp(15px,1.5vw,17px);color:var(--t2);line-height:1.75;max-width:480px;margin-bottom:40px;opacity:0;animation:fu .7s .4s forwards;}
-.hero-sub strong{color:var(--ac);font-weight:600;}
-.hero-acts{display:flex;gap:12px;align-items:center;flex-wrap:wrap;opacity:0;animation:fu .7s .55s forwards;}
-.btn-p{background:var(--ac);color:#fff;border:none;padding:14px 32px;border-radius:var(--r);font-family:var(--fb);font-size:15px;font-weight:600;cursor:pointer;transition:background .2s,transform .2s,box-shadow .2s;display:inline-flex;align-items:center;gap:8px;}
-.btn-p:hover{background:var(--ach);transform:translateY(-2px);box-shadow:0 12px 36px rgba(249,115,22,.3);}
-.btn-s{background:transparent;color:var(--t2);border:1.5px solid var(--bd2);padding:13px 28px;border-radius:var(--r);font-family:var(--fb);font-size:15px;font-weight:500;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px;}
-.btn-s:hover{color:var(--t);border-color:#c0c5d4;background:var(--off);}
-.hero-trust{display:flex;align-items:center;gap:16px;margin-top:36px;opacity:0;animation:fu .7s .7s forwards;font-size:13px;color:var(--mu);}
-.trust-avas{display:flex;}
-.trust-avas span{width:30px;height:30px;border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:var(--fd);margin-left:-8px;background:var(--acl);color:var(--ac);}
-.trust-avas span:first-child{margin-left:0;}
-.trust-avas span:nth-child(2){background:rgba(5,150,105,.1);color:var(--gn);}
-.trust-avas span:nth-child(3){background:rgba(37,99,235,.1);color:#2563EB;}
-.hero-trust strong{color:var(--t);font-weight:600;}
+/* ─── HERO / VIDEO ─── */
+.hero-section{position:relative;width:100%;height:100svh;min-height:600px;overflow:hidden;display:flex;flex-direction:column;}
+#bg-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
 
-/* HERO CARD */
-.hero-r{position:relative;z-index:1;opacity:0;animation:fi .9s .6s forwards;}
-@keyframes fi{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
-.dc{background:#fff;border:1px solid var(--bd);border-radius:20px;box-shadow:0 20px 60px rgba(13,15,20,.10),0 4px 16px rgba(13,15,20,.06);overflow:hidden;max-width:500px;margin-left:auto;}
-.dc-top{background:var(--off);border-bottom:1px solid var(--bd);padding:12px 16px;display:flex;align-items:center;gap:6px;}
-.dot{width:8px;height:8px;border-radius:50%;}
-.dot.r{background:#ff5f56;}.dot.y{background:#ffbd2e;}.dot.g{background:#27c93f;}
-.dc-ttl{font-size:12px;font-weight:600;color:var(--t2);margin:0 auto;font-family:var(--fd);}
-.dc-stats{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--bd);}
-.ds{padding:16px 18px;border-right:1px solid var(--bd);}
-.ds:last-child{border-right:none;}
-.ds-v{font-family:var(--fd);font-size:22px;font-weight:800;color:var(--t);letter-spacing:-.02em;}
-.ds-v span{color:var(--ac);}
-.ds-l{font-size:11px;color:var(--mu);margin-top:2px;}
-.dc-filter{padding:12px 16px;border-bottom:1px solid var(--bd);display:flex;gap:6px;align-items:center;flex-wrap:wrap;background:var(--off);}
-.ftag{background:var(--acl);border:1px solid rgba(249,115,22,.2);color:var(--ac);font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;}
-.fmu{font-size:11px;color:var(--mu);margin-left:auto;}
-.dc-leads{padding:8px;}
-.lead-row{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;margin-bottom:4px;border:1px solid transparent;transition:background .15s,border-color .15s;cursor:default;}
-.lead-row:hover{background:var(--off);border-color:var(--bd);}
-.lead-row:last-child{margin-bottom:0;}
-.lava{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:11px;font-weight:700;flex-shrink:0;}
-.l-info{flex:1;min-width:0;}
-.l-name{font-size:13px;font-weight:500;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.l-meta{font-size:11px;color:var(--mu);margin-top:1px;display:flex;gap:6px;align-items:center;}
-.l-ver{font-size:9px;background:rgba(5,150,105,.1);color:var(--gn);padding:1px 6px;border-radius:4px;font-weight:700;}
-.l-score{font-family:var(--fd);font-size:15px;font-weight:800;color:var(--ac);flex-shrink:0;}
-.dc-wex{margin:8px;border-radius:10px;background:var(--acl);border:1px solid rgba(249,115,22,.18);padding:12px 14px;display:flex;align-items:center;gap:10px;}
-.wdot{width:8px;height:8px;border-radius:50%;background:var(--ac);flex-shrink:0;animation:bk 2s infinite;}
-.wtxt{font-size:12.5px;color:var(--t2);line-height:1.4;}
-.wtxt strong{color:var(--ac);font-weight:600;}
-.hero-badge{position:absolute;top:-14px;right:-14px;background:var(--ac);color:#fff;border-radius:12px;padding:10px 16px;font-size:12px;font-weight:600;font-family:var(--fd);box-shadow:0 8px 24px rgba(249,115,22,.35);line-height:1.3;animation:flt 3s ease-in-out infinite;}
-@keyframes flt{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
-.hero-badge span{display:block;font-size:18px;font-weight:800;}
+/* ─── NAV ─── */
+.nav-wrap{position:relative;z-index:100;padding:24px 24px 0;flex-shrink:0;}
+@media(min-width:768px){.nav-wrap{padding:24px 48px 0;}}
+@media(min-width:1024px){.nav-wrap{padding:24px 64px 0;}}
+.navbar{display:flex;align-items:center;justify-content:space-between;border-radius:12px;padding:8px 16px;}
+.nav-logo{font-size:20px;font-weight:600;letter-spacing:-.04em;color:#fff;text-decoration:none;}
+.nav-logo span{color:#F97316;}
+.nav-center{display:none;gap:32px;list-style:none;}
+@media(min-width:768px){.nav-center{display:flex;}}
+.nav-center a{color:#fff;text-decoration:none;font-size:14px;font-weight:400;opacity:.75;transition:opacity .2s;}
+.nav-center a:hover{opacity:1;}
+.nav-cta{background:#fff;color:#000;padding:8px 24px;border-radius:8px;font-size:14px;font-weight:500;border:none;cursor:pointer;transition:background .2s;white-space:nowrap;}
+.nav-cta:hover{background:#e5e7eb;}
+.nav-mob{display:flex;align-items:center;gap:10px;}
+@media(min-width:768px){.nav-mob{display:none;}}
+.hbg{display:flex;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:6px;}
+.hbg span{display:block;width:20px;height:1.5px;background:#fff;border-radius:2px;transition:all .3s;}
 
-/* PROOF STRIP */
-.proof{background:var(--off);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);padding:28px 60px;display:flex;align-items:center;justify-content:center;}
-.pi{display:flex;align-items:center;gap:14px;padding:0 48px;border-right:1px solid var(--bd);}
+/* ─── HERO CONTENT ─── */
+.hero-body{position:relative;z-index:10;flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding:0 24px 48px;}
+@media(min-width:768px){.hero-body{padding:0 48px 56px;}}
+@media(min-width:1024px){.hero-body{padding:0 64px 64px;display:grid;grid-template-columns:1fr 1fr;align-items:flex-end;gap:40px;}}
+
+.hero-left{}
+.hero-h1{font-size:clamp(36px,5.5vw,72px);font-weight:300;line-height:1.05;letter-spacing:-.04em;color:#fff;margin-bottom:16px;}
+.hero-sub{font-size:clamp(15px,1.3vw,18px);color:#d1d5db;margin-bottom:20px;max-width:520px;line-height:1.65;}
+.hero-btns{display:flex;flex-wrap:wrap;gap:16px;}
+.btn-white{background:#fff;color:#000;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;border:none;cursor:pointer;transition:background .2s,transform .15s;}
+.btn-white:hover{background:#e5e7eb;transform:translateY(-1px);}
+.btn-glass{padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;color:#fff;cursor:pointer;border:1px solid rgba(255,255,255,.2);transition:background .2s,color .2s,transform .15s;}
+.btn-glass:hover{background:#fff;color:#000;transform:translateY(-1px);}
+
+.hero-right{display:none;}
+@media(min-width:1024px){.hero-right{display:flex;align-items:flex-end;justify-content:flex-end;}}
+.hero-tag-card{padding:12px 24px;border-radius:12px;border:1px solid rgba(255,255,255,.2);}
+.hero-tag-text{font-size:clamp(18px,2vw,24px);font-weight:300;color:#fff;white-space:nowrap;}
+
+/* ─── SECTIONS SHARED ─── */
+section{padding:100px 24px;}
+@media(min-width:768px){section{padding:100px 48px;}}
+@media(min-width:1024px){section{padding:120px 64px;}}
+.sec-inner{max-width:1120px;margin:0 auto;}
+.sec-kicker{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#F97316;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.sec-kicker::before{content:'';width:18px;height:2px;background:#F97316;border-radius:2px;}
+.sec-title{font-size:clamp(28px,3.5vw,48px);font-weight:300;line-height:1.06;letter-spacing:-.03em;color:#fff;margin-bottom:16px;}
+.sec-sub{font-size:16px;color:#9ca3af;max-width:480px;line-height:1.75;}
+
+/* ─── PROOF STRIP ─── */
+.proof{background:#0a0a0a;border-top:1px solid #1f2937;border-bottom:1px solid #1f2937;padding:32px 64px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0;}
+.pi{display:flex;align-items:center;gap:14px;padding:12px 48px;border-right:1px solid #1f2937;}
 .pi:last-child{border-right:none;}
-.pi-icon{width:36px;height:36px;background:var(--acl);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.pi-icon svg{width:18px;height:18px;stroke:var(--ac);fill:none;stroke-width:2;}
-.pi-n{font-family:var(--fd);font-weight:800;font-size:20px;color:var(--t);letter-spacing:-.02em;}
-.pi-l{font-size:12px;color:var(--mu);margin-top:1px;}
+.pi-ic{width:36px;height:36px;background:rgba(249,115,22,.12);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pi-ic svg{width:18px;height:18px;stroke:#F97316;fill:none;stroke-width:2;}
+.pi-n{font-size:20px;font-weight:700;color:#fff;letter-spacing:-.02em;}
+.pi-l{font-size:12px;color:#6b7280;margin-top:1px;}
 
-/* SECTIONS */
-.sec{padding:100px 60px;max-width:1160px;margin:0 auto;}
-.slbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ac);margin-bottom:14px;font-weight:600;display:flex;align-items:center;gap:8px;}
-.slbl::before{content:'';width:18px;height:2px;background:var(--ac);border-radius:2px;}
-.stit{font-family:var(--fd);font-weight:800;font-size:clamp(26px,3.2vw,46px);line-height:1.06;letter-spacing:-.03em;color:var(--t);margin-bottom:16px;}
-.ssub{font-size:16px;color:var(--t2);max-width:480px;line-height:1.7;}
+/* ─── PARA QUEM ─── */
+#problema{background:#050505;}
+.who-grid{display:grid;grid-template-columns:1fr;gap:20px;margin-top:56px;}
+@media(min-width:768px){.who-grid{grid-template-columns:1fr 1fr;}}
+.wc{background:#0d0d0d;border:1px solid #1f2937;border-radius:20px;padding:40px;position:relative;overflow:hidden;transition:border-color .3s,transform .3s;}
+.wc:hover{border-color:rgba(249,115,22,.4);transform:translateY(-4px);}
+.wc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#F97316,#fb923c);}
+.wtag{display:inline-flex;align-items:center;gap:6px;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.2);padding:4px 12px;border-radius:100px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#F97316;font-weight:700;margin-bottom:20px;}
+.wc h3{font-size:18px;font-weight:500;color:#fff;margin-bottom:10px;line-height:1.25;letter-spacing:-.02em;}
+.wc p{color:#9ca3af;font-size:14px;line-height:1.7;margin-bottom:20px;}
+.wlist{display:flex;flex-direction:column;gap:10px;}
+.wi{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;color:#d1d5db;}
+.wi::before{content:'';width:5px;height:5px;border-radius:50%;background:#F97316;flex-shrink:0;margin-top:8px;}
 
-/* PARA QUEM */
-.who-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:56px;}
-.wc{background:var(--w);border:1.5px solid var(--bd);border-radius:20px;padding:40px;position:relative;overflow:hidden;transition:border-color .3s,transform .3s,box-shadow .3s;}
-.wc:hover{border-color:rgba(249,115,22,.35);transform:translateY(-4px);box-shadow:0 20px 50px rgba(13,15,20,.09);}
-.wc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--ac),#fb923c);}
-.wtag{display:inline-flex;align-items:center;gap:6px;background:var(--acl);border:1px solid rgba(249,115,22,.2);padding:4px 12px;border-radius:100px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ac);font-weight:700;margin-bottom:20px;}
-.wc h3{font-family:var(--fd);font-size:20px;font-weight:700;color:var(--t);margin-bottom:10px;line-height:1.2;}
-.wc p{color:var(--t2);font-size:14px;line-height:1.7;margin-bottom:20px;}
-.wlist{display:flex;flex-direction:column;gap:9px;}
-.wi{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;color:var(--t2);}
-.wi::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--ac);flex-shrink:0;margin-top:7px;}
-
-/* COMO */
-.como-wrap{background:var(--off);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);}
-.como-inner{max-width:1160px;margin:0 auto;padding:100px 60px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
+/* ─── COMO FUNCIONA ─── */
+#como{background:#000;}
+.como-grid{display:grid;grid-template-columns:1fr;gap:64px;margin-top:0;align-items:center;}
+@media(min-width:1024px){.como-grid{grid-template-columns:1fr 1fr;gap:80px;}}
 .steps{display:flex;flex-direction:column;margin-top:40px;}
-.step{display:flex;gap:20px;padding:24px 0;border-bottom:1px solid var(--bd);opacity:0;transform:translateY(18px);transition:opacity .6s cubic-bezier(0.16,1,0.3,1),transform .6s cubic-bezier(0.16,1,0.3,1);}
+.step{display:flex;gap:20px;padding:24px 0;border-bottom:1px solid #1f2937;opacity:0;transform:translateY(18px);transition:opacity .6s cubic-bezier(0.16,1,0.3,1),transform .6s cubic-bezier(0.16,1,0.3,1);}
 .step:last-child{border-bottom:none;}
-.step.visible{opacity:1;transform:none;}
-.snum{font-family:var(--fd);font-size:11px;font-weight:800;color:var(--ac);letter-spacing:.06em;flex-shrink:0;padding-top:2px;min-width:28px;}
-.sbody h3{font-family:var(--fd);font-size:16px;font-weight:700;color:var(--t);margin-bottom:6px;}
-.sbody p{font-size:14px;color:var(--t2);line-height:1.65;}
-.mk{background:#fff;border:1px solid var(--bd);border-radius:20px;overflow:hidden;box-shadow:0 24px 60px rgba(13,15,20,.10);}
-.mk-bar{background:var(--off);border-bottom:1px solid var(--bd);padding:12px 16px;display:flex;gap:6px;align-items:center;}
+.step.vis{opacity:1;transform:none;}
+.snum{font-size:11px;font-weight:700;color:#F97316;letter-spacing:.06em;flex-shrink:0;padding-top:2px;min-width:28px;}
+.sbody h3{font-size:15px;font-weight:500;color:#fff;margin-bottom:6px;letter-spacing:-.01em;}
+.sbody p{font-size:14px;color:#9ca3af;line-height:1.65;}
+
+/* MOCKUP */
+.mk{background:#0d0d0d;border:1px solid #1f2937;border-radius:20px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.6);}
+.mk-bar{background:#111;border-bottom:1px solid #1f2937;padding:12px 16px;display:flex;gap:6px;align-items:center;}
+.mdot{width:8px;height:8px;border-radius:50%;}
+.mdot.r{background:#ff5f56;}.mdot.y{background:#ffbd2e;}.mdot.g{background:#27c93f;}
+.mk-ttlbar{font-size:12px;font-weight:500;color:#6b7280;margin:0 auto;}
 .mk-body{padding:20px;}
 .mk-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
-.mk-ttl{font-family:var(--fd);font-size:13px;font-weight:700;color:var(--t);}
-.mk-bdg{background:var(--acl);border:1px solid rgba(249,115,22,.2);color:var(--ac);font-size:10px;padding:3px 8px;border-radius:6px;font-weight:700;}
-.mk-flt{background:var(--off);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;font-size:11px;color:var(--mu);margin-bottom:12px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.mk-ttl{font-size:13px;font-weight:600;color:#fff;}
+.mk-bdg{background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.2);color:#F97316;font-size:10px;padding:3px 8px;border-radius:6px;font-weight:700;}
+.mk-flt{background:#111;border:1px solid #1f2937;border-radius:8px;padding:8px 12px;font-size:11px;color:#6b7280;margin-bottom:12px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.ftag{background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.2);color:#F97316;font-size:11px;font-weight:600;padding:2px 8px;border-radius:5px;}
+.lead-row{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;margin-bottom:4px;border:1px solid transparent;transition:background .15s,border-color .15s;}
+.lead-row:hover{background:#111;border-color:#1f2937;}
+.lead-row:last-child{margin-bottom:0;}
+.lava{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.l-info{flex:1;min-width:0;}
+.l-name{font-size:13px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.l-meta{font-size:11px;color:#6b7280;margin-top:1px;display:flex;gap:6px;align-items:center;}
+.l-ver{font-size:9px;background:rgba(5,150,105,.15);color:#34d399;padding:1px 6px;border-radius:4px;font-weight:700;}
+.l-score{font-size:15px;font-weight:700;color:#F97316;flex-shrink:0;}
+.mk-wex{margin:8px;border-radius:10px;background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.15);padding:12px 14px;display:flex;align-items:center;gap:10px;}
+.wdot{width:7px;height:7px;border-radius:50%;background:#F97316;flex-shrink:0;animation:bk 2s infinite;}
+@keyframes bk{0%,100%{opacity:1;}50%{opacity:.3;}}
+.wtxt{font-size:12.5px;color:#d1d5db;line-height:1.4;}
+.wtxt strong{color:#F97316;font-weight:600;}
 
-/* FEATURES */
-.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:20px;overflow:hidden;margin-top:48px;}
-.ft{background:var(--w);padding:36px 28px;transition:background .25s;}
-.ft:hover{background:var(--off);}
-.ft-ic{width:40px;height:40px;background:var(--acl);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;}
-.ft-ic svg{width:20px;height:20px;stroke:var(--ac);fill:none;stroke-width:1.8;}
-.ft h3{font-family:var(--fd);font-size:15px;font-weight:700;color:var(--t);margin-bottom:8px;}
-.ft p{font-size:13px;color:var(--t2);line-height:1.65;}
-.ft-tag{display:inline-flex;margin-top:14px;background:var(--acl);border:1px solid rgba(249,115,22,.2);color:var(--ac);font-size:10px;padding:2px 8px;border-radius:5px;font-weight:700;letter-spacing:.04em;}
+/* ─── FEATURES ─── */
+#features{background:#050505;}
+.feat-grid{display:grid;grid-template-columns:1fr;gap:1px;background:#1f2937;border:1px solid #1f2937;border-radius:20px;overflow:hidden;margin-top:48px;}
+@media(min-width:768px){.feat-grid{grid-template-columns:repeat(3,1fr);}}
+.ft{background:#0a0a0a;padding:36px 28px;transition:background .25s;}
+.ft:hover{background:#111;}
+.ft-ic{width:40px;height:40px;background:rgba(249,115,22,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;}
+.ft-ic svg{width:20px;height:20px;stroke:#F97316;fill:none;stroke-width:1.8;}
+.ft h3{font-size:14px;font-weight:600;color:#fff;margin-bottom:8px;letter-spacing:-.01em;}
+.ft p{font-size:13px;color:#9ca3af;line-height:1.65;}
+.ft-tag{display:inline-flex;margin-top:12px;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.2);color:#F97316;font-size:10px;padding:2px 8px;border-radius:5px;font-weight:700;letter-spacing:.04em;}
 
-/* WEX */
-.wex-wrap{background:var(--t);padding:100px 0;overflow:hidden;}
-.wex-in{max-width:1160px;margin:0 auto;padding:0 60px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
-.wkick{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ac);font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:16px;}
-.wkick::before{content:'';width:18px;height:2px;background:var(--ac);}
-.wtit{font-family:var(--fd);font-size:clamp(28px,3vw,44px);font-weight:800;line-height:1.05;letter-spacing:-.03em;color:#fff;margin-bottom:16px;}
-.wtit span{color:var(--ac);}
-.wsub{font-size:15px;color:rgba(255,255,255,.65);line-height:1.75;margin-bottom:28px;}
+/* ─── WEX ─── */
+.wex-wrap{background:#000;border-top:1px solid #1f2937;}
+.wex-in{max-width:1120px;margin:0 auto;padding:120px 64px;display:grid;grid-template-columns:1fr;gap:64px;align-items:center;}
+@media(min-width:1024px){.wex-in{grid-template-columns:1fr 1fr;gap:80px;}}
+.wkick{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#F97316;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:16px;}
+.wkick::before{content:'';width:18px;height:2px;background:#F97316;}
+.wtit{font-size:clamp(28px,3vw,44px);font-weight:300;line-height:1.05;letter-spacing:-.03em;color:#fff;margin-bottom:16px;}
+.wtit span{color:#F97316;}
+.wsub{font-size:15px;color:#9ca3af;line-height:1.75;margin-bottom:28px;}
 .wlist2{display:flex;flex-direction:column;gap:10px;}
-.wi2{display:flex;align-items:center;gap:12px;font-size:14px;color:rgba(255,255,255,.82);}
-.wd{width:6px;height:6px;border-radius:50%;background:var(--ac);flex-shrink:0;}
-.chat{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:20px;overflow:hidden;}
-.chat-h{background:rgba(249,115,22,.12);border-bottom:1px solid rgba(255,255,255,.08);padding:14px 18px;display:flex;align-items:center;gap:10px;}
-.chat-av{width:32px;height:32px;border-radius:50%;background:var(--ac);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:800;font-size:12px;color:#fff;flex-shrink:0;}
-.chat-nm{font-family:var(--fd);font-size:13px;font-weight:700;color:#fff;}
-.chat-st{font-size:10px;color:var(--ac);display:flex;align-items:center;gap:4px;margin-top:1px;}
-.chat-st::before{content:'';width:5px;height:5px;background:var(--ac);border-radius:50%;display:inline-block;}
+.wi2{display:flex;align-items:center;gap:12px;font-size:14px;color:#d1d5db;}
+.wd{width:5px;height:5px;border-radius:50%;background:#F97316;flex-shrink:0;}
+
+/* chat */
+.chat{background:#0d0d0d;border:1px solid #1f2937;border-radius:20px;overflow:hidden;}
+.chat-h{background:#111;border-bottom:1px solid #1f2937;padding:14px 18px;display:flex;align-items:center;gap:10px;}
+.chat-av{width:32px;height:32px;border-radius:50%;background:#F97316;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;flex-shrink:0;}
+.chat-nm{font-size:13px;font-weight:600;color:#fff;}
+.chat-st{font-size:10px;color:#F97316;display:flex;align-items:center;gap:4px;margin-top:1px;}
+.chat-st::before{content:'';width:5px;height:5px;background:#F97316;border-radius:50%;display:inline-block;}
 .chat-bd{padding:16px;display:flex;flex-direction:column;gap:10px;}
 .cm{max-width:85%;font-size:13px;line-height:1.55;}
-.cm.bot{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);border-radius:4px 14px 14px 14px;padding:10px 14px;color:rgba(255,255,255,.9);align-self:flex-start;}
-.cm.usr{background:var(--ac);border-radius:14px 4px 14px 14px;padding:10px 14px;color:#fff;align-self:flex-end;}
-.chat-inp{padding:12px 16px;border-top:1px solid rgba(255,255,255,.08);display:flex;gap:8px;}
-.chat-fld{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;font-size:12px;color:rgba(255,255,255,.5);font-family:var(--fb);cursor:default;}
-.chat-btn{background:var(--ac);border:none;border-radius:8px;padding:8px 14px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--fb);transition:background .2s;}
-.chat-btn:hover{background:var(--ach);}
+.cm.bot{background:#111;border:1px solid #1f2937;border-radius:4px 14px 14px 14px;padding:10px 14px;color:#e5e7eb;align-self:flex-start;}
+.cm.usr{background:#F97316;border-radius:14px 4px 14px 14px;padding:10px 14px;color:#fff;align-self:flex-end;}
+.chat-inp{padding:12px 16px;border-top:1px solid #1f2937;display:flex;gap:8px;}
+.chat-fld{flex:1;background:#111;border:1px solid #1f2937;border-radius:8px;padding:8px 12px;font-size:12px;color:#6b7280;font-family:'Inter',sans-serif;cursor:default;}
+.chat-btn{background:#F97316;border:none;border-radius:8px;padding:8px 14px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:background .2s;}
+.chat-btn:hover{background:#ea6c0c;}
 
-/* PRICING */
-.pg{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;text-align:left;margin-top:48px;}
-.plan{background:var(--w);border:1.5px solid var(--bd);border-radius:20px;padding:32px;position:relative;transition:border-color .3s,transform .3s,box-shadow .3s;}
-.plan:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(13,15,20,.09);}
-.plan.feat{border-color:var(--ac);box-shadow:0 0 0 4px var(--acl);}
-.plan-b{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--ac);color:#fff;font-size:10px;font-weight:700;padding:3px 14px;border-radius:20px;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;font-family:var(--fd);}
-.plan-n{font-family:var(--fd);font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;}
-.plan-pr{font-family:var(--fd);font-size:38px;font-weight:800;color:var(--t);letter-spacing:-.03em;line-height:1;}
-.plan-pr sup{font-size:16px;font-weight:600;vertical-align:super;}
-.plan-pr small{font-size:13px;font-weight:400;color:var(--mu);}
-.plan-pe{font-size:12px;color:var(--mu);margin-top:4px;margin-bottom:20px;}
-.plan-dv{height:1px;background:var(--bd);margin-bottom:20px;}
+/* ─── PRICING ─── */
+#pricing{background:#050505;}
+.pg{display:grid;grid-template-columns:1fr;gap:16px;margin-top:48px;}
+@media(min-width:640px){.pg{grid-template-columns:repeat(2,1fr);}}
+@media(min-width:1024px){.pg{grid-template-columns:repeat(4,1fr);}}
+.plan{background:#0a0a0a;border:1px solid #1f2937;border-radius:20px;padding:32px;position:relative;transition:border-color .3s,transform .3s;}
+.plan:hover{transform:translateY(-3px);border-color:#374151;}
+.plan.feat{border-color:#F97316;box-shadow:0 0 0 1px rgba(249,115,22,.2);}
+.plan-b{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#F97316;color:#fff;font-size:10px;font-weight:700;padding:3px 14px;border-radius:20px;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;}
+.plan-n{font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;}
+.plan-pr{font-size:38px;font-weight:700;color:#fff;letter-spacing:-.03em;line-height:1;}
+.plan-pr sup{font-size:15px;font-weight:500;vertical-align:super;}
+.plan-pr small{font-size:13px;font-weight:400;color:#6b7280;}
+.plan-pe{font-size:12px;color:#6b7280;margin-top:4px;margin-bottom:20px;}
+.plan-dv{height:1px;background:#1f2937;margin-bottom:20px;}
 .plan-fs{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:24px;}
-.plan-fs li{display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--t2);}
-.plan-fs li::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--ac);flex-shrink:0;margin-top:7px;}
-.plan-btn{width:100%;padding:11px;border-radius:10px;font-family:var(--fb);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;border:none;text-align:center;}
-.plan-btn.sol{background:var(--ac);color:#fff;}
-.plan-btn.sol:hover{background:var(--ach);box-shadow:0 6px 20px rgba(249,115,22,.3);}
-.plan-btn.out{background:transparent;color:var(--t2);border:1.5px solid var(--bd2);}
-.plan-btn.out:hover{background:var(--off);border-color:#c0c5d4;color:var(--t);}
+.plan-fs li{display:flex;align-items:flex-start;gap:9px;font-size:13px;color:#9ca3af;}
+.plan-fs li::before{content:'';width:4px;height:4px;border-radius:50%;background:#F97316;flex-shrink:0;margin-top:8px;}
+.plan-btn{width:100%;padding:11px;border-radius:10px;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;border:none;text-align:center;}
+.plan-btn.sol{background:#F97316;color:#fff;}
+.plan-btn.sol:hover{background:#ea6c0c;box-shadow:0 6px 20px rgba(249,115,22,.3);}
+.plan-btn.out{background:transparent;color:#9ca3af;border:1px solid #374151;}
+.plan-btn.out:hover{background:#111;color:#fff;border-color:#6b7280;}
 
-/* TESTI */
-.tg{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px;}
-.te{background:var(--w);border:1px solid var(--bd);border-radius:18px;padding:32px;transition:border-color .3s,transform .3s,box-shadow .3s;}
-.te:hover{border-color:rgba(249,115,22,.3);transform:translateY(-3px);box-shadow:0 12px 36px rgba(13,15,20,.08);}
-.te-st::before{content:'★★★★★';color:var(--ac);font-size:14px;letter-spacing:2px;display:block;margin-bottom:16px;}
-.te-q{font-size:14px;color:var(--t2);line-height:1.75;margin-bottom:20px;font-style:italic;}
+/* ─── TESTIMONIALS ─── */
+.tg{display:grid;grid-template-columns:1fr;gap:20px;margin-top:48px;}
+@media(min-width:768px){.tg{grid-template-columns:repeat(3,1fr);}}
+.te{background:#0a0a0a;border:1px solid #1f2937;border-radius:18px;padding:32px;transition:border-color .3s,transform .3s;}
+.te:hover{border-color:rgba(249,115,22,.3);transform:translateY(-3px);}
+.te-st::before{content:'★★★★★';color:#F97316;font-size:13px;letter-spacing:2px;display:block;margin-bottom:16px;}
+.te-q{font-size:14px;color:#9ca3af;line-height:1.75;margin-bottom:20px;font-style:italic;}
 .te-a{display:flex;align-items:center;gap:10px;}
-.te-av{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:11px;font-weight:800;flex-shrink:0;}
-.te-nm{font-family:var(--fd);font-size:13px;font-weight:700;color:var(--t);}
-.te-rl{font-size:11px;color:var(--mu);margin-top:1px;}
+.te-av{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.te-nm{font-size:13px;font-weight:600;color:#fff;}
+.te-rl{font-size:11px;color:#6b7280;margin-top:1px;}
 
-/* CTA FINAL */
-.cta-fin{background:var(--ac);padding:100px 60px;text-align:center;position:relative;overflow:hidden;}
-.cta-fin::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.08) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;}
-.cta-fin h2{font-family:var(--fd);font-size:clamp(30px,4vw,52px);font-weight:800;line-height:1.05;letter-spacing:-.03em;color:#fff;margin-bottom:16px;position:relative;}
-.cta-fin h2 span{color:rgba(255,255,255,.65);}
-.cta-fin p{font-size:16px;color:rgba(255,255,255,.8);margin-bottom:36px;position:relative;}
-.cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative;}
-.btn-cw{background:#fff;color:var(--ac);border:none;padding:15px 36px;border-radius:var(--r);font-family:var(--fb);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;}
-.btn-cw:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(0,0,0,.15);}
-.btn-cg{background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.4);padding:14px 32px;border-radius:var(--r);font-family:var(--fb);font-size:15px;font-weight:500;cursor:pointer;transition:all .2s;}
-.btn-cg:hover{background:rgba(255,255,255,.25);}
+/* ─── CTA FINAL ─── */
+.cta-fin{background:#F97316;padding:100px 64px;text-align:center;position:relative;overflow:hidden;}
+.cta-fin::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.06) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;}
+.cta-fin h2{font-size:clamp(30px,4.5vw,56px);font-weight:300;line-height:1.05;letter-spacing:-.04em;color:#fff;margin-bottom:16px;position:relative;}
+.cta-fin h2 span{color:rgba(255,255,255,.55);}
+.cta-fin p{font-size:16px;color:rgba(255,255,255,.75);margin-bottom:36px;position:relative;}
+.cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;position:relative;}
+.btn-cw{background:#fff;color:#F97316;border:none;padding:15px 40px;border-radius:10px;font-family:'Inter',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn-cw:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(0,0,0,.2);}
+.btn-cg2{background:rgba(0,0,0,.15);color:#fff;border:1.5px solid rgba(255,255,255,.35);padding:14px 36px;border-radius:10px;font-family:'Inter',sans-serif;font-size:15px;font-weight:400;cursor:pointer;transition:all .2s;}
+.btn-cg2:hover{background:rgba(0,0,0,.3);}
 
-/* FOOTER */
-footer{background:var(--t);padding:64px 60px 32px;}
+/* ─── FOOTER ─── */
+footer{background:#000;padding:64px 64px 32px;border-top:1px solid #111;}
 .fg{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px;}
-.flogo{font-family:var(--fd);font-size:18px;font-weight:800;color:#fff;letter-spacing:-.3px;margin-bottom:12px;}
-.flogo span{color:var(--ac);}
-.fdesc{font-size:13px;color:rgba(255,255,255,.45);line-height:1.7;max-width:240px;margin-bottom:20px;}
+@media(max-width:768px){.fg{grid-template-columns:1fr 1fr;gap:28px;}}
+@media(max-width:480px){.fg{grid-template-columns:1fr;}}
+.flogo{font-size:18px;font-weight:600;letter-spacing:-.03em;color:#fff;margin-bottom:12px;}
+.flogo span{color:#F97316;}
+.fdesc{font-size:13px;color:#4b5563;line-height:1.7;max-width:240px;margin-bottom:20px;}
 .fsocs{display:flex;gap:8px;}
-.fsoc{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);text-decoration:none;transition:all .2s;}
-.fsoc:hover{background:rgba(255,255,255,.12);color:#fff;}
-.fct{font-family:var(--fd);font-size:11px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;}
+.fsoc{width:32px;height:32px;border-radius:8px;background:#111;border:1px solid #1f2937;display:flex;align-items:center;justify-content:center;color:#6b7280;text-decoration:none;transition:all .2s;}
+.fsoc:hover{background:#1f2937;color:#fff;}
+.fct{font-size:11px;font-weight:600;color:#374151;text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;}
 .fls{list-style:none;display:flex;flex-direction:column;gap:9px;}
-.fls a{font-size:13px;color:rgba(255,255,255,.55);text-decoration:none;transition:color .2s;}
+.fls a{font-size:13px;color:#6b7280;text-decoration:none;transition:color .2s;}
 .fls a:hover{color:#fff;}
-.fls a.ac{color:var(--ac);}
-.fb{border-top:1px solid rgba(255,255,255,.08);padding-top:24px;display:flex;justify-content:space-between;align-items:center;}
-.fc{font-size:12px;color:rgba(255,255,255,.3);}
-.fst{display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,.4);}
-.sd{width:6px;height:6px;border-radius:50%;background:var(--gn);}
+.fls a.ac{color:#F97316;}
+.fb{border-top:1px solid #111;padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+.fc{font-size:12px;color:#374151;}
+.fst{display:flex;align-items:center;gap:6px;font-size:12px;color:#374151;}
+.sd{width:6px;height:6px;border-radius:50%;background:#059669;}
 
-/* MODALS */
-.mo{display:none;position:fixed;inset:0;z-index:1000;background:rgba(13,15,20,.55);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px;}
+/* ─── MODALS ─── */
+.mo{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:20px;}
 .mo.open{display:flex;}
-.modal{background:#fff;border-radius:20px;padding:40px;max-width:420px;width:100%;position:relative;box-shadow:0 32px 80px rgba(13,15,20,.2);animation:mi .3s cubic-bezier(0.34,1.56,0.64,1);}
+.modal{background:#0d0d0d;border:1px solid #1f2937;border-radius:20px;padding:40px;max-width:420px;width:100%;position:relative;box-shadow:0 32px 80px rgba(0,0,0,.8);animation:mi .3s cubic-bezier(0.34,1.56,0.64,1);}
 @keyframes mi{from{opacity:0;transform:scale(.94) translateY(16px);}to{opacity:1;transform:none;}}
-.modal h2{font-family:var(--fd);font-size:22px;font-weight:800;color:var(--t);margin-bottom:6px;letter-spacing:-.02em;}
-.msub{font-size:14px;color:var(--mu);margin-bottom:24px;}
-.mcl{position:absolute;top:16px;right:16px;width:30px;height:30px;background:var(--off);border:1px solid var(--bd);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--mu);transition:all .2s;}
-.mcl:hover{background:var(--off2);color:var(--t);}
-.btn-g{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;border:1.5px solid var(--bd2);border-radius:10px;padding:11px 16px;font-family:var(--fb);font-size:14px;font-weight:500;color:var(--t);cursor:pointer;transition:all .2s;margin-bottom:18px;box-shadow:0 1px 4px rgba(13,15,20,.06);}
-.btn-g:hover{background:var(--off);border-color:#c0c5d4;}
-.mdv{display:flex;align-items:center;gap:12px;margin-bottom:18px;font-size:12px;color:var(--mu);}
-.mdv::before,.mdv::after{content:'';flex:1;height:1px;background:var(--bd);}
-.mtbs{display:flex;background:var(--off);border-radius:10px;padding:4px;gap:4px;margin-bottom:20px;}
-.mtb{flex:1;padding:8px;border-radius:7px;border:none;background:transparent;font-family:var(--fb);font-size:13px;font-weight:500;color:var(--mu);cursor:pointer;transition:all .2s;}
-.mtb.active{background:#fff;color:var(--t);box-shadow:0 1px 4px rgba(13,15,20,.08);}
+.modal h2{font-size:22px;font-weight:600;color:#fff;margin-bottom:6px;letter-spacing:-.02em;}
+.msub{font-size:14px;color:#6b7280;margin-bottom:24px;}
+.mcl{position:absolute;top:16px;right:16px;width:30px;height:30px;background:#111;border:1px solid #1f2937;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:#6b7280;transition:all .2s;}
+.mcl:hover{background:#1f2937;color:#fff;}
+.btn-g{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#111;border:1px solid #1f2937;border-radius:10px;padding:11px 16px;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:#fff;cursor:pointer;transition:all .2s;margin-bottom:18px;}
+.btn-g:hover{background:#1f2937;}
+.mdv{display:flex;align-items:center;gap:12px;margin-bottom:18px;font-size:12px;color:#4b5563;}
+.mdv::before,.mdv::after{content:'';flex:1;height:1px;background:#1f2937;}
+.mtbs{display:flex;background:#111;border-radius:10px;padding:4px;gap:4px;margin-bottom:20px;}
+.mtb{flex:1;padding:8px;border-radius:7px;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;color:#6b7280;cursor:pointer;transition:all .2s;}
+.mtb.active{background:#1a1a1a;color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.4);}
 .fg2{margin-bottom:14px;}
-.fg2 label{display:block;font-size:13px;font-weight:500;color:var(--t2);margin-bottom:6px;}
-.fg2 input,.fg2 select{width:100%;background:var(--off);border:1.5px solid var(--bd2);border-radius:9px;padding:10px 14px;font-family:var(--fb);font-size:14px;color:var(--t);outline:none;transition:border-color .2s;}
-.fg2 input:focus,.fg2 select:focus{border-color:rgba(249,115,22,.5);background:#fff;}
-.fe{font-size:12px;color:#dc2626;margin-top:4px;}
-.bsub{width:100%;padding:12px;background:var(--ac);color:#fff;border:none;border-radius:10px;font-family:var(--fb);font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:4px;}
-.bsub:hover{background:var(--ach);}
-.mft{font-size:12px;color:var(--mu);text-align:center;margin-top:14px;}
-.mft a{color:var(--ac);text-decoration:none;}
-.pmb{background:#fff;border-radius:20px;padding:40px;max-width:580px;width:100%;position:relative;}
+.fg2 label{display:block;font-size:13px;font-weight:500;color:#9ca3af;margin-bottom:6px;}
+.fg2 input,.fg2 select{width:100%;background:#111;border:1px solid #1f2937;border-radius:9px;padding:10px 14px;font-family:'Inter',sans-serif;font-size:14px;color:#fff;outline:none;transition:border-color .2s;}
+.fg2 input::placeholder{color:#4b5563;}
+.fg2 input:focus,.fg2 select:focus{border-color:rgba(249,115,22,.5);}
+.fg2 select option{background:#1a1a1a;color:#fff;}
+.fe{font-size:12px;color:#f87171;margin-top:4px;}
+.bsub{width:100%;padding:12px;background:#F97316;color:#fff;border:none;border-radius:10px;font-family:'Inter',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:4px;}
+.bsub:hover{background:#ea6c0c;}
+.mft{font-size:12px;color:#4b5563;text-align:center;margin-top:14px;}
+.mft a{color:#F97316;text-decoration:none;}
+.pmb{background:#0d0d0d;border:1px solid #1f2937;border-radius:20px;padding:40px;max-width:580px;width:100%;position:relative;}
 
-/* MOBILE MENU */
-.mm{display:none;position:fixed;inset:0;z-index:300;background:#fff;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:20px;}
+/* ─── MOBILE MENU ─── */
+.mm{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.97);backdrop-filter:blur(20px);flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:20px;}
 .mm.open{display:flex;}
-.mm-cl{position:absolute;top:20px;right:24px;background:var(--off);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;font-size:14px;cursor:pointer;color:var(--mu);}
-.mm a{font-family:var(--fd);font-size:22px;font-weight:700;color:var(--t);text-decoration:none;transition:color .2s;}
-.mm a:hover{color:var(--ac);}
+.mm-cl{position:absolute;top:20px;right:24px;background:#111;border:1px solid #1f2937;border-radius:8px;padding:8px 14px;font-size:14px;cursor:pointer;color:#9ca3af;}
+.mm a{font-size:24px;font-weight:300;color:#fff;text-decoration:none;transition:color .2s;letter-spacing:-.02em;}
+.mm a:hover{color:#F97316;}
 
-/* TOAST */
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--t);color:#fff;border-radius:10px;padding:13px 20px;font-size:14px;z-index:3000;transition:transform .4s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;gap:10px;min-width:260px;box-shadow:0 20px 60px rgba(13,15,20,.3);}
+/* ─── TOAST ─── */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:#fff;color:#000;border-radius:10px;padding:13px 20px;font-size:14px;z-index:3000;transition:transform .4s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;gap:10px;min-width:260px;box-shadow:0 20px 60px rgba(0,0,0,.4);}
 #toast.show{transform:translateX(-50%) translateY(0);}
-.ti-ok{color:#34d399;}.ti-err{color:#f87171;}
-.spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite;flex-shrink:0;}
+.ti-ok{color:#059669;font-weight:700;}.ti-err{color:#dc2626;font-weight:700;}
+.spin{width:16px;height:16px;border:2px solid rgba(0,0,0,.2);border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite;flex-shrink:0;}
 @keyframes sp{to{transform:rotate(360deg);}}
 
-/* REVEAL */
+/* ─── REVEAL ─── */
 .rv{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(0.16,1,0.3,1),transform .7s cubic-bezier(0.16,1,0.3,1);}
 .rv.vis{opacity:1;transform:none;}
 .rvl{opacity:0;transform:translateX(-24px);transition:opacity .7s cubic-bezier(0.16,1,0.3,1),transform .7s cubic-bezier(0.16,1,0.3,1);}
@@ -291,43 +297,31 @@ footer{background:var(--t);padding:64px 60px 32px;}
 .rvr.vis{opacity:1;transform:none;}
 .d1{transition-delay:.1s;}.d2{transition-delay:.2s;}.d3{transition-delay:.3s;}
 
-@keyframes fu{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:none;}}
+/* char-by-char heading */
+.h1-char{display:inline-block;opacity:0;transform:translateX(-18px);transition:opacity .5s,transform .5s;}
+.h1-char.vis{opacity:1;transform:translateX(0);}
+.h1-br{display:block;}
 
-/* RESPONSIVE */
-@media(max-width:1024px){
-  .hero{grid-template-columns:1fr;gap:48px;}
-  .hero-r{display:none;}
-  .proof .pi{padding:0 28px;}
-  .pg{grid-template-columns:repeat(2,1fr);}
-  .como-inner{grid-template-columns:1fr;gap:40px;padding:72px 24px;}
-  .wex-in{grid-template-columns:1fr;gap:48px;padding:0 24px;}
-  .who-grid{grid-template-columns:1fr;}
-  .fg{grid-template-columns:1fr 1fr;gap:32px;}
-  .tg{grid-template-columns:1fr;}
-}
+/* fade-in utility */
+.fade-in{opacity:0;transition:opacity 1s ease;}
+.fade-in.vis{opacity:1;}
+
 @media(max-width:768px){
-  #nav{padding:0 24px;}
-  .nav-links,.nav-right .btn-ng,.nav-right .btn-nc{display:none;}
-  .hbg{display:flex;}
-  .btn-nc{display:none;}
-  .hero{padding:calc(var(--nav) + 32px) 24px 60px;}
-  .proof{padding:24px;flex-wrap:wrap;gap:16px;}
-  .pi{padding:0;border-right:none;}
-  .sec{padding:72px 24px;}
-  .cta-fin{padding:72px 24px;}
+  .proof{padding:24px;gap:12px;}
+  .pi{padding:12px 16px;border-right:none;}
   footer{padding:48px 24px 24px;}
-  .fg{grid-template-columns:1fr;gap:28px;}
-  .feat-grid{grid-template-columns:1fr;}
-  .pg{grid-template-columns:1fr;}
-  .fb{flex-direction:column;gap:12px;text-align:center;}
+  .cta-fin{padding:72px 24px;}
+  .wex-in{padding:72px 24px;}
+  section{padding:72px 24px;}
 }
 </style>
 </head>
 <body>
 
+<!-- ═══ TOAST ═══ -->
 <div id="toast" role="alert" aria-live="polite"><span id="tI"></span><span id="tM"></span></div>
 
-<!-- AUTH MODAL -->
+<!-- ═══ AUTH MODAL ═══ -->
 <div class="mo" id="authModal" role="dialog" aria-modal="true" aria-labelledby="mT">
   <div class="modal">
     <button class="mcl" id="mCl" aria-label="Fechar">✕</button>
@@ -344,7 +338,7 @@ footer{background:var(--t);padding:64px 60px 32px;}
     </div>
     <div id="fSu">
       <div class="fg2"><label for="sN">Nome completo</label><input type="text" id="sN" autocomplete="name" placeholder="Seu nome" required><div class="fe" id="eN"></div></div>
-      <div class="fg2"><label for="sTp">Você é</label><select id="sTp"><option value="fornecedor">Fornecedor — quero vender para construtoras</option><option value="construtora">Construtora — quero encontrar parceiros/fornecedores</option></select></div>
+      <div class="fg2"><label for="sTp">Você é</label><select id="sTp"><option value="fornecedor">Fornecedor — quero vender para construtoras</option><option value="construtora">Construtora — quero encontrar parceiros</option></select></div>
       <div class="fg2"><label for="sE">E-mail</label><input type="email" id="sE" autocomplete="email" placeholder="seu@email.com" required><div class="fe" id="eE"></div></div>
       <div class="fg2"><label for="sP">Senha</label><input type="password" id="sP" autocomplete="new-password" placeholder="Mínimo 8 caracteres" required><div class="fe" id="ePw"></div></div>
       <button class="bsub" id="bSu" onclick="handleSignup()"><span id="bSuT">Criar conta grátis →</span></button>
@@ -359,98 +353,92 @@ footer{background:var(--t);padding:64px 60px 32px;}
   </div>
 </div>
 
-<!-- POLICY MODAL -->
-<div class="mo" id="polMo" role="dialog" aria-modal="true" aria-labelledby="polT" style="align-items:flex-start;padding:40px 20px;overflow-y:auto;">
+<!-- ═══ POLICY MODAL ═══ -->
+<div class="mo" id="polMo" role="dialog" aria-modal="true" style="align-items:flex-start;padding:40px 20px;overflow-y:auto;">
   <div class="pmb">
     <button class="mcl" onclick="document.getElementById('polMo').classList.remove('open');document.body.style.overflow='';" aria-label="Fechar">✕</button>
-    <h2 id="polT" style="font-family:var(--fd);font-size:22px;font-weight:800;color:var(--t);margin-bottom:20px;letter-spacing:-.02em;"></h2>
-    <div id="polC" style="font-size:14px;color:var(--t2);line-height:1.8;"></div>
+    <h2 id="polT" style="font-size:22px;font-weight:600;color:#fff;margin-bottom:20px;letter-spacing:-.02em;"></h2>
+    <div id="polC" style="font-size:14px;color:#9ca3af;line-height:1.8;"></div>
   </div>
 </div>
 
-<!-- MOBILE MENU -->
+<!-- ═══ MOBILE MENU ═══ -->
 <div class="mm" id="mMenu" role="dialog" aria-modal="true">
   <button class="mm-cl" id="mMCl">✕</button>
   <a href="#problema" onclick="closeMM()">Para quem é</a>
   <a href="#como" onclick="closeMM()">Como funciona</a>
   <a href="#features" onclick="closeMM()">Funcionalidades</a>
   <a href="#pricing" onclick="closeMM()">Preços</a>
-  <button onclick="closeMM();openModal('login')" style="font-family:var(--fb);font-size:15px;font-weight:500;color:var(--mu);background:none;border:none;cursor:pointer;">Entrar</button>
-  <button class="btn-p" onclick="closeMM();openModal('signup')">Começar grátis</button>
+  <button onclick="closeMM();openModal('login')" style="font-family:'Inter',sans-serif;font-size:16px;font-weight:400;color:#9ca3af;background:none;border:none;cursor:pointer;">Entrar</button>
+  <button onclick="closeMM();openModal('signup')" style="background:#F97316;color:#fff;border:none;padding:12px 32px;border-radius:8px;font-family:'Inter',sans-serif;font-size:15px;font-weight:500;cursor:pointer;">Começar grátis</button>
 </div>
 
-<!-- NAV -->
-<nav id="nav" role="navigation" aria-label="Navegação principal">
-  <a href="/" class="logo">wexio<span>lead</span></a>
-  <ul class="nav-links">
-    <li><a href="#problema">Para quem é</a></li>
-    <li><a href="#como">Como funciona</a></li>
-    <li><a href="#features">Funcionalidades</a></li>
-    <li><a href="#pricing">Preços</a></li>
-  </ul>
-  <div class="nav-right">
-    <a class="btn-ng" href="#" onclick="openModal('login');return false;" id="navLogin">Entrar</a>
-    <button class="btn-nc" onclick="openModal('signup')">Começar grátis</button>
-    <button class="hbg" id="hbg" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
-  </div>
-</nav>
+<!-- ═══════════════════════════════════
+     HERO — VIDEO BACKGROUND
+═══════════════════════════════════ -->
+<div class="hero-section">
+  <!-- Raw video, no overlay -->
+  <video id="bg-video" autoplay loop muted playsinline>
+    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260403_050628_c4e32401-fab4-4a27-b7a8-6e9291cd5959.mp4" type="video/mp4">
+  </video>
 
-<!-- HERO -->
-<div class="hero">
-  <div class="hero-l">
-    <div class="hero-tag">Especialista em Construção Civil B2B</div>
-    <h1>Leads que<br>fecham <em>contratos.</em></h1>
-    <p class="hero-sub">A plataforma B2B de leads para construção civil. Conecte sua empresa às construtoras e fornecedores certos — dados verificados, score inteligente e a assistente <strong>Wex</strong> ao seu lado.</p>
-    <div class="hero-acts">
-      <button class="btn-p" onclick="openModal('signup')">Começar grátis — 10 leads</button>
-      <button class="btn-s" onclick="openModal('login')">Já tenho conta</button>
-    </div>
-    <div class="hero-trust">
-      <div class="trust-avas"><span>RF</span><span>CS</span><span>MA</span></div>
-      <div><strong>+200 empresas</strong> já usam o wexiolead</div>
-    </div>
+  <!-- NAV -->
+  <div class="nav-wrap">
+    <nav class="navbar lg" role="navigation" aria-label="Navegação principal">
+      <a href="/" class="nav-logo" id="navLogo">wexio<span>lead</span></a>
+      <ul class="nav-center">
+        <li><a href="#problema">Para quem é</a></li>
+        <li><a href="#como">Como funciona</a></li>
+        <li><a href="#features">Funcionalidades</a></li>
+        <li><a href="#pricing">Preços</a></li>
+      </ul>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <a href="#" onclick="openModal('login');return false;" id="navLogin" style="color:#fff;text-decoration:none;font-size:14px;font-weight:400;opacity:.75;transition:opacity .2s;display:none;" class="nav-login-link">Entrar</a>
+        <button class="nav-cta" onclick="openModal('signup')" id="navCta">Começar grátis</button>
+        <div class="nav-mob">
+          <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
+        </div>
+      </div>
+    </nav>
   </div>
-  <div class="hero-r">
-    <div style="position:relative;">
-      <div class="hero-badge"><span>15k+</span>leads verificados</div>
-      <div class="dc">
-        <div class="dc-top"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><div class="dc-ttl">wexiolead — Buscar Leads</div></div>
-        <div class="dc-stats">
-          <div class="ds"><div class="ds-v"><span>847</span></div><div class="ds-l">Leads encontrados</div></div>
-          <div class="ds"><div class="ds-v"><span>94</span>%</div><div class="ds-l">Score médio</div></div>
-          <div class="ds"><div class="ds-v"><span>312</span></div><div class="ds-l">Verificados</div></div>
-        </div>
-        <div class="dc-filter">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--mu)" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          <div class="ftag">Construtoras</div><div class="ftag">SP · MG</div><div class="ftag">Score 70+</div>
-          <div class="fmu">847 resultados</div>
-        </div>
-        <div class="dc-leads">
-          <div class="lead-row"><div class="lava" style="background:rgba(249,115,22,.1);color:var(--ac);">EC</div><div class="l-info"><div class="l-name">Engenharia Constromax</div><div class="l-meta">São Paulo · SP <span class="l-ver">Verificado</span></div></div><div class="l-score">94</div></div>
-          <div class="lead-row"><div class="lava" style="background:rgba(5,150,105,.1);color:var(--gn);">BC</div><div class="l-info"><div class="l-name">Belo Construções LTDA</div><div class="l-meta">Belo Horizonte · MG <span class="l-ver">Verificado</span></div></div><div class="l-score">88</div></div>
-          <div class="lead-row"><div class="lava" style="background:rgba(37,99,235,.1);color:#2563EB;">PA</div><div class="l-info"><div class="l-name">Projetos Alfa Incorporadora</div><div class="l-meta">Campinas · SP</div></div><div class="l-score">82</div></div>
-        </div>
-        <div class="dc-wex"><div class="wdot"></div><div class="wtxt"><strong>Wex:</strong> Encontrei 347 construtoras de médio porte em SP com score 70+. Deseja filtrar por decisor disponível?</div></div>
+
+  <!-- HERO CONTENT -->
+  <div class="hero-body">
+    <div class="hero-left">
+      <h1 class="hero-h1" id="heroH1" aria-label="Leads que fecham contratos no Brasil."></h1>
+      <p class="hero-sub fade-in" id="heroSub" style="transition-delay:800ms;">A plataforma B2B de leads para construção civil. Conecte sua empresa às construtoras e fornecedores certos — dados verificados, score inteligente e a assistente <strong style="color:#F97316;font-weight:600;">Wex</strong>.</p>
+      <div class="hero-btns fade-in" id="heroBtns" style="transition-delay:1200ms;">
+        <button class="btn-white" onclick="openModal('signup')">Começar grátis</button>
+        <button class="btn-glass lg" onclick="document.getElementById('problema').scrollIntoView({behavior:'smooth'})">Ver a plataforma</button>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-tag-card lg fade-in" id="heroTag" style="transition-delay:1400ms;">
+        <p class="hero-tag-text">Leads. Score. Pipeline.</p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- PROOF -->
+<!-- ═══════════════════════════════════
+     PROOF STRIP
+═══════════════════════════════════ -->
 <div class="proof">
-  <div class="pi"><div class="pi-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div><div class="pi-n">15k+</div><div class="pi-l">Leads verificados</div></div></div>
-  <div class="pi"><div class="pi-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div><div class="pi-n">0–100</div><div class="pi-l">Score de qualidade</div></div></div>
-  <div class="pi"><div class="pi-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div><div class="pi-n">Wex IA</div><div class="pi-l">Assistente especialista</div></div></div>
-  <div class="pi"><div class="pi-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 17h7m-3.5-3.5v7"/></svg></div><div><div class="pi-n">CRM</div><div class="pi-l">Pipeline integrado</div></div></div>
+  <div class="pi"><div class="pi-ic"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div><div class="pi-n">15k+</div><div class="pi-l">Leads verificados</div></div></div>
+  <div class="pi"><div class="pi-ic"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div><div class="pi-n">0–100</div><div class="pi-l">Score de qualidade</div></div></div>
+  <div class="pi"><div class="pi-ic"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div><div class="pi-n">Wex IA</div><div class="pi-l">Assistente especialista</div></div></div>
+  <div class="pi"><div class="pi-ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 17h7m-3.5-3.5v7"/></svg></div><div><div class="pi-n">CRM</div><div class="pi-l">Pipeline integrado</div></div></div>
 </div>
 
-<!-- PARA QUEM -->
-<div id="problema">
-  <div class="sec">
-    <div class="slbl rv">Para quem é</div>
-    <h2 class="stit rv d1">Dois lados do setor.<br>Uma só plataforma.</h2>
-    <p class="ssub rv d2">O wexiolead conecta quem vende com quem compra dentro do universo da construção civil brasileira.</p>
-    <div class="who-grid">
+<!-- ═══════════════════════════════════
+     PARA QUEM É
+═══════════════════════════════════ -->
+<section id="problema">
+  <div class="sec-inner">
+    <div class="sec-kicker rv">Para quem é</div>
+    <h2 class="sec-title rv d1">Dois lados do setor.<br>Uma só plataforma.</h2>
+    <p class="sec-sub rv d2">O wexiolead conecta quem vende com quem compra dentro do universo da construção civil.</p>
+    <div class="who-grid" style="margin-top:56px;">
       <div class="wc rv">
         <div class="wtag">Para Fornecedores</div>
         <h3>Você fornece. Nós encontramos quem compra.</h3>
@@ -475,44 +463,51 @@ footer{background:var(--t);padding:64px 60px 32px;}
       </div>
     </div>
   </div>
-</div>
+</section>
 
-<!-- COMO FUNCIONA -->
-<div id="como" class="como-wrap">
-  <div class="como-inner">
-    <div>
-      <div class="slbl rv">Como funciona</div>
-      <h2 class="stit rv d1">Três passos para um pipeline cheio.</h2>
-      <p class="ssub rv d2">Sem planilha. Sem lista genérica. Leads qualificados do setor nas suas mãos.</p>
-      <div class="steps">
-        <div class="step"><div class="snum">01</div><div class="sbody"><h3>Defina seu perfil</h3><p>Diga se é fornecedor ou construtora. A Wex monta seu perfil e sugere os primeiros leads automaticamente.</p></div></div>
-        <div class="step"><div class="snum">02</div><div class="sbody"><h3>Filtre com precisão</h3><p>Estado, cidade, porte, CNAE, obras ativas, score de qualidade e decisor disponível.</p></div></div>
-        <div class="step"><div class="snum">03</div><div class="sbody"><h3>Conecte e feche</h3><p>Salve leads, exporte CSV, use o CRM integrado e deixe a Wex te ajudar com e-mails de prospecção.</p></div></div>
+<!-- ═══════════════════════════════════
+     COMO FUNCIONA
+═══════════════════════════════════ -->
+<section id="como">
+  <div class="sec-inner">
+    <div class="como-grid">
+      <div>
+        <div class="sec-kicker rv">Como funciona</div>
+        <h2 class="sec-title rv d1">Três passos para um pipeline cheio.</h2>
+        <p class="sec-sub rv d2">Sem planilha. Sem lista genérica. Leads qualificados do setor.</p>
+        <div class="steps">
+          <div class="step"><div class="snum">01</div><div class="sbody"><h3>Defina seu perfil</h3><p>Diga se é fornecedor ou construtora. A Wex monta seu perfil e sugere os primeiros leads automaticamente.</p></div></div>
+          <div class="step"><div class="snum">02</div><div class="sbody"><h3>Filtre com precisão</h3><p>Estado, cidade, porte, CNAE, obras ativas, score de qualidade e decisor disponível.</p></div></div>
+          <div class="step"><div class="snum">03</div><div class="sbody"><h3>Conecte e feche</h3><p>Salve leads, exporte CSV, use o CRM integrado e deixe a Wex te ajudar com e-mails de prospecção.</p></div></div>
+        </div>
       </div>
-    </div>
-    <div class="rvr">
-      <div class="mk">
-        <div class="mk-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div>
-        <div class="mk-body">
-          <div class="mk-head"><div class="mk-ttl">Buscar Leads</div><div class="mk-bdg">847 encontrados</div></div>
-          <div class="mk-flt"><div class="ftag">Construtoras</div><div class="ftag">SP · MG</div><div class="ftag">CNAE 41.20</div><div class="ftag">Score 70+</div></div>
-          <div class="lead-row"><div class="lava" style="background:rgba(249,115,22,.1);color:var(--ac);">EC</div><div class="l-info"><div class="l-name">Engenharia Constromax</div><div class="l-meta">São Paulo · SP <span class="l-ver">Verificado</span></div></div><div class="l-score">94</div></div>
-          <div class="lead-row"><div class="lava" style="background:rgba(5,150,105,.1);color:var(--gn);">BC</div><div class="l-info"><div class="l-name">Belo Construções LTDA</div><div class="l-meta">Belo Horizonte · MG <span class="l-ver">Verificado</span></div></div><div class="l-score">88</div></div>
-          <div class="lead-row"><div class="lava" style="background:rgba(37,99,235,.1);color:#2563EB;">PA</div><div class="l-info"><div class="l-name">Projetos Alfa Incorporadora</div><div class="l-meta">Campinas · SP</div></div><div class="l-score">82</div></div>
-          <div class="lead-row"><div class="lava" style="background:rgba(139,92,246,.1);color:#7c3aed;">VS</div><div class="l-info"><div class="l-name">Vitória Sienge Construtora</div><div class="l-meta">Ribeirão Preto · SP <span class="l-ver">Verificado</span></div></div><div class="l-score">79</div></div>
+      <div class="rvr">
+        <div class="mk">
+          <div class="mk-bar"><div class="mdot r"></div><div class="mdot y"></div><div class="mdot g"></div><div class="mk-ttlbar">wexiolead — Buscar Leads</div></div>
+          <div class="mk-body">
+            <div class="mk-head"><div class="mk-ttl">Buscar Leads</div><div class="mk-bdg">847 encontrados</div></div>
+            <div class="mk-flt"><div class="ftag">Construtoras</div><div class="ftag">SP · MG</div><div class="ftag">CNAE 41.20</div><div class="ftag">Score 70+</div></div>
+            <div class="lead-row"><div class="lava" style="background:rgba(249,115,22,.1);color:#F97316;">EC</div><div class="l-info"><div class="l-name">Engenharia Constromax</div><div class="l-meta">São Paulo · SP <span class="l-ver">Verificado</span></div></div><div class="l-score">94</div></div>
+            <div class="lead-row"><div class="lava" style="background:rgba(5,150,105,.1);color:#34d399;">BC</div><div class="l-info"><div class="l-name">Belo Construções LTDA</div><div class="l-meta">Belo Horizonte · MG <span class="l-ver">Verificado</span></div></div><div class="l-score">88</div></div>
+            <div class="lead-row"><div class="lava" style="background:rgba(37,99,235,.1);color:#60a5fa;">PA</div><div class="l-info"><div class="l-name">Projetos Alfa Incorporadora</div><div class="l-meta">Campinas · SP</div></div><div class="l-score">82</div></div>
+            <div class="lead-row"><div class="lava" style="background:rgba(139,92,246,.1);color:#a78bfa;">VS</div><div class="l-info"><div class="l-name">Vitória Sienge Construtora</div><div class="l-meta">Ribeirão Preto · SP <span class="l-ver">Verificado</span></div></div><div class="l-score">79</div></div>
+            <div class="mk-wex"><div class="wdot"></div><div class="wtxt"><strong>Wex:</strong> Encontrei 347 construtoras de médio porte em SP com score 70+. Deseja filtrar por decisor disponível?</div></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
+</section>
 
-<!-- FEATURES -->
-<div id="features">
-  <div class="sec">
-    <div class="slbl rv">Funcionalidades</div>
-    <h2 class="stit rv d1">Tudo que você precisa.<br>Nada que você não usa.</h2>
+<!-- ═══════════════════════════════════
+     FEATURES
+═══════════════════════════════════ -->
+<section id="features">
+  <div class="sec-inner">
+    <div class="sec-kicker rv">Funcionalidades</div>
+    <h2 class="sec-title rv d1">Tudo que você precisa.<br>Nada que você não usa.</h2>
     <div class="feat-grid">
-      <div class="ft rv"><div class="ft-ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div><h3>Filtros de Construção Civil</h3><p>CNAE específico de obras, tipo de empresa, obras em andamento, porte e região com granularidade total.</p></div>
+      <div class="ft rv"><div class="ft-ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div><h3>Filtros de Construção Civil</h3><p>CNAE específico, tipo de empresa, obras em andamento, porte e região com granularidade total.</p></div>
       <div class="ft rv d1"><div class="ft-ic"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><h3>Score de Qualidade</h3><p>Pontuação 0–100 baseada em atividade recente, porte, decisor identificado e obras ativas.</p><div class="ft-tag">EXCLUSIVO</div></div>
       <div class="ft rv d2"><div class="ft-ic"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><h3>Selo Lead Verificado</h3><p>E-mail e telefone confirmados recentemente. Saiba se os dados estão ativos antes de contatar.</p></div>
       <div class="ft rv"><div class="ft-ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 17h7m-3.5-3.5v7"/></svg></div><h3>CRM Leve Integrado</h3><p>Status, anotações e follow-up — Novo / Contatado / Negociando / Fechado — sem sair da plataforma.</p></div>
@@ -520,15 +515,17 @@ footer{background:var(--t);padding:64px 60px 32px;}
       <div class="ft rv d2"><div class="ft-ic"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div><h3>Alertas de Novos Leads</h3><p>Receba e-mail quando novos leads entram no seu segmento e região. Configure uma vez.</p></div>
     </div>
   </div>
-</div>
+</section>
 
-<!-- WEX -->
+<!-- ═══════════════════════════════════
+     WEX
+═══════════════════════════════════ -->
 <div class="wex-wrap">
   <div class="wex-in">
     <div class="rvl">
       <div class="wkick">Assistente Virtual</div>
       <h2 class="wtit">Conheça a <span>Wex</span>,<br>sua especialista em construção.</h2>
-      <p class="wsub">A Wex é a assistente IA do wexiolead. Ela conhece o setor de construção civil como ninguém e está sempre pronta para te ajudar a fechar mais negócios.</p>
+      <p class="wsub">A Wex é a assistente IA do wexiolead. Ela conhece o setor como ninguém e está sempre pronta para te ajudar a fechar mais negócios.</p>
       <div class="wlist2">
         <div class="wi2"><div class="wd"></div>Sugere filtros personalizados para seu perfil</div>
         <div class="wi2"><div class="wd"></div>Explica CNAEs e segmentos da construção civil</div>
@@ -553,12 +550,14 @@ footer{background:var(--t);padding:64px 60px 32px;}
   </div>
 </div>
 
-<!-- PRICING -->
-<div id="pricing">
-  <div class="sec" style="text-align:center;">
-    <div class="slbl" style="justify-content:center;">Planos</div>
-    <h2 class="stit rv" style="max-width:none;">Preços simples e honestos.</h2>
-    <p class="ssub rv d1" style="margin:0 auto;">Comece grátis. Cancele quando quiser. Sem fidelidade.</p>
+<!-- ═══════════════════════════════════
+     PRICING
+═══════════════════════════════════ -->
+<section id="pricing" style="text-align:center;">
+  <div class="sec-inner">
+    <div class="sec-kicker" style="justify-content:center;">Planos</div>
+    <h2 class="sec-title rv" style="max-width:none;">Preços simples e honestos.</h2>
+    <p class="sec-sub rv d1" style="margin:0 auto 0;">Comece grátis. Cancele quando quiser.</p>
     <div class="pg">
       <div class="plan rv"><div class="plan-n">Free</div><div class="plan-pr"><sup>R$</sup>0</div><div class="plan-pe">para sempre grátis</div><div class="plan-dv"></div><ul class="plan-fs"><li>10 consultas de leads/mês</li><li>Filtros básicos</li><li>Score parcial</li><li>Wex limitada</li></ul><button class="plan-btn out" onclick="openModal('signup')">Começar grátis</button></div>
       <div class="plan rv d1"><div class="plan-n">Starter</div><div class="plan-pr"><sup>R$</sup>97<small>/mês</small></div><div class="plan-pe">cobrado mensalmente</div><div class="plan-dv"></div><ul class="plan-fs"><li>300 consultas/mês</li><li>Exportação CSV</li><li>Score completo</li><li>Selo verificado</li><li>Perfil público</li><li>Wex completa</li></ul><button class="plan-btn out" onclick="openModal('signup')">Assinar Starter</button></div>
@@ -566,32 +565,38 @@ footer{background:var(--t);padding:64px 60px 32px;}
       <div class="plan rv d3"><div class="plan-n">Agency</div><div class="plan-pr"><sup>R$</sup>397<small>/mês</small></div><div class="plan-pe">cobrado mensalmente</div><div class="plan-dv"></div><ul class="plan-fs"><li>Consultas ilimitadas</li><li>Leads patrocinados</li><li>Programa de indicação</li><li>API disponível</li><li>Relatórios avançados</li><li>Suporte dedicado</li></ul><button class="plan-btn out" onclick="openModal('signup')">Assinar Agency</button></div>
     </div>
   </div>
-</div>
+</section>
 
-<!-- TESTIMONIALS -->
-<div style="background:var(--off);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);">
-  <div class="sec">
-    <div class="slbl rv">Prova social</div>
-    <h2 class="stit rv d1">Quem já usa, não volta atrás.</h2>
+<!-- ═══════════════════════════════════
+     TESTIMONIALS
+═══════════════════════════════════ -->
+<section style="background:#050505;border-top:1px solid #111;">
+  <div class="sec-inner">
+    <div class="sec-kicker rv">Prova social</div>
+    <h2 class="sec-title rv d1">Quem já usa, não volta atrás.</h2>
     <div class="tg">
-      <div class="te rv"><div class="te-st"></div><p class="te-q">"Passávamos semanas encontrando construtoras no RS. Com o wexiolead, em 20 minutos tenho uma lista qualificada com os decisores identificados."</p><div class="te-a"><div class="te-av" style="background:var(--acl);color:var(--ac);">RF</div><div><div class="te-nm">Ricardo Ferreira</div><div class="te-rl">Diretor Comercial · Equipamentos Alfa</div></div></div></div>
-      <div class="te rv d1"><div class="te-st"></div><p class="te-q">"A Wex nos ajudou a montar uma abordagem específica para construtoras de médio porte. Taxa de resposta subiu 40% na prospecção."</p><div class="te-a"><div class="te-av" style="background:rgba(5,150,105,.1);color:var(--gn);">CS</div><div><div class="te-nm">Camila Santos</div><div class="te-rl">Fundadora · Materiais Construção Pro</div></div></div></div>
-      <div class="te rv d2"><div class="te-st"></div><p class="te-q">"Como construtora, encontramos 3 novos fornecedores de qualidade nos primeiros 15 dias. O filtro por obras ativas é excelente."</p><div class="te-a"><div class="te-av" style="background:rgba(37,99,235,.1);color:#2563EB;">MA</div><div><div class="te-nm">Marcos Andrade</div><div class="te-rl">CEO · Andrade Incorporações</div></div></div></div>
+      <div class="te rv"><div class="te-st"></div><p class="te-q">"Passávamos semanas encontrando construtoras no RS. Com o wexiolead, em 20 minutos tenho uma lista qualificada com os decisores identificados."</p><div class="te-a"><div class="te-av" style="background:rgba(249,115,22,.12);color:#F97316;">RF</div><div><div class="te-nm">Ricardo Ferreira</div><div class="te-rl">Diretor Comercial · Equipamentos Alfa</div></div></div></div>
+      <div class="te rv d1"><div class="te-st"></div><p class="te-q">"A Wex nos ajudou a montar uma abordagem específica para construtoras de médio porte. Taxa de resposta subiu 40% na prospecção."</p><div class="te-a"><div class="te-av" style="background:rgba(5,150,105,.12);color:#34d399;">CS</div><div><div class="te-nm">Camila Santos</div><div class="te-rl">Fundadora · Materiais Construção Pro</div></div></div></div>
+      <div class="te rv d2"><div class="te-st"></div><p class="te-q">"Como construtora, encontramos 3 novos fornecedores de qualidade nos primeiros 15 dias. O filtro por obras ativas é excelente."</p><div class="te-a"><div class="te-av" style="background:rgba(37,99,235,.12);color:#60a5fa;">MA</div><div><div class="te-nm">Marcos Andrade</div><div class="te-rl">CEO · Andrade Incorporações</div></div></div></div>
     </div>
   </div>
-</div>
+</section>
 
-<!-- CTA FINAL -->
+<!-- ═══════════════════════════════════
+     CTA FINAL
+═══════════════════════════════════ -->
 <div class="cta-fin">
   <h2>Seus próximos 10 leads<br><span>são gratuitos.</span></h2>
   <p>Sem cartão de crédito. Sem configuração. A Wex te guia desde o primeiro acesso.</p>
   <div class="cta-btns">
     <button class="btn-cw" onclick="openModal('signup')">Começar grátis agora →</button>
-    <button class="btn-cg" onclick="openModal('login')">Já tenho conta</button>
+    <button class="btn-cg2" onclick="openModal('login')">Já tenho conta</button>
   </div>
 </div>
 
-<!-- FOOTER -->
+<!-- ═══════════════════════════════════
+     FOOTER
+═══════════════════════════════════ -->
 <footer>
   <div class="fg">
     <div><div class="flogo">wexio<span>lead</span></div><p class="fdesc">A plataforma de leads B2B especializada em construção civil. Conectando fornecedores e construtoras em todo o Brasil.</p><div class="fsocs"><a href="https://instagram.com/wexiolead" target="_blank" rel="noopener" class="fsoc" aria-label="Instagram"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a><a href="https://linkedin.com/company/wexiolead" target="_blank" rel="noopener" class="fsoc" aria-label="LinkedIn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a></div></div>
@@ -604,57 +609,163 @@ footer{background:var(--t);padding:64px 60px 32px;}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-const SB_URL='https://tbnoiwkproawwncuorpw.supabase.co';
-const SB_KEY='sb_publishable_6sJeXecAy_M6gBP_b-j0QQ_0Ybgx_ng';
-const sb=supabase.createClient(SB_URL,SB_KEY);
+// ── SUPABASE ──
+const sb = supabase.createClient(
+  'https://tbnoiwkproawwncuorpw.supabase.co',
+  'sb_publishable_6sJeXecAy_M6gBP_b-j0QQ_0Ybgx_ng'
+);
+(async()=>{
+  const{data:{session}}=await sb.auth.getSession();
+  if(session) navLoggedIn(session.user);
+})();
+function navLoggedIn(u){
+  const lg=document.getElementById('navLogin');
+  if(lg){lg.style.display='inline';lg.textContent='Meu painel →';lg.href='dashboard.html';lg.onclick=null;}
+  const cta=document.getElementById('navCta');
+  if(cta) cta.style.display='none';
+}
 
-(async()=>{const{data:{session}}=await sb.auth.getSession();if(session)navLoggedIn(session.user);})();
-function navLoggedIn(u){const g=document.getElementById('navLogin');if(g){g.textContent='Meu painel →';g.href='dashboard.html';g.onclick=null;}document.querySelector('.btn-nc')?.style.setProperty('display','none');}
+// ── HERO CHAR ANIMATION ──
+(function(){
+  const lines=['Leads que fecham','contratos no Brasil.'];
+  const container=document.getElementById('heroH1');
+  if(!container) return;
+  const charDelay=30;
+  const initialDelay=200;
+  let allChars=[];
+  lines.forEach((line,li)=>{
+    if(li>0){const br=document.createElement('span');br.className='h1-br';container.appendChild(br);}
+    [...line].forEach((ch,ci)=>{
+      const span=document.createElement('span');
+      span.className='h1-char';
+      span.textContent=ch==='\u0020'?'\u00A0':ch;
+      const delay=initialDelay+(li*lines[0].length*charDelay)+(ci*charDelay);
+      span.style.transitionDelay=delay+'ms';
+      container.appendChild(span);
+      allChars.push(span);
+    });
+  });
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      allChars.forEach(s=>s.classList.add('vis'));
+    });
+  });
+})();
 
-// NAV
-window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('sc',scrollY>20),{passive:true});
+// ── FADE-IN ELEMENTS ──
+(function(){
+  document.querySelectorAll('.fade-in').forEach(el=>{
+    requestAnimationFrame(()=>{requestAnimationFrame(()=>{el.classList.add('vis');});});
+  });
+})();
 
-// MODAL
+// ── MODAL ──
 function openModal(mode='signup'){
-  const m=document.getElementById('authModal');
-  m.classList.add('open');document.body.style.overflow='hidden';
-  const isLogin=mode==='login';
-  document.getElementById('mT').textContent=isLogin?'Entrar na conta':'Comece grátis';
-  document.getElementById('mSb').textContent=isLogin?'Acesse seu painel de leads.':'10 leads gratuitos. Sem cartão de crédito.';
+  document.getElementById('authModal').classList.add('open');
+  document.body.style.overflow='hidden';
+  const isL=mode==='login';
+  document.getElementById('mT').textContent=isL?'Entrar na conta':'Comece grátis';
+  document.getElementById('mSb').textContent=isL?'Acesse seu painel de leads.':'10 leads gratuitos. Sem cartão de crédito.';
   document.querySelectorAll('.mtb').forEach(t=>t.classList.toggle('active',t.dataset.tab===mode));
-  document.getElementById('fSu').style.display=isLogin?'none':'block';
-  document.getElementById('fLg').style.display=isLogin?'block':'none';
+  document.getElementById('fSu').style.display=isL?'none':'block';
+  document.getElementById('fLg').style.display=isL?'block':'none';
 }
 document.getElementById('mCl').addEventListener('click',()=>{document.getElementById('authModal').classList.remove('open');document.body.style.overflow='';});
 document.getElementById('authModal').addEventListener('click',e=>{if(e.target===document.getElementById('authModal')){document.getElementById('authModal').classList.remove('open');document.body.style.overflow='';}});
 document.querySelectorAll('.mtb').forEach(t=>t.addEventListener('click',()=>openModal(t.dataset.tab)));
 
-// AUTH
-async function handleGoogleLogin(){const b=document.getElementById('btnGoogle');b.disabled=true;b.innerHTML='<div class="spin"></div>Conectando...';try{const{error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+'/dashboard.html'}});if(error)throw error;}catch(e){toast(e.message,true);b.disabled=false;b.innerHTML='<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Continuar com Google';}}
-async function handleSignup(){const n=document.getElementById('sN').value.trim(),tp=document.getElementById('sTp').value,e=document.getElementById('sE').value.trim(),p=document.getElementById('sP').value;clearE();let ok=true;if(!n){setE('eN','Nome obrigatório');ok=false;}if(!e||!/\S+@\S+\.\S+/.test(e)){setE('eE','E-mail inválido');ok=false;}if(p.length<8){setE('ePw','Mínimo 8 caracteres');ok=false;}if(!ok)return;document.getElementById('bSuT').textContent='Criando...';document.getElementById('bSu').disabled=true;try{const{data,error}=await sb.auth.signUp({email:e,password:p,options:{data:{full_name:n,tipo:tp}}});if(error)throw error;if(data.user&&!data.session){toast('Verifique seu e-mail para confirmar a conta.');document.getElementById('authModal').classList.remove('open');document.body.style.overflow='';}else if(data.session)location.href='dashboard.html';}catch(err){setE('eE',err.message.includes('already')? 'E-mail já cadastrado.':err.message);}finally{document.getElementById('bSuT').textContent='Criar conta grátis →';document.getElementById('bSu').disabled=false;}}
-async function handleLogin(){const e=document.getElementById('lE').value.trim(),p=document.getElementById('lP').value;clearE();if(!e){setE('eLE','E-mail obrigatório');return;}if(!p){setE('eLP','Senha obrigatória');return;}document.getElementById('bLgT').textContent='Entrando...';document.getElementById('bLg').disabled=true;try{const{error}=await sb.auth.signInWithPassword({email:e,password:p});if(error)throw error;location.href='dashboard.html';}catch(err){setE('eLE',err.message.includes('Invalid')?'E-mail ou senha incorretos.':err.message);}finally{document.getElementById('bLgT').textContent='Entrar na conta →';document.getElementById('bLg').disabled=false;}}
-async function handleForgot(){const e=document.getElementById('lE').value.trim();if(!e){setE('eLE','Digite seu e-mail primeiro');return;}await sb.auth.resetPasswordForEmail(e);toast('Link de redefinição enviado para '+e);}
+// ── AUTH ──
+async function handleGoogleLogin(){
+  const b=document.getElementById('btnGoogle');b.disabled=true;
+  b.innerHTML='<div class="spin"></div>Conectando...';
+  try{
+    const{error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+'/dashboard.html'}});
+    if(error) throw error;
+  }catch(e){
+    toast(e.message,true);b.disabled=false;
+    b.innerHTML='<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Continuar com Google';
+  }
+}
+async function handleSignup(){
+  const n=document.getElementById('sN').value.trim(),tp=document.getElementById('sTp').value,
+        e=document.getElementById('sE').value.trim(),p=document.getElementById('sP').value;
+  clearE();let ok=true;
+  if(!n){setE('eN','Nome obrigatório');ok=false;}
+  if(!e||!/\S+@\S+\.\S+/.test(e)){setE('eE','E-mail inválido');ok=false;}
+  if(p.length<8){setE('ePw','Mínimo 8 caracteres');ok=false;}
+  if(!ok) return;
+  document.getElementById('bSuT').textContent='Criando...';document.getElementById('bSu').disabled=true;
+  try{
+    const{data,error}=await sb.auth.signUp({email:e,password:p,options:{data:{full_name:n,tipo:tp}}});
+    if(error) throw error;
+    if(data.user&&!data.session){toast('Verifique seu e-mail para confirmar a conta.');document.getElementById('authModal').classList.remove('open');document.body.style.overflow='';}
+    else if(data.session) location.href='dashboard.html';
+  }catch(err){setE('eE',err.message.includes('already')?'E-mail já cadastrado.':err.message);}
+  finally{document.getElementById('bSuT').textContent='Criar conta grátis →';document.getElementById('bSu').disabled=false;}
+}
+async function handleLogin(){
+  const e=document.getElementById('lE').value.trim(),p=document.getElementById('lP').value;
+  clearE();
+  if(!e){setE('eLE','E-mail obrigatório');return;}
+  if(!p){setE('eLP','Senha obrigatória');return;}
+  document.getElementById('bLgT').textContent='Entrando...';document.getElementById('bLg').disabled=true;
+  try{
+    const{error}=await sb.auth.signInWithPassword({email:e,password:p});
+    if(error) throw error;
+    location.href='dashboard.html';
+  }catch(err){setE('eLE',err.message.includes('Invalid')?'E-mail ou senha incorretos.':err.message);}
+  finally{document.getElementById('bLgT').textContent='Entrar na conta →';document.getElementById('bLg').disabled=false;}
+}
+async function handleForgot(){
+  const e=document.getElementById('lE').value.trim();
+  if(!e){setE('eLE','Digite seu e-mail primeiro');return;}
+  await sb.auth.resetPasswordForEmail(e);
+  toast('Link de redefinição enviado para '+e);
+}
 function setE(id,msg){const el=document.getElementById(id);if(el)el.textContent=msg;}
 function clearE(){document.querySelectorAll('.fe').forEach(e=>e.textContent='');}
 
-// TOAST
-let tT;function toast(msg,err=false){const t=document.getElementById('toast');document.getElementById('tM').textContent=msg;const i=document.getElementById('tI');i.className=err?'ti-err':'ti-ok';i.textContent=err?'✕':'✓';t.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('show'),4000);}
+// ── TOAST ──
+let tT;
+function toast(msg,err=false){
+  const t=document.getElementById('toast');
+  document.getElementById('tM').textContent=msg;
+  const i=document.getElementById('tI');i.className=err?'ti-err':'ti-ok';i.textContent=err?'✕':'✓';
+  t.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('show'),4000);
+}
 
-// MOBILE MENU
+// ── MOBILE MENU ──
 document.getElementById('hbg').addEventListener('click',()=>{document.getElementById('mMenu').classList.add('open');document.body.style.overflow='hidden';});
 document.getElementById('mMCl').addEventListener('click',closeMM);
 function closeMM(){document.getElementById('mMenu').classList.remove('open');document.body.style.overflow='';}
 
-// REVEAL
-const ro=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');ro.unobserve(e.target);}});},{threshold:.12});
+// ── SCROLL REVEAL ──
+const ro=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');ro.unobserve(e.target);}});
+},{threshold:.12});
 document.querySelectorAll('.rv,.rvl,.rvr').forEach(el=>ro.observe(el));
-const so=new IntersectionObserver(es=>{es.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*130);so.unobserve(e.target);}});},{threshold:.15});
+
+const so=new IntersectionObserver(es=>{
+  es.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('vis'),i*130);so.unobserve(e.target);}});
+},{threshold:.15});
 document.querySelectorAll('.step').forEach(s=>so.observe(s));
 
-// POLICIES
-const POL={privacidade:{title:'Política de Privacidade',content:'<p style="margin-bottom:14px">A wexiolead coleta e trata dados pessoais conforme esta política e a LGPD (Lei 13.709/2018).</p><h3 style="font-family:var(--fd);color:var(--t);margin:20px 0 8px">Dados coletados</h3><p style="margin-bottom:14px">Nome, e-mail, tipo de empresa e dados de navegação na plataforma.</p><h3 style="font-family:var(--fd);color:var(--t);margin:20px 0 8px">Finalidade</h3><p style="margin-bottom:14px">Prestação do serviço, personalização e comunicações com opt-out.</p><h3 style="font-family:var(--fd);color:var(--t);margin:20px 0 8px">Contato</h3><p><a href="mailto:privacidade@wexiolead.com.br" style="color:var(--ac)">privacidade@wexiolead.com.br</a></p>'},termos:{title:'Termos de Uso',content:'<p style="margin-bottom:14px">Ao usar a plataforma wexiolead, você concorda com os termos abaixo.</p><h3 style="font-family:var(--fd);color:var(--t);margin:20px 0 8px">1. O serviço</h3><p style="margin-bottom:14px">Plataforma SaaS de geração de leads B2B especializada em construção civil.</p><h3 style="font-family:var(--fd);color:var(--t);margin:20px 0 8px">2. Uso permitido</h3><p style="margin-bottom:14px">Prospecção comercial B2B legítima. Proibido revender dados ou usar para spam.</p><h3 style="font-family:var(--fd);color:var(--t);margin:20px 0 8px">3. Cancelamento</h3><p style="margin-bottom:14px">A qualquer momento. Sem reembolso proporcional.</p><h3 style="font-family:var(--fd);color:var(--t);margin:20px 0 8px">4. Foro</h3><p>Comarca de São Paulo/SP.</p>'},lgpd:{title:'LGPD — Proteção de Dados',content:'<p style="margin-bottom:14px">A wexiolead opera em conformidade com a Lei nº 13.709/2018 (LGPD).</p><h3 style="font-family:var(--fd);color:var(--t);margin:20px 0 8px">Dados das empresas</h3><p style="margin-bottom:14px">Dados públicos (Receita Federal). Sócios tratados com base no Art. 7º, IX.</p><h3 style="font-family:var(--fd);color:var(--t);margin:20px 0 8px">DPO</h3><p><a href="mailto:lgpd@wexiolead.com.br" style="color:var(--ac)">lgpd@wexiolead.com.br</a></p>'}};
-function openPolicy(k){const p=POL[k];if(!p)return;document.getElementById('polT').textContent=p.title;document.getElementById('polC').innerHTML=p.content;document.getElementById('polMo').classList.add('open');document.body.style.overflow='hidden';}
-document.getElementById('polMo').addEventListener('click',e=>{if(e.target===document.getElementById('polMo')){document.getElementById('polMo').classList.remove('open');document.body.style.overflow='';}});
+// ── POLICIES ──
+const POL={
+  privacidade:{title:'Política de Privacidade',content:'<p style="margin-bottom:14px">A wexiolead coleta e trata dados pessoais conforme a LGPD (Lei 13.709/2018).</p><h3 style="font-size:16px;font-weight:600;color:#fff;margin:20px 0 8px">Dados coletados</h3><p style="margin-bottom:14px">Nome, e-mail, tipo de empresa e dados de navegação.</p><h3 style="font-size:16px;font-weight:600;color:#fff;margin:20px 0 8px">Contato</h3><p><a href="mailto:privacidade@wexiolead.com.br" style="color:#F97316">privacidade@wexiolead.com.br</a></p>'},
+  termos:{title:'Termos de Uso',content:'<p style="margin-bottom:14px">Ao usar a plataforma wexiolead, você concorda com os termos abaixo.</p><h3 style="font-size:16px;font-weight:600;color:#fff;margin:20px 0 8px">1. O serviço</h3><p style="margin-bottom:14px">Plataforma SaaS de geração de leads B2B para construção civil.</p><h3 style="font-size:16px;font-weight:600;color:#fff;margin:20px 0 8px">2. Uso</h3><p style="margin-bottom:14px">Prospecção B2B legítima. Proibido revender dados ou usar para spam.</p><h3 style="font-size:16px;font-weight:600;color:#fff;margin:20px 0 8px">3. Foro</h3><p>Comarca de São Paulo/SP.</p>'},
+  lgpd:{title:'LGPD — Proteção de Dados',content:'<p style="margin-bottom:14px">Operamos em conformidade com a Lei nº 13.709/2018.</p><h3 style="font-size:16px;font-weight:600;color:#fff;margin:20px 0 8px">DPO</h3><p><a href="mailto:lgpd@wexiolead.com.br" style="color:#F97316">lgpd@wexiolead.com.br</a></p>'}
+};
+function openPolicy(k){
+  const p=POL[k];if(!p) return;
+  document.getElementById('polT').textContent=p.title;
+  document.getElementById('polC').innerHTML=p.content;
+  document.getElementById('polMo').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+document.getElementById('polMo').addEventListener('click',e=>{
+  if(e.target===document.getElementById('polMo')){document.getElementById('polMo').classList.remove('open');document.body.style.overflow='';}
+});
 </script>
 </body>
 </html>

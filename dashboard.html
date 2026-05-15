@@ -2478,22 +2478,18 @@ async function finishOnboarding(wantsTutorial) {
   await sb.from('profiles').update(profileUpdate).eq('id', currentUser.id);
   if (currentProfile) Object.assign(currentProfile, profileUpdate);
 
-  // 2. Se construtora ou prestadora: inserir na base de leads
+  // 2. Se construtora ou prestadora: inserir na base de leads via RPC segura
   if ((obType === 'construtora' || obType === 'prestadora') && empresa) {
-    const leadPayload = {
-      razao_social: empresa,
-      email_comercial: email || null,
-      telefone_1: telefone || null,
-      estado: estado || null,
-      tipo_lead: obType,
-      segmento_simplificado: segmento || null,
-      nome_socio_1: nome || null,
-      cnpj: cnpj || null,
-      score_lead: 60,
-      situacao_cadastral: 'ATIVA',
-      origem: 'cadastro_plataforma',
-    };
-    const { error: leadErr } = await sb.from('leads').insert(leadPayload);
+    const { error: leadErr } = await sb.rpc('inserir_lead_onboarding', {
+      p_razao_social: empresa,
+      p_email: email || null,
+      p_telefone: telefone || null,
+      p_estado: estado || null,
+      p_tipo_lead: obType,
+      p_segmento: segmento || null,
+      p_nome_socio: nome || null,
+      p_cnpj: cnpj || null
+    });
     if (leadErr) console.warn('Erro ao inserir lead:', leadErr.message);
   }
 
@@ -2772,24 +2768,42 @@ async function revealLead(leadId) {
     return;
   }
 
-  // Mark as revealed locally
-  revealedLeads.add(leadId);
+  try {
+    // RPC segura — crédito consumido e validado atomicamente no banco
+    const { data, error } = await sb.rpc('revelar_lead', { p_lead_id: leadId });
+    if (error) {
+      if (error.message?.includes('quota_exceeded')) {
+        document.getElementById('paywallOverlay').classList.add('active');
+        document.body.style.overflow = 'hidden';
+      } else {
+        showToast('Erro ao revelar lead. Tente novamente.', true);
+      }
+      return;
+    }
 
-  // Consume 1 credit
-  const newUsed = used + 1;
-  await sb.from('profiles').update({ leads_used: newUsed }).eq('id', currentUser.id);
-  currentProfile.leads_used = newUsed;
-  updateQuotaUI();
+    // Atualiza dados do lead localmente com os dados completos retornados
+    if (data) {
+      const idx = allLeads.findIndex(l => l.id === leadId);
+      if (idx !== -1) Object.assign(allLeads[idx], data);
+    }
 
-  // Re-render just this row region
-  renderLeadsTable();
-  showToast(`✓ Lead desbloqueado! ${quota - newUsed} crédito${quota-newUsed!==1?'s':''} restante${quota-newUsed!==1?'s':''}.`);
+    revealedLeads.add(leadId);
+    currentProfile.leads_used = (currentProfile.leads_used || 0) + 1;
+    updateQuotaUI();
+    renderLeadsTable();
 
-  if (newUsed >= quota) {
-    setTimeout(() => {
-      document.getElementById('paywallOverlay').classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }, 1200);
+    const remaining = quota - currentProfile.leads_used;
+    showToast(`✓ Lead desbloqueado! ${remaining} crédito${remaining !== 1 ? 's' : ''} restante${remaining !== 1 ? 's' : ''}.`);
+
+    if (currentProfile.leads_used >= quota) {
+      setTimeout(() => {
+        document.getElementById('paywallOverlay').classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }, 1200);
+    }
+  } catch (err) {
+    showToast('Erro de conexão. Tente novamente.', true);
+    console.error('revealLead error:', err);
   }
 }
 

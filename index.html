@@ -35,8 +35,8 @@ body{background:#000;color:#fff;font-family:'Inter',sans-serif;font-weight:400;o
 .nav-logo span{color:#F97316;}
 .nav-center{display:none;gap:32px;list-style:none;}
 @media(min-width:768px){.nav-center{display:flex;}}
-.nav-center a{color:#fff;text-decoration:none;font-size:14px;font-weight:400;opacity:.75;transition:opacity .2s;}
-.nav-center a:hover{opacity:1;}
+.nav-center a{color:#fff;text-decoration:none;font-size:14px;font-weight:500;opacity:1;transition:opacity .2s;}
+.nav-center a:hover{opacity:.8;}
 .nav-cta{background:#fff;color:#000;padding:8px 24px;border-radius:8px;font-size:14px;font-weight:500;border:none;cursor:pointer;transition:background .2s;white-space:nowrap;}
 .nav-cta:hover{background:#e5e7eb;}
 .nav-mob{display:flex;align-items:center;gap:10px;}
@@ -406,7 +406,7 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
   <!-- HERO CONTENT -->
   <div class="hero-body">
     <div class="hero-left">
-      <h1 class="hero-h1" id="heroH1" aria-label="Leads que fecham contratos no Brasil."></h1>
+      <h1 class="hero-h1" id="heroH1" aria-label="Conectando quem constrói o Brasil."></h1>
       <p class="hero-sub fade-in" id="heroSub" style="transition-delay:800ms;">A plataforma B2B de leads para construção civil. Conecte sua empresa às construtoras e fornecedores certos — dados verificados, score inteligente e a assistente <strong style="color:#F97316;font-weight:600;">Wex</strong>.</p>
       <div class="hero-btns fade-in" id="heroBtns" style="transition-delay:1200ms;">
         <button class="btn-white" onclick="openModal('signup')">Começar grátis</button>
@@ -414,22 +414,31 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
       </div>
     </div>
     <div class="hero-right">
-      <div class="hero-tag-card lg fade-in" id="heroTag" style="transition-delay:1400ms;">
-        <p class="hero-tag-text">Leads. Score. Pipeline.</p>
+      <div class="hero-tag-card lg fade-in" id="heroTag" style="transition-delay:1400ms;padding:20px 28px;border-radius:16px;min-width:280px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#F97316;animation:bk 2s infinite;flex-shrink:0;"></div>
+          <span style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#F97316;">Lead em tempo real</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+          <div style="width:38px;height:38px;border-radius:9px;background:rgba(249,115,22,.2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#F97316;flex-shrink:0;">EC</div>
+          <div>
+            <div style="font-size:14px;font-weight:600;color:#fff;letter-spacing:-.01em;">Engenharia Constromax</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.55);margin-top:1px;">São Paulo · SP</div>
+          </div>
+          <div style="margin-left:auto;font-size:20px;font-weight:700;color:#F97316;letter-spacing:-.02em;">94</div>
+        </div>
+        <div style="height:1px;background:rgba(255,255,255,.1);margin-bottom:14px;"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <span style="background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.25);color:#F97316;font-size:10px;font-weight:700;padding:3px 9px;border-radius:5px;letter-spacing:.04em;">CNAE 41.20</span>
+          <span style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);color:#34d399;font-size:10px;font-weight:700;padding:3px 9px;border-radius:5px;letter-spacing:.04em;">✓ Verificado</span>
+          <span style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-size:10px;font-weight:600;padding:3px 9px;border-radius:5px;">Score 70+</span>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════
-     PROOF STRIP
-═══════════════════════════════════ -->
-<div class="proof">
-  <div class="pi"><div class="pi-ic"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div><div class="pi-n">15k+</div><div class="pi-l">Leads verificados</div></div></div>
-  <div class="pi"><div class="pi-ic"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div><div class="pi-n">0–100</div><div class="pi-l">Score de qualidade</div></div></div>
-  <div class="pi"><div class="pi-ic"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div><div class="pi-n">Wex IA</div><div class="pi-l">Assistente especialista</div></div></div>
-  <div class="pi"><div class="pi-ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 17h7m-3.5-3.5v7"/></svg></div><div><div class="pi-n">CRM</div><div class="pi-l">Pipeline integrado</div></div></div>
-</div>
+<!-- ═══ PROOF STRIP REMOVED ═══ -->
 
 <!-- ═══════════════════════════════════
      PARA QUEM É
@@ -494,16 +503,61 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
         </div>
       </div>
       <div class="rvr">
-        <div class="mk">
-          <div class="mk-bar"><div class="mdot r"></div><div class="mdot y"></div><div class="mdot g"></div><div class="mk-ttlbar">wexiolead — Buscar Leads</div></div>
-          <div class="mk-body">
-            <div class="mk-head"><div class="mk-ttl">Buscar Leads</div><div class="mk-bdg">847 encontrados</div></div>
-            <div class="mk-flt"><div class="ftag">Construtoras</div><div class="ftag">SP · MG</div><div class="ftag">CNAE 41.20</div><div class="ftag">Score 70+</div></div>
-            <div class="lead-row"><div class="lava" style="background:rgba(249,115,22,.1);color:#F97316;">EC</div><div class="l-info"><div class="l-name">Engenharia Constromax</div><div class="l-meta">São Paulo · SP <span class="l-ver">Verificado</span></div></div><div class="l-score">94</div></div>
-            <div class="lead-row"><div class="lava" style="background:rgba(5,150,105,.1);color:#34d399;">BC</div><div class="l-info"><div class="l-name">Belo Construções LTDA</div><div class="l-meta">Belo Horizonte · MG <span class="l-ver">Verificado</span></div></div><div class="l-score">88</div></div>
-            <div class="lead-row"><div class="lava" style="background:rgba(37,99,235,.1);color:#60a5fa;">PA</div><div class="l-info"><div class="l-name">Projetos Alfa Incorporadora</div><div class="l-meta">Campinas · SP</div></div><div class="l-score">82</div></div>
-            <div class="lead-row"><div class="lava" style="background:rgba(139,92,246,.1);color:#a78bfa;">VS</div><div class="l-info"><div class="l-name">Vitória Sienge Construtora</div><div class="l-meta">Ribeirão Preto · SP <span class="l-ver">Verificado</span></div></div><div class="l-score">79</div></div>
-            <div class="mk-wex"><div class="wdot"></div><div class="wtxt"><strong>Wex:</strong> Encontrei 347 construtoras de médio porte em SP com score 70+. Deseja filtrar por decisor disponível?</div></div>
+        <!-- White-theme mockup matching the real search UI -->
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:20px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.1);">
+          <div style="background:#f9fafb;border-bottom:1px solid #e5e7eb;padding:12px 16px;display:flex;gap:6px;align-items:center;">
+            <div style="width:8px;height:8px;border-radius:50%;background:#ff5f56;"></div>
+            <div style="width:8px;height:8px;border-radius:50%;background:#ffbd2e;"></div>
+            <div style="width:8px;height:8px;border-radius:50%;background:#27c93f;"></div>
+            <div style="font-size:12px;font-weight:500;color:#9ca3af;margin:0 auto;">wexiolead — Buscar Leads</div>
+          </div>
+          <div style="padding:20px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+              <div style="font-size:14px;font-weight:700;color:#1a1814;letter-spacing:-.01em;">Buscar Leads</div>
+              <div style="background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.2);color:#F97316;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;letter-spacing:.04em;">847 encontrados</div>
+            </div>
+            <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:8px 12px;font-size:11px;color:#9ca3af;margin-bottom:14px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+              <span style="background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.2);color:#F97316;font-size:11px;font-weight:600;padding:2px 9px;border-radius:5px;">Construtoras</span>
+              <span style="background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.2);color:#F97316;font-size:11px;font-weight:600;padding:2px 9px;border-radius:5px;">SP · MG</span>
+              <span style="background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.2);color:#F97316;font-size:11px;font-weight:600;padding:2px 9px;border-radius:5px;">CNAE 41.20</span>
+              <span style="background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.2);color:#F97316;font-size:11px;font-weight:600;padding:2px 9px;border-radius:5px;">Score 70+</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;border:1px solid #f3f4f6;margin-bottom:4px;">
+              <div style="width:34px;height:34px;border-radius:8px;background:rgba(249,115,22,.1);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#F97316;flex-shrink:0;">EC</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:600;color:#1a1814;">Engenharia Constromax</div>
+                <div style="font-size:11px;color:#9ca3af;margin-top:1px;display:flex;gap:6px;align-items:center;">São Paulo · SP <span style="font-size:9px;background:rgba(5,150,105,.1);color:#059669;padding:1px 6px;border-radius:4px;font-weight:700;">Verificado</span></div>
+              </div>
+              <div style="font-size:16px;font-weight:700;color:#F97316;">94</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;border:1px solid #f3f4f6;margin-bottom:4px;">
+              <div style="width:34px;height:34px;border-radius:8px;background:rgba(5,150,105,.1);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#059669;flex-shrink:0;">BC</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:600;color:#1a1814;">Belo Construções LTDA</div>
+                <div style="font-size:11px;color:#9ca3af;margin-top:1px;display:flex;gap:6px;align-items:center;">Belo Horizonte · MG <span style="font-size:9px;background:rgba(5,150,105,.1);color:#059669;padding:1px 6px;border-radius:4px;font-weight:700;">Verificado</span></div>
+              </div>
+              <div style="font-size:16px;font-weight:700;color:#F97316;">88</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;border:1px solid #f3f4f6;margin-bottom:4px;">
+              <div style="width:34px;height:34px;border-radius:8px;background:rgba(37,99,235,.1);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#3b82f6;flex-shrink:0;">PA</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:600;color:#1a1814;">Projetos Alfa Incorporadora</div>
+                <div style="font-size:11px;color:#9ca3af;margin-top:1px;">Campinas · SP</div>
+              </div>
+              <div style="font-size:16px;font-weight:700;color:#F97316;">82</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;border:1px solid #f3f4f6;margin-bottom:12px;">
+              <div style="width:34px;height:34px;border-radius:8px;background:rgba(139,92,246,.1);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#8b5cf6;flex-shrink:0;">VS</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:600;color:#1a1814;">Vitória Sienge Construtora</div>
+                <div style="font-size:11px;color:#9ca3af;margin-top:1px;display:flex;gap:6px;align-items:center;">Ribeirão Preto · SP <span style="font-size:9px;background:rgba(5,150,105,.1);color:#059669;padding:1px 6px;border-radius:4px;font-weight:700;">Verificado</span></div>
+              </div>
+              <div style="font-size:16px;font-weight:700;color:#F97316;">79</div>
+            </div>
+            <div style="border-radius:10px;background:rgba(249,115,22,.06);border:1px solid rgba(249,115,22,.15);padding:11px 14px;display:flex;align-items:flex-start;gap:10px;">
+              <div style="width:7px;height:7px;border-radius:50%;background:#F97316;flex-shrink:0;margin-top:4px;animation:bk 2s infinite;"></div>
+              <div style="font-size:12px;color:#6b6760;line-height:1.5;"><strong style="color:#F97316;font-weight:600;">Wex:</strong> Encontrei 347 construtoras de médio porte em SP com score 70+. Deseja filtrar por decisor disponível?</div>
+            </div>
           </div>
         </div>
       </div>
@@ -639,7 +693,7 @@ function navLoggedIn(u){
 
 // ── HERO CHAR ANIMATION ──
 (function(){
-  const lines=['Leads que fecham','contratos no Brasil.'];
+  const lines=['Conectando quem','constrói o Brasil.'];
   const container=document.getElementById('heroH1');
   if(!container) return;
   const charDelay=30;

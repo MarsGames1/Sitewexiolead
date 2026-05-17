@@ -1461,38 +1461,50 @@ textarea.form-input { resize: vertical; min-height: 90px; }
 
   <div id="suggestedLeadsSection"></div>
 
-  <div class="filter-bar">
-    <input type="text" id="leadSearch" placeholder="Buscar empresa, cidade, CNPJ..." oninput="filterLeads()">
-    <select id="leadTipo" onchange="filterLeads()">
-      <option value="">Tipo: Todos</option>
-      <option value="construtora">Construtoras</option>
-      <option value="fornecedor">Fornecedores</option>
-      <option value="empreiteiro">Empreiteiros</option>
-</select>
-    <select id="leadSegmento" onchange="filterLeads()">
-      <option value="">Segmento</option>
-      <option>Construção Residencial</option>
-      <option>Construção Comercial</option>
-      <option>Construção Industrial</option>
-      <option>Infraestrutura</option>
-      <option>Reformas e Manutenção</option>
-      <option>Materiais de Construção</option>
-      <option>Instalações Elétricas</option>
-      <option>Hidráulica e Encanamento</option>
-      <option>Construção</option>
-      <option>Tecnologia</option>
-</select>
-    <select id="leadEstado" onchange="filterLeads()">
-      <option value="">Estado</option>
-      <option>SP</option><option>RJ</option><option>MG</option><option>RS</option>
-      <option>PR</option><option>BA</option><option>CE</option><option>PE</option>
-      <option>GO</option><option>DF</option><option>SC</option><option>ES</option>
-</select>
-    <button class="btn btn-accent" id="btnBuscarLeads" onclick="filterLeads()" style="height:40px;padding:0 18px;flex-shrink:0;">
-      <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2.5;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      Buscar
-    </button>
-</div>
+  <!-- Hidden filter selects for JS to use -->
+  <select id="leadTipo" style="display:none;"><option value=""></option><option value="construtora">Construtoras</option><option value="fornecedor">Fornecedores</option><option value="empreiteiro">Empreiteiros</option></select>
+  <select id="leadSegmento" style="display:none;"><option value=""></option><option>Construção Residencial</option><option>Construção Comercial</option><option>Construção Industrial</option><option>Infraestrutura</option><option>Reformas e Manutenção</option><option>Materiais de Construção</option><option>Instalações Elétricas</option><option>Hidráulica e Encanamento</option><option>Construção</option><option>Tecnologia</option></select>
+  <select id="leadEstado" style="display:none;"><option value=""></option><option>SP</option><option>RJ</option><option>MG</option><option>RS</option><option>PR</option><option>BA</option><option>CE</option><option>PE</option><option>GO</option><option>DF</option><option>SC</option><option>ES</option></select>
+
+  <!-- Clean search bar -->
+  <div style="position:relative;margin-bottom:20px;" id="leadSearchWrap">
+    <div style="display:flex;gap:10px;align-items:center;">
+      <div style="flex:1;position:relative;">
+        <svg viewBox="0 0 24 24" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:2;pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="leadSearch" placeholder="Buscar empresa, cidade ou CNPJ..."
+          style="width:100%;padding:12px 16px 12px 42px;border:1.5px solid var(--border);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);background:var(--surface);outline:none;box-shadow:var(--shadow-md);transition:border-color .2s,box-shadow .2s;"
+          oninput="filterLeads()"
+          onfocus="this.style.borderColor='rgba(249,115,22,0.5)';this.style.boxShadow='0 0 0 3px rgba(249,115,22,0.08),var(--shadow-md)'"
+          onblur="this.style.borderColor='var(--border)';this.style.boxShadow='var(--shadow-md)'"
+          onkeydown="if(event.key==='Enter')filterLeads()">
+      </div>
+      <button class="btn btn-accent" id="btnBuscarLeads" onclick="filterLeads()" style="height:46px;padding:0 22px;flex-shrink:0;border-radius:12px;font-size:14px;">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.5;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Buscar
+      </button>
+    </div>
+    <!-- Quick filters chips -->
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;" id="filterChips">
+      <span style="font-size:11px;color:var(--muted);align-self:center;font-weight:500;">Filtros:</span>
+      <button onclick="applyChip('tipo','construtora',this)" class="filter-chip">Construtoras</button>
+      <button onclick="applyChip('tipo','fornecedor',this)" class="filter-chip">Fornecedores</button>
+      <button onclick="applyChip('tipo','empreiteiro',this)" class="filter-chip">Empreiteiros</button>
+      <button onclick="applyChip('estado','SP',this)" class="filter-chip">São Paulo</button>
+      <button onclick="applyChip('estado','RJ',this)" class="filter-chip">Rio de Janeiro</button>
+      <button onclick="applyChip('estado','MG',this)" class="filter-chip">Minas Gerais</button>
+      <button onclick="applyChip('segmento','Construção',this)" class="filter-chip">Construção Civil</button>
+      <button onclick="applyChip('segmento','Infraestrutura',this)" class="filter-chip">Infraestrutura</button>
+    </div>
+  </div>
+  <style>
+  .filter-chip {
+    padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--muted); font-size: 12px; font-weight: 500;
+    cursor: pointer; transition: all .15s; font-family: 'DM Sans', sans-serif;
+  }
+  .filter-chip:hover { border-color: rgba(249,115,22,0.4); color: var(--accent); background: var(--accent-bg); }
+  .filter-chip.active { background: var(--accent-bg2); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  </style>
 
   <div class="card">
     <div class="card-head">
@@ -1974,12 +1986,12 @@ async function fetchLeadsFromServer(filters = {}) {
 
 function filterLeads() {
   const q = document.getElementById('leadSearch').value.trim();
-  const seg = document.getElementById('leadSegmento').value;
+  const segmento = document.getElementById('leadSegmento').value;
   const est = document.getElementById('leadEstado').value;
   const tipo = document.getElementById('leadTipo').value;
 
   // Use server-side search for meaningful queries
-  fetchLeadsFromServer({ q, seg, estado: est, tipo });
+  fetchLeadsFromServer({ q, segmento, estado: est, tipo });
 }
 
 function renderLeadsTable() {
@@ -2010,35 +2022,8 @@ function renderLeadsTable() {
 
   const tbody = document.getElementById('leadsTbody');
 
-  // If no results but we have leads loaded, show 4 suggested locked leads as preview
   if (!slice.length && allLeads.length > 0) {
-    const suggested = allLeads.slice(0, 4);
-    var sugRows = '';
-    for (var si = 0; si < suggested.length; si++) {
-      var sl = suggested[si];
-      var sname = sl.nome_fantasia || sl.razao_social || '-';
-      var ssc = sl.score_lead;
-      var sscore = ssc ? '<span class="score-badge ' + scoreClass(ssc) + '">' + ssc + '</span>' : '<span class="score-badge score-low">-</span>';
-      var scnpj = sl.cnpj ? sl.cnpj.replace(/\d(?=\d{3})/g,'*') : '-';
-      var scidade = (sl.municipio||'-') + (sl.estado?' - '+sl.estado:'');
-      var sseg = sl.segmento_simplificado||'-';
-      sugRows += '<tr class="lead-locked-row" id="lead-row-'+sl.id+'">' +
-        '<td><div style="font-weight:500;margin-bottom:2px;">'+sname+'</div>' +
-        '<div style="font-size:11px;color:var(--muted);">'+scnpj+'</div></td>' +
-        '<td><span class="badge b-orange" style="font-size:10px;">'+sseg+'</span></td>' +
-        '<td style="color:var(--muted);font-size:13px;">'+scidade+'</td>' +
-        '<td><span style="display:inline-flex;align-items:center;gap:5px;background:var(--surface3);border-radius:6px;padding:3px 9px;font-size:11px;color:var(--dim);">' +
-        '<svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Bloqueado</span></td>' +
-        '<td>'+sscore+'</td>' +
-        '<td><span style="color:var(--dim);font-size:12px;">-</span></td>' +
-        '<td><button class="btn btn-accent" style="padding:5px 10px;font-size:11px;" onclick="revealLead(\''+sl.id+'\')">'+
-        '<svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:#fff;fill:none;stroke-width:2;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'+
-        'Ver Lead</button></td></tr>';
-    }
-    tbody.innerHTML =
-      '<tr><td colspan="7" style="padding:10px 14px 4px;border-bottom:none;">' +
-      '<div style="font-size:12px;color:var(--muted);font-weight:500;">Nenhum lead encontrado. Veja sugestoes da base:</div>' +
-      '</td></tr>' + sugRows;
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">🔍</div><p>Nenhum lead encontrado com esses filtros.<br><span style="font-size:12px;">Tente ajustar os chips de filtro ou limpar a busca.</span></p></div></td></tr>`;
     return;
   }
 
@@ -2868,41 +2853,91 @@ function showToast(msg, isError = false) {
 }
 
 //
-// SUGGESTED LEADS — 4 leads bloqueados exibidos ao abrir a busca
+// CHIP FILTER HELPERS
+//
+const activeChips = {};
+function applyChip(field, value, el) {
+  if (activeChips[field] === value) {
+    // toggle off
+    activeChips[field] = '';
+    el.classList.remove('active');
+    if (field === 'tipo') document.getElementById('leadTipo').value = '';
+    if (field === 'estado') document.getElementById('leadEstado').value = '';
+    if (field === 'segmento') document.getElementById('leadSegmento').value = '';
+  } else {
+    // deactivate same-field chips
+    document.querySelectorAll('#filterChips .filter-chip').forEach(c => {
+      if (c !== el && c.getAttribute('onclick')?.includes(`'${field}'`)) c.classList.remove('active');
+    });
+    activeChips[field] = value;
+    el.classList.add('active');
+    if (field === 'tipo') document.getElementById('leadTipo').value = value;
+    if (field === 'estado') document.getElementById('leadEstado').value = value;
+    if (field === 'segmento') document.getElementById('leadSegmento').value = value;
+  }
+  filterLeads();
+}
+
+// 
+// SUGGESTED LEADS — 4 leads bloqueados exibidos ao abrir a busca (card layout bonito)
 //
 function renderSuggestedLeads() {
   var container = document.getElementById('suggestedLeadsSection');
   if (!container || !allLeads.length) return;
   var suggested = allLeads.slice(0, 4);
   function scClass(s) { return s >= 80 ? 'score-high' : s >= 60 ? 'score-mid' : 'score-low'; }
-  var rows = '';
+
+  var cards = '';
   for (var i = 0; i < suggested.length; i++) {
     var l = suggested[i];
     var name = l.nome_fantasia || l.razao_social || '-';
     var sc = l.score_lead;
-    var scoreBadge = sc ? '<span class="score-badge ' + scClass(sc) + '">' + sc + '</span>' : '<span class="score-badge score-low">-</span>';
-    var cnpjMasked = l.cnpj ? l.cnpj.replace(/\d(?=\d{3})/g, '*') : '-';
-    var cidade = (l.municipio || '-') + (l.estado ? ' - ' + l.estado : '');
-    var segmento = l.segmento_simplificado || '-';
-    rows += '<tr>' +
-      '<td><div style="font-weight:500;margin-bottom:2px;">' + name + '</div>' +
-      '<div style="font-size:11px;color:var(--muted);">' + cnpjMasked + '</div></td>' +
-      '<td><span class="badge b-orange" style="font-size:10px;">' + segmento + '</span></td>' +
-      '<td style="color:var(--muted);font-size:13px;">' + cidade + '</td>' +
-      '<td><span style="display:inline-flex;align-items:center;gap:5px;background:var(--surface3);border-radius:6px;padding:3px 9px;font-size:11px;color:var(--dim);">' +
-      '<svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Bloqueado</span></td>' +
-      '<td>' + scoreBadge + '</td><td></td>' +
-      '<td><button class="btn btn-accent" style="padding:5px 10px;font-size:11px;" onclick="revealLead(\'' + l.id + '\')">' +
-      '<svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:#fff;fill:none;stroke-width:2;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>' +
-      'Ver Lead</button></td></tr>';
+    var scoreBadge = sc ? '<span class="score-badge ' + scClass(sc) + '" style="width:auto;padding:2px 8px;font-size:11px;">' + sc + '</span>' : '';
+    var cidade = (l.municipio || '') + (l.estado ? ' · ' + l.estado : '');
+    var segmento = l.segmento_simplificado || '';
+    var delay = (i * 60) + 'ms';
+    cards += '<div class="sug-card" style="animation-delay:' + delay + ';" onclick="revealLead(\'' + l.id + '\')">' +
+      '<div class="sug-card-top">' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-weight:600;font-size:13px;color:var(--text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + name + '</div>' +
+          (segmento ? '<span style="font-size:10px;background:var(--accent-bg);color:var(--accent);padding:2px 8px;border-radius:20px;font-weight:600;">' + segmento + '</span>' : '') +
+        '</div>' +
+        scoreBadge +
+      '</div>' +
+      '<div style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);margin-top:10px;">' +
+        '<svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
+        cidade +
+      '</div>' +
+      '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">' +
+        '<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dim);">' +
+          '<svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' +
+          'Dados bloqueados' +
+        '</div>' +
+        '<span style="font-size:11px;font-weight:600;color:var(--accent);display:flex;align-items:center;gap:4px;">' +
+          '<svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>' +
+          'Ver Lead' +
+        '</span>' +
+      '</div>' +
+    '</div>';
   }
+
   container.innerHTML =
-    '<div style="margin-bottom:16px;">' +
-    '<div style="font-family:Syne,sans-serif;font-weight:700;font-size:13px;color:var(--text);margin-bottom:4px;">Sugestoes para voce</div>' +
-    '<div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Leads selecionados com base no seu perfil. Clique em Ver Lead para desbloquear.</div>' +
-    '<div class="card" style="margin-bottom:0;"><div class="tbl-wrap"><table>' +
-    '<thead><tr><th>Empresa</th><th>Segmento</th><th>Cidade/UF</th><th>Contato</th><th>Score</th><th></th><th>Acao</th></tr></thead>' +
-    '<tbody>' + rows + '</tbody></table></div></div></div>';
+    '<div style="margin-bottom:22px;">' +
+    '<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">' +
+      '<div style="font-family:Syne,sans-serif;font-weight:700;font-size:14px;color:var(--text);">Sugestões para você</div>' +
+      '<span style="font-size:11px;color:var(--dim);background:var(--surface3);padding:1px 8px;border-radius:20px;">Com base no seu perfil</span>' +
+    '</div>' +
+    '<div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Clique em qualquer card para desbloquear o lead e ver dados completos.</div>' +
+    '<div class="sug-grid">' + cards + '</div>' +
+    '</div>' +
+    '<style>' +
+    '.sug-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}' +
+    '.sug-card{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;' +
+      'transition:all .2s;animation:sugCardIn .3s ease both;box-shadow:var(--shadow);}' +
+    '.sug-card:hover{border-color:rgba(249,115,22,0.4);box-shadow:0 4px 20px rgba(249,115,22,0.12);transform:translateY(-2px);}' +
+    '.sug-card-top{display:flex;align-items:flex-start;gap:8px;}' +
+    '@keyframes sugCardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}' +
+    '</style>';
 }
 
 
@@ -2917,29 +2952,46 @@ async function revealLead(leadId) {
     return;
   }
 
+  // Already revealed — just re-render
+  if (revealedLeads.has(leadId)) {
+    renderLeadsTable();
+    return;
+  }
+
   try {
     // RPC segura — crédito consumido e validado atomicamente no banco
     const { data, error } = await sb.rpc('revelar_lead', { p_lead_id: leadId });
+
     if (error) {
       if (error.message?.includes('quota_exceeded')) {
         document.getElementById('paywallOverlay').classList.add('active');
         document.body.style.overflow = 'hidden';
-      } else {
-        showToast('Erro ao revelar lead. Tente novamente.', true);
+        return;
       }
-      return;
-    }
-
-    // Atualiza dados do lead localmente com os dados completos retornados
-    if (data) {
-      const idx = allLeads.findIndex(l => l.id === leadId);
-      if (idx !== -1) Object.assign(allLeads[idx], data);
+      // RPC não existe ou parâmetro diferente — fallback: atualiza profile manualmente
+      console.warn('revelar_lead RPC error, usando fallback:', error.message);
+      const newUsed = used + 1;
+      const { error: updateErr } = await sb.from('profiles')
+        .update({ leads_used: newUsed })
+        .eq('id', currentUser.id);
+      if (updateErr) {
+        showToast('Erro ao revelar lead. Tente novamente.', true);
+        return;
+      }
+      currentProfile.leads_used = newUsed;
+    } else {
+      // RPC funcionou — atualiza dados do lead com os dados completos retornados
+      if (data) {
+        const idx = allLeads.findIndex(l => l.id === leadId);
+        if (idx !== -1) Object.assign(allLeads[idx], data);
+      }
+      currentProfile.leads_used = (currentProfile.leads_used || 0) + 1;
     }
 
     revealedLeads.add(leadId);
-    currentProfile.leads_used = (currentProfile.leads_used || 0) + 1;
     updateQuotaUI();
     renderLeadsTable();
+    renderSuggestedLeads();
 
     const remaining = quota - currentProfile.leads_used;
     showToast(`Lead desbloqueado! ${remaining} crédito${remaining !== 1 ? 's' : ''} restante${remaining !== 1 ? 's' : ''}.`);

@@ -86,6 +86,7 @@ section{padding:100px 24px;}
 #problema{background:#f7f7f5;}
 .who-grid{display:grid;grid-template-columns:1fr;gap:20px;margin-top:56px;}
 @media(min-width:768px){.who-grid{grid-template-columns:1fr 1fr;}}
+@media(min-width:1024px){.who-grid{grid-template-columns:1fr 1fr 1fr;}}
 .wc{background:#fff;border:1px solid #ebebeb;border-radius:20px;padding:40px;position:relative;overflow:hidden;transition:border-color .3s,transform .3s,box-shadow .3s;}
 .wc:hover{border-color:rgba(249,115,22,.3);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.06);}
 .wc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#F97316,#fb923c);}
@@ -338,7 +339,7 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
     </div>
     <div id="fSu">
       <div class="fg2"><label for="sN">Nome completo</label><input type="text" id="sN" autocomplete="name" placeholder="Seu nome" required><div class="fe" id="eN"></div></div>
-      <div class="fg2"><label for="sTp">Você é</label><select id="sTp"><option value="fornecedor">Fornecedor — quero vender para construtoras</option><option value="construtora">Construtora — quero encontrar parceiros</option></select></div>
+      <div class="fg2"><label for="sTp">Você é</label><select id="sTp"><option value="fornecedor">Fornecedor — quero vender para construtoras</option><option value="construtora">Construtora — quero encontrar parceiros</option><option value="empreiteiro">Empreiteiro — ofereço serviços para obras</option></select></div>
       <div class="fg2"><label for="sE">E-mail</label><input type="email" id="sE" autocomplete="email" placeholder="seu@email.com" required><div class="fe" id="eE"></div></div>
       <div class="fg2"><label for="sP">Senha</label><input type="password" id="sP" autocomplete="new-password" placeholder="Mínimo 8 caracteres" required><div class="fe" id="ePw"></div></div>
       <button class="bsub" id="bSu" onclick="handleSignup()"><span id="bSuT">Criar conta grátis →</span></button>
@@ -436,15 +437,15 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
 <section id="problema">
   <div class="sec-inner">
     <div class="sec-kicker rv">Para quem é</div>
-    <h2 class="sec-title rv d1">Dois lados do setor.<br>Uma só plataforma.</h2>
-    <p class="sec-sub rv d2">O wexiolead conecta quem vende com quem compra dentro do universo da construção civil.</p>
+    <h2 class="sec-title rv d1">Três lados do setor.<br>Uma só plataforma.</h2>
+    <p class="sec-sub rv d2">O wexiolead conecta fornecedores, construtoras e empreiteiros dentro do universo da construção civil.</p>
     <div class="who-grid" style="margin-top:56px;">
       <div class="wc rv">
         <div class="wtag">Para Fornecedores</div>
         <h3>Você fornece. Nós encontramos quem compra.</h3>
-        <p>Materiais, equipamentos, locação de maquinário, engenharia — chegue nas construtoras certas, na hora certa.</p>
+        <p>Materiais, equipamentos, locação de maquinário — chegue nas construtoras e empreiteiros certos, na hora certa.</p>
         <div class="wlist">
-          <div class="wi">Identifique construtoras ativas na sua região</div>
+          <div class="wi">Identifique construtoras e empreiteiros ativos</div>
           <div class="wi">Saiba quem é o decisor de compras</div>
           <div class="wi">Filtre por porte, CNAE e obras em andamento</div>
           <div class="wi">Contatos verificados e atualizados</div>
@@ -453,12 +454,23 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
       <div class="wc rv d2">
         <div class="wtag">Para Construtoras</div>
         <h3>Você constrói. Nós encontramos parceiros.</h3>
-        <p>Incorporadoras e construtoras que buscam fornecedores qualificados, subcontratados e parcerias estratégicas.</p>
+        <p>Incorporadoras e construtoras que buscam fornecedores qualificados, empreiteiros e parcerias estratégicas.</p>
         <div class="wlist">
-          <div class="wi">Encontre fornecedores qualificados por região</div>
-          <div class="wi">Mapeie parceiros e subcontratados</div>
+          <div class="wi">Encontre fornecedores e empreiteiros por região</div>
+          <div class="wi">Mapeie subcontratados e serviços especializados</div>
           <div class="wi">Inteligência sobre o mercado local</div>
           <div class="wi">Visibilidade no diretório da plataforma</div>
+        </div>
+      </div>
+      <div class="wc rv d3">
+        <div class="wtag">Para Empreiteiros</div>
+        <h3>Você executa. Nós encontramos quem contrata.</h3>
+        <p>Empreiteiros e fornecedores de serviço que buscam construtoras e obras para atuar com escala e previsibilidade.</p>
+        <div class="wlist">
+          <div class="wi">Encontre construtoras buscando serviços ativos</div>
+          <div class="wi">Mapeie obras em andamento na sua região</div>
+          <div class="wi">Visibilidade como prestador no diretório</div>
+          <div class="wi">Dados do decisor responsável por contratar</div>
         </div>
       </div>
     </div>
@@ -560,9 +572,9 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
     <p class="sec-sub rv d1" style="margin:0 auto 0;">Comece grátis. Cancele quando quiser.</p>
     <div class="pg">
       <div class="plan rv"><div class="plan-n">Free</div><div class="plan-pr"><sup>R$</sup>0</div><div class="plan-pe">para sempre grátis</div><div class="plan-dv"></div><ul class="plan-fs"><li>10 consultas de leads/mês</li><li>Filtros básicos</li><li>Score parcial</li><li>Wex limitada</li></ul><button class="plan-btn out" onclick="openModal('signup')">Começar grátis</button></div>
-      <div class="plan rv d1"><div class="plan-n">Starter</div><div class="plan-pr"><sup>R$</sup>97<small>/mês</small></div><div class="plan-pe">cobrado mensalmente</div><div class="plan-dv"></div><ul class="plan-fs"><li>300 consultas/mês</li><li>Exportação CSV</li><li>Score completo</li><li>Selo verificado</li><li>Perfil público</li><li>Wex completa</li></ul><button class="plan-btn out" onclick="openModal('signup')">Assinar Starter</button></div>
-      <div class="plan feat rv d2"><div class="plan-b">Mais popular</div><div class="plan-n">Pro</div><div class="plan-pr"><sup>R$</sup>197<small>/mês</small></div><div class="plan-pe">cobrado mensalmente</div><div class="plan-dv"></div><ul class="plan-fs"><li>1.000 consultas/mês</li><li>CRM leve integrado</li><li>Alertas por e-mail</li><li>Comparador de leads</li><li>Inteligência de mercado</li><li>Relatório mensal PDF</li><li>Suporte prioritário</li></ul><button class="plan-btn sol" onclick="openModal('signup')">Assinar Pro</button></div>
-      <div class="plan rv d3"><div class="plan-n">Agency</div><div class="plan-pr"><sup>R$</sup>397<small>/mês</small></div><div class="plan-pe">cobrado mensalmente</div><div class="plan-dv"></div><ul class="plan-fs"><li>Consultas ilimitadas</li><li>Leads patrocinados</li><li>Programa de indicação</li><li>API disponível</li><li>Relatórios avançados</li><li>Suporte dedicado</li></ul><button class="plan-btn out" onclick="openModal('signup')">Assinar Agency</button></div>
+      <div class="plan rv d1"><div class="plan-n">Starter</div><div class="plan-pr"><sup>R$</sup>97<small>/mês</small></div><div class="plan-pe">cobrado mensalmente</div><div class="plan-dv"></div><ul class="plan-fs"><li>300 consultas/mês</li><li>Exportação CSV</li><li>Score completo</li><li>Selo verificado</li><li>Perfil público</li><li>Wex completa</li></ul><button class="plan-btn out" onclick="goCheckout('starter')">Assinar Starter</button></div>
+      <div class="plan feat rv d2"><div class="plan-b">Mais popular</div><div class="plan-n">Pro</div><div class="plan-pr"><sup>R$</sup>197<small>/mês</small></div><div class="plan-pe">cobrado mensalmente</div><div class="plan-dv"></div><ul class="plan-fs"><li>1.000 consultas/mês</li><li>CRM leve integrado</li><li>Alertas por e-mail</li><li>Comparador de leads</li><li>Inteligência de mercado</li><li>Relatório mensal PDF</li><li>Suporte prioritário</li></ul><button class="plan-btn sol" onclick="goCheckout('pro')">Assinar Pro</button></div>
+      <div class="plan rv d3"><div class="plan-n">Agency</div><div class="plan-pr"><sup>R$</sup>397<small>/mês</small></div><div class="plan-pe">cobrado mensalmente</div><div class="plan-dv"></div><ul class="plan-fs"><li>Consultas ilimitadas</li><li>Leads patrocinados</li><li>Programa de indicação</li><li>API disponível</li><li>Relatórios avançados</li><li>Suporte dedicado</li></ul><button class="plan-btn out" onclick="goCheckout('agency')">Assinar Agency</button></div>
     </div>
   </div>
 </section>
@@ -699,7 +711,7 @@ async function handleSignup(){
     const{data,error}=await sb.auth.signUp({email:e,password:p,options:{data:{full_name:n,tipo:tp}}});
     if(error) throw error;
     if(data.user&&!data.session){toast('Verifique seu e-mail para confirmar a conta.');document.getElementById('authModal').classList.remove('open');document.body.style.overflow='';}
-    else if(data.session) location.href='dashboard.html';
+    else if(data.session){const pending=sessionStorage.getItem('pendingPlan');if(pending){sessionStorage.removeItem('pendingPlan');location.href='checkout.html?plan='+pending;}else location.href='dashboard.html';}
   }catch(err){setE('eE',err.message.includes('already')?'E-mail já cadastrado.':err.message);}
   finally{document.getElementById('bSuT').textContent='Criar conta grátis →';document.getElementById('bSu').disabled=false;}
 }
@@ -712,7 +724,9 @@ async function handleLogin(){
   try{
     const{error}=await sb.auth.signInWithPassword({email:e,password:p});
     if(error) throw error;
-    location.href='dashboard.html';
+    const pending=sessionStorage.getItem('pendingPlan');
+    if(pending){sessionStorage.removeItem('pendingPlan');location.href='checkout.html?plan='+pending;}
+    else location.href='dashboard.html';
   }catch(err){setE('eLE',err.message.includes('Invalid')?'E-mail ou senha incorretos.':err.message);}
   finally{document.getElementById('bLgT').textContent='Entrar na conta →';document.getElementById('bLg').disabled=false;}
 }
@@ -725,7 +739,20 @@ async function handleForgot(){
 function setE(id,msg){const el=document.getElementById(id);if(el)el.textContent=msg;}
 function clearE(){document.querySelectorAll('.fe').forEach(e=>e.textContent='');}
 
-// ── TOAST ──
+// ── CHECKOUT REDIRECT ──
+async function goCheckout(plan) {
+  const{data:{session}}=await sb.auth.getSession();
+  if(session){
+    location.href='checkout.html?plan='+plan;
+  } else {
+    // Save intended plan and open auth modal
+    sessionStorage.setItem('pendingPlan', plan);
+    openModal('login');
+  }
+}
+
+// After login/signup, check if there's a pending plan
+
 let tT;
 function toast(msg,err=false){
   const t=document.getElementById('toast');

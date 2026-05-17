@@ -516,6 +516,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
 .b-green { background: var(--green-bg); color: var(--green); }
 .b-blue { background: var(--blue-bg); color: var(--blue); }
 .b-orange { background: var(--accent-bg); color: var(--accent); }
+.b-teal { background: rgba(16,185,129,.1); color: #059669; }
 .b-yellow { background: rgba(251,191,36,0.15); color: #D97706; }
 .b-red { background: var(--red-bg); color: var(--red); }
 .b-gray { background: var(--surface3); color: var(--muted); }
@@ -1101,25 +1102,19 @@ textarea.form-input { resize: vertical; min-height: 90px; }
       <div style="font-size:13px;color:var(--muted);margin-bottom:20px;">Qual é o seu perfil? Isso personaliza os leads que você verá.</div>
       <div class="ob-type-grid">
         <div class="ob-type-btn" onclick="selectObType('fornecedor',this)">
-          <div class="ob-type-icon">
-            <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
-          </div>
-          <div class="ob-type-title">Fornecedor</div>
+          <div style="font-size:24px;margin-bottom:8px;">🏭</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;">Fornecedor</div>
           <div class="ob-type-sub">Vendo para construtoras</div>
         </div>
         <div class="ob-type-btn" onclick="selectObType('construtora',this)">
-          <div class="ob-type-icon">
-            <svg viewBox="0 0 24 24"><polygon points="3 22 21 22 21 8 12 2 3 8"/><line x1="9" y1="22" x2="9" y2="12"/><line x1="15" y1="22" x2="15" y2="12"/><line x1="9" y1="12" x2="15" y2="12"/></svg>
-          </div>
-          <div class="ob-type-title">Construtora</div>
+          <div style="font-size:24px;margin-bottom:8px;">🏗️</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;">Construtora</div>
           <div class="ob-type-sub">Busco parceiros e fornecedores</div>
         </div>
-        <div class="ob-type-btn" onclick="selectObType('prestadora',this)">
-          <div class="ob-type-icon">
-            <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-          </div>
-          <div class="ob-type-title">Prestadora</div>
-          <div class="ob-type-sub">Serviços para o setor</div>
+        <div class="ob-type-btn" onclick="selectObType('empreiteiro',this)">
+          <div style="font-size:24px;margin-bottom:8px;">🔨</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;">Empreiteiro</div>
+          <div class="ob-type-sub">Ofereço serviços para obras</div>
         </div>
       </div>
       <div class="ob-actions">
@@ -1472,6 +1467,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
       <option value="">Tipo: Todos</option>
       <option value="construtora">Construtoras</option>
       <option value="fornecedor">Fornecedores</option>
+      <option value="empreiteiro">Empreiteiros</option>
 </select>
     <select id="leadSegmento" onchange="filterLeads()">
       <option value="">Segmento</option>
@@ -1653,6 +1649,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
             <option value="">Selecione</option>
             <option value="fornecedor">Fornecedor</option>
             <option value="construtora">Construtora</option>
+            <option value="empreiteiro">Empreiteiro</option>
 </select>
 </div>
         <div class="form-group">
@@ -1925,41 +1922,68 @@ async function changePassword() {
 // LEADS
 //
 async function loadLeads() {
+  // Initial load: fetch top leads by score (no filter yet)
+  await fetchLeadsFromServer();
+}
+
+async function fetchLeadsFromServer(filters = {}) {
   const plan = currentProfile?.plan || 'free';
-  const limit = plan === 'free' ? 10 : 1000;
+  const isFree = plan === 'free';
+  const isStarter = plan === 'starter';
+  // Pro+ gets all filters; Starter gets tipo+estado; Free gets no filters
+  const canFilterAll  = plan === 'pro' || plan === 'agency';
+  const canFilterBasic = isStarter || canFilterAll;
 
-  const { data, error } = await sb.from('leads')
+  // Build query
+  let query = sb.from('leads')
     .select('id,razao_social,nome_fantasia,cnpj,segmento_simplificado,municipio,estado,telefone_1,email_comercial,score_lead,nome_socio_1,capital_social,estimativa_faturamento_anual,situacao_cadastral,tipo_empresa')
-    .order('score_lead', { ascending: false })
-    .limit(limit);
+    .order('score_lead', { ascending: false });
 
-  if (error) { console.error('Erro leads:', error); allLeads = []; return; }
+  // Apply server-side filters based on plan
+  if (canFilterBasic && filters.tipo) {
+    query = query.eq('tipo_empresa', filters.tipo);
+  }
+  if (canFilterBasic && filters.estado) {
+    query = query.eq('estado', filters.estado);
+  }
+  if (canFilterAll && filters.segmento) {
+    query = query.ilike('segmento_simplificado', `%${filters.segmento}%`);
+  }
+  if (canFilterBasic && filters.q) {
+    query = query.or(
+      `razao_social.ilike.%${filters.q}%,nome_fantasia.ilike.%${filters.q}%,municipio.ilike.%${filters.q}%,cnpj.ilike.%${filters.q}%`
+    );
+  }
+
+  // Limit by plan
+  const limitMap = { free: 10, starter: 300, pro: 1000, agency: 5000 };
+  query = query.limit(limitMap[plan] || 10);
+
+  const { data, error } = await query;
+  if (error) { console.error('Erro leads:', error); allLeads = []; filteredLeads = []; renderLeadsTable(); return; }
   allLeads = data || [];
+  filteredLeads = [...allLeads];
+  leadsPage = 1;
+  renderLeadsTable();
+
+  // Show plan filter lock notice for free/starter
+  if (isFree && (filters.tipo || filters.estado || filters.segmento || filters.q)) {
+    showToast('Filtros avançados disponíveis no plano Starter ou superior.', true);
+  }
 }
 
 function filterLeads() {
-  const q = document.getElementById('leadSearch').value.toLowerCase();
+  const q = document.getElementById('leadSearch').value.trim();
   const seg = document.getElementById('leadSegmento').value;
   const est = document.getElementById('leadEstado').value;
   const tipo = document.getElementById('leadTipo').value;
 
-  filteredLeads = allLeads.filter(l =>{
-    const matchQ = !q || (l.razao_social||'').toLowerCase().includes(q) ||
-      (l.nome_fantasia||'').toLowerCase().includes(q) ||
-      (l.municipio||'').toLowerCase().includes(q) ||
-      (l.cnpj||'').includes(q);
-    const matchSeg = !seg || (l.segmento_simplificado||'').toLowerCase().includes(seg.toLowerCase());
-    const matchEst = !est || l.estado === est;
-    const matchTipo = !tipo || (l.tipo_empresa||'').toLowerCase() === tipo;
-    return matchQ && matchSeg && matchEst && matchTipo;
-  });
-
-  leadsPage = 1;
-  renderLeadsTable();
+  // Use server-side search for meaningful queries
+  fetchLeadsFromServer({ q, seg, estado: est, tipo });
 }
 
 function renderLeadsTable() {
-  if (!filteredLeads.length && allLeads.length) filteredLeads = [...allLeads];
+  // filteredLeads is always set by fetchLeadsFromServer; don't override with allLeads on empty results
 
   const plan = currentProfile?.plan || 'free';
   const used = currentProfile?.leads_used || 0;
@@ -2441,7 +2465,7 @@ function obGo(step) {
   // Show base notice on step 2 for construtora/prestadora
   if (step === 2) {
     const notice = document.getElementById('obBaseNotice');
-    if (notice) notice.style.display = (obType === 'construtora' || obType === 'prestadora') ? 'block' : 'none';
+    if (notice) notice.style.display = (obType === 'construtora' || obType === 'prestadora' || obType === 'empreiteiro') ? 'block' : 'none';
   }
   // Build resumo on step 3
   if (step === 3) buildObResumo();
@@ -2466,7 +2490,7 @@ function obGoStep3() {
 
 function buildObResumo() {
   const pairs = [
-    ['Perfil',    { fornecedor:'Fornecedor', construtora:'Construtora', prestadora:'Prestadora de Serviço' }[obType] || obType],
+    ['Perfil',    { fornecedor:'Fornecedor', construtora:'Construtora', prestadora:'Prestadora de Serviço', empreiteiro:'Empreiteiro' }[obType] || obType],
     ['Empresa',   document.getElementById('obEmpresa').value || '—'],
     ['E-mail',    document.getElementById('obEmail').value || '—'],
     ['Telefone',  document.getElementById('obTelefone').value || '—'],
@@ -2484,7 +2508,7 @@ function buildObResumo() {
 }
 
 function personaliseWexMsg() {
-  const tipo  = { fornecedor:'fornecedor', construtora:'construtora', prestadora:'prestadora de serviço' }[obType] || 'usuário';
+  const tipo  = { fornecedor:'fornecedor', construtora:'construtora', prestadora:'prestadora de serviço', empreiteiro:'empreiteiro' }[obType] || 'usuário';
   const nome  = document.getElementById('obNome').value.split(' ')[0] || '';
   const estado = document.getElementById('obEstado').value;
   const msgEl = document.getElementById('obWexMsg');
@@ -2568,7 +2592,7 @@ async function finishOnboarding(wantsTutorial) {
   if (currentProfile) Object.assign(currentProfile, profileUpdate);
 
   // 2. Se construtora ou prestadora: inserir na base de leads via RPC segura
-  if ((obType === 'construtora' || obType === 'prestadora') && empresa) {
+  if ((obType === 'construtora' || obType === 'prestadora' || obType === 'empreiteiro') && empresa) {
     const { error: leadErr } = await sb.rpc('inserir_lead_onboarding', {
       p_razao_social: empresa,
       p_email: email || null,

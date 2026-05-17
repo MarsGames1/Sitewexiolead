@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wexio Lead — Planos</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#fafaf8;--surface:#ffffff;--surface2:#f5f4f0;--border:#e8e6e0;--border2:#d4d0c8;
+  --text:#1a1814;--text2:#6b6760;--text3:#a8a49c;
+  --accent:#e8520a;--accent-light:#fff0eb;--accent-mid:#ffd4c0;
+  --green:#1a7a4a;--green-light:#e8f5ed;--red:#c0392b;
+  --shadow-sm:0 1px 3px rgba(26,24,20,.06),0 1px 2px rgba(26,24,20,.04);
+  --shadow-md:0 4px 16px rgba(26,24,20,.08),0 2px 4px rgba(26,24,20,.04);
+  --shadow-lg:0 20px 60px rgba(26,24,20,.12),0 8px 24px rgba(26,24,20,.06);
+  --shadow-xl:0 40px 100px rgba(26,24,20,.16),0 16px 40px rgba(26,24,20,.08);
+}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='1' height='1' x='0' y='0' fill='%231a1814' opacity='.018'/%3E%3Crect width='1' height='1' x='2' y='2' fill='%231a1814' opacity='.012'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
+
+header{position:relative;z-index:10;background:var(--surface);border-bottom:1px solid var(--border);padding:0 48px;height:64px;display:flex;align-items:center;justify-content:space-between;}
+.logo{display:flex;align-items:baseline;gap:2px;font-family:'Instrument Serif',serif;font-size:24px;color:var(--text);letter-spacing:-.02em;}
+.logo em{font-style:italic;color:var(--accent);}
+.logo-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;margin:0 2px 3px;}
+.back-link{font-size:13px;color:var(--text3);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color .15s;font-weight:500;}
+.back-link:hover{color:var(--text);}
+
+.hero{position:relative;z-index:1;padding:80px 48px 56px;max-width:1200px;margin:0 auto;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:24px;}
+.hero-eyebrow::before{content:'';width:20px;height:1px;background:var(--accent);}
+.hero h1{font-family:'Instrument Serif',serif;font-size:clamp(44px,6vw,72px);line-height:1.05;letter-spacing:-.03em;color:var(--text);max-width:680px;margin-bottom:18px;}
+.hero h1 em{font-style:italic;color:var(--accent);}
+.hero p{font-size:17px;color:var(--text2);max-width:440px;line-height:1.65;font-weight:300;}
+
+.plans-wrap{position:relative;z-index:1;padding:0 48px 80px;max-width:1200px;margin:0 auto;}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--border);border-radius:20px;overflow:hidden;box-shadow:var(--shadow-lg);}
+
+.plan{background:var(--surface);padding:40px 36px 36px;cursor:pointer;transition:background .2s;position:relative;display:flex;flex-direction:column;}
+.plan:hover{background:#fdfcfa;}
+.plan.dark{background:#1a1814;color:#faf9f6;}
+.plan.dark:hover{background:#211f1b;}
+
+.plan-eyebrow{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin-bottom:28px;min-height:16px;}
+.plan.dark .plan-eyebrow{color:var(--accent);}
+.plan-name{font-family:'Instrument Serif',serif;font-size:32px;letter-spacing:-.02em;margin-bottom:6px;}
+.plan.dark .plan-name{color:#faf9f6;}
+.plan-tagline{font-size:13px;color:var(--text3);margin-bottom:32px;line-height:1.5;}
+.plan.dark .plan-tagline{color:rgba(250,249,246,.45);}
+.plan-price{display:flex;align-items:baseline;gap:3px;margin-bottom:36px;}
+.price-cur{font-size:18px;font-weight:500;color:var(--text2);margin-top:6px;}
+.plan.dark .price-cur{color:rgba(250,249,246,.5);}
+.price-amt{font-family:'Instrument Serif',serif;font-size:58px;line-height:1;letter-spacing:-.04em;}
+.plan.dark .price-amt{color:#faf9f6;}
+.price-per{font-size:13px;color:var(--text3);margin-left:2px;}
+.plan.dark .price-per{color:rgba(250,249,246,.45);}
+.plan-hr{height:1px;background:var(--border);margin-bottom:28px;}
+.plan.dark .plan-hr{background:rgba(250,249,246,.1);}
+.plan-feats{list-style:none;display:flex;flex-direction:column;gap:12px;flex:1;margin-bottom:36px;}
+.plan-feats li{font-size:14px;color:var(--text2);display:flex;align-items:flex-start;gap:11px;line-height:1.4;}
+.plan.dark .plan-feats li{color:rgba(250,249,246,.7);}
+.feat-dot{width:18px;height:18px;border-radius:50%;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:9px;}
+.fd-light{background:var(--accent-light);color:var(--accent);}
+.fd-dark{background:rgba(232,82,10,.2);color:#fb8c5a;}
+.btn-p{padding:14px 20px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .2s;letter-spacing:-.01em;font-family:'DM Sans',sans-serif;}
+.btn-outline{background:transparent;border:1.5px solid var(--border2);color:var(--text);}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light);}
+.btn-solid{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(232,82,10,.28);}
+.btn-solid:hover{background:#d44a09;box-shadow:0 4px 16px rgba(232,82,10,.38);transform:translateY(-1px);}
+.btn-ghost{background:rgba(250,249,246,.1);color:#faf9f6;border:1.5px solid rgba(250,249,246,.14);}
+.btn-ghost:hover{background:rgba(250,249,246,.17);border-color:rgba(250,249,246,.28);}
+
+.trust-bar{position:relative;z-index:1;padding:0 48px 80px;max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:40px;flex-wrap:wrap;}
+.trust-item{display:flex;align-items:center;gap:12px;}
+.trust-icon{width:38px;height:38px;border-radius:10px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm);flex-shrink:0;}
+.trust-text strong{display:block;font-size:13px;font-weight:600;color:var(--text);}
+.trust-text span{font-size:12px;color:var(--text3);}
+.trust-sep{width:1px;height:28px;background:var(--border);flex-shrink:0;}
+
+/* OVERLAY + DRAWER */
+.overlay{position:fixed;inset:0;background:rgba(26,24,20,.48);z-index:100;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);}
+.overlay.open{display:flex;animation:fo .22s ease;}
+@keyframes fo{from{opacity:0}to{opacity:1}}
+.drawer{background:var(--surface);width:100%;max-width:560px;max-height:92vh;border-radius:24px 24px 0 0;overflow:hidden;display:flex;flex-direction:column;animation:sd .3s cubic-bezier(.32,.72,0,1);}
+@keyframes sd{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@media(min-width:700px){.overlay{align-items:center;}.drawer{border-radius:20px;max-height:88vh;box-shadow:var(--shadow-xl);}}
+.dh{width:36px;height:4px;border-radius:2px;background:var(--border2);margin:12px auto 0;flex-shrink:0;}
+.drawer-top{padding:20px 28px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.drawer-title{font-family:'Instrument Serif',serif;font-size:20px;letter-spacing:-.02em;}
+.d-badge{font-size:11px;font-weight:600;background:var(--accent-light);color:var(--accent);border-radius:6px;padding:4px 10px;}
+.btn-x{width:30px;height:30px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:16px;transition:all .15s;}
+.btn-x:hover{background:var(--border);}
+.dbody{overflow-y:auto;flex:1;padding:24px 28px 28px;}
+
+.steps{display:flex;align-items:center;margin-bottom:26px;}
+.stp{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:500;}
+.stp-n{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;transition:all .25s;}
+.stp.on .stp-n{background:var(--text);color:var(--bg);}
+.stp.done .stp-n{background:var(--green);color:#fff;}
+.stp.off .stp-n{background:var(--surface2);color:var(--text3);border:1px solid var(--border);}
+.stp.on .stp-l{color:var(--text);}
+.stp.off .stp-l{color:var(--text3);}
+.sl{flex:1;height:1px;background:var(--border);margin:0 8px;}
+.sl.done{background:var(--green);}
+
+.flabel{font-size:11.5px;font-weight:600;color:var(--text2);margin-bottom:6px;display:block;letter-spacing:.01em;}
+.finput{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s,box-shadow .15s;}
+.finput:focus{border-color:var(--text);box-shadow:0 0 0 3px rgba(26,24,20,.05);}
+.finput::placeholder{color:var(--text3);}
+select.finput{cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6760' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fg{margin-bottom:12px;}
+
+.sbox{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:20px;}
+.srow{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:8px;}
+.srow:last-child{margin:0;padding-top:10px;border-top:1px solid var(--border);font-weight:600;font-size:14px;}
+.srow .sl2{color:var(--text2);}
+.srow .sv{color:var(--text);font-weight:500;}
+.srow:last-child .sv{color:var(--accent);font-family:'Instrument Serif',serif;font-size:18px;}
+
+.pmethods{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;}
+.pm{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:14px 10px;text-align:center;cursor:pointer;transition:all .18s;}
+.pm:hover{border-color:var(--border2);}
+.pm.sel{border-color:var(--text);background:var(--surface2);}
+.pm-ico{font-size:20px;margin-bottom:5px;}
+.pm-lbl{font-size:11px;font-weight:600;color:var(--text2);}
+.pm.sel .pm-lbl{color:var(--text);}
+
+.ibox{border-radius:10px;padding:13px 15px;font-size:13px;line-height:1.6;margin-bottom:16px;}
+.ibox.neu{background:var(--surface2);border:1px solid var(--border);color:var(--text2);}
+.ibox.org{background:var(--accent-light);border:1px solid var(--accent-mid);color:#7a2c06;}
+.ibox strong{font-weight:600;}
+
+.brands{display:flex;gap:6px;margin-bottom:14px;}
+.brand{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:3px 8px;font-size:11px;font-weight:600;color:var(--text2);}
+
+.btn-cta{width:100%;padding:15px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;border:none;background:var(--text);color:var(--bg);display:flex;align-items:center;justify-content:center;gap:10px;transition:all .18s;font-family:'DM Sans',sans-serif;letter-spacing:-.01em;}
+.btn-cta:hover:not(:disabled){background:#2d2a24;transform:translateY(-1px);box-shadow:var(--shadow-md);}
+.btn-cta:disabled{opacity:.4;cursor:not-allowed;}
+.btn-back{width:100%;padding:10px;background:none;border:none;font-size:13px;color:var(--text3);cursor:pointer;margin-top:8px;font-family:'DM Sans',sans-serif;transition:color .15s;}
+.btn-back:hover{color:var(--text);}
+.sec-note{display:flex;align-items:center;justify-content:center;gap:7px;font-size:11.5px;color:var(--text3);margin-top:13px;}
+
+.ra{display:none;}
+.ra.show{display:block;}
+
+.pix-wrap{text-align:center;padding:8px 0 16px;}
+.pix-frame{width:172px;height:172px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface2);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:var(--shadow-sm);}
+.pix-frame img{width:100%;height:100%;object-fit:contain;}
+.code-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 13px;font-size:10.5px;color:var(--text3);word-break:break-all;text-align:left;font-family:monospace;max-height:58px;overflow:hidden;margin-bottom:10px;}
+.btn-copy{width:100%;padding:12px;background:var(--surface2);border:1.5px solid var(--border2);border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--text);transition:all .15s;font-family:'DM Sans',sans-serif;}
+.btn-copy:hover{background:var(--border);}
+.pix-note{font-size:12px;color:var(--text3);margin-top:12px;line-height:1.5;}
+
+.boleto-wrap{text-align:center;padding:8px 0 16px;}
+.barcode{height:60px;background:repeating-linear-gradient(90deg,var(--text) 0,var(--text) 2px,transparent 2px,transparent 5px,var(--text) 5px,var(--text) 6px,transparent 6px,transparent 9px,var(--text) 9px,var(--text) 10px,transparent 10px,transparent 14px);border-radius:4px;margin:16px 0;opacity:.65;}
+
+.ok-wrap{text-align:center;padding:20px 0;}
+.ok-ico{width:64px;height:64px;border-radius:50%;background:var(--green-light);border:1.5px solid rgba(26,122,74,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}
+.err-ico{width:64px;height:64px;border-radius:50%;background:#fef0ee;border:1.5px solid rgba(192,57,43,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}
+.ok-title{font-family:'Instrument Serif',serif;font-size:26px;letter-spacing:-.02em;margin-bottom:8px;}
+.ok-sub{font-size:14px;color:var(--text2);line-height:1.65;}
+
+.spin{width:18px;height:18px;border:2px solid rgba(250,249,246,.3);border-top-color:#faf9f6;border-radius:50%;animation:rot .7s linear infinite;}
+.spin-d{width:18px;height:18px;border:2px solid rgba(26,24,20,.15);border-top-color:var(--text);border-radius:50%;animation:rot .7s linear infinite;}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+.toasts{position:fixed;bottom:28px;right:28px;z-index:300;display:flex;flex-direction:column;gap:8px;}
+.t{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:500;box-shadow:var(--shadow-md);animation:ti .22s ease;display:flex;align-items:center;gap:10px;}
+.t.ok{border-left:3px solid var(--green);}
+.t.err{border-left:3px solid var(--red);}
+@keyframes ti{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+@keyframes rev{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.r1{animation:rev .5s .04s both ease}
+.r2{animation:rev .5s .12s both ease}
+.r3{animation:rev .5s .2s both ease}
+.rh{animation:rev .45s both ease}
+
+@media(max-width:768px){
+  header{padding:0 20px;}
+  .hero{padding:44px 20px 36px;}
+  .plans-wrap{padding:0 20px 56px;}
+  .plans{grid-template-columns:1fr;}
+  .trust-bar{padding:0 20px 56px;gap:20px;}
+  .dbody{padding:18px 20px 22px;}
+  .frow{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Wexio<em>Lead</em><div class="logo-dot"></div></div>
+  <a href="#" class="back-link">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    Voltar
+  </a>
+</header>
+
+<div class="hero rh">
+  <div class="hero-eyebrow">Escolha seu plano</div>
+  <h1>Inteligência que<br><em>fecha vendas.</em></h1>
+  <p>Leads qualificados, exportações em massa e dados reais. Cancele quando quiser, sem multa.</p>
+</div>
+
+<div class="plans-wrap">
+  <div class="plans">
+
+    <div class="plan r1">
+      <div class="plan-eyebrow">Para começar</div>
+      <div class="plan-name">Starter</div>
+      <div class="plan-tagline">Ideal para quem está iniciando.</div>
+      <div class="plan-price"><span class="price-cur">R$</span><span class="price-amt">97</span><span class="price-per">/mês</span></div>
+      <div class="plan-hr"></div>
+      <ul class="plan-feats">
+        <li><span class="feat-dot fd-light"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></span>300 exportações/mês</li>
+        <li><span class="feat-dot fd-light"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></span>50 leads curados/mês</li>
+        <li><span class="feat-dot fd-light"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></span>20+ filtros de segmentação</li>
+        <li><span class="feat-dot fd-light"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></span>Exportação CSV</li>
+        <li><span class="feat-dot fd-light"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></span>Perfil público</li>
+      </ul>
+      <button class="btn-p btn-outline" onclick="open_co('starter')">Assinar Starter</button>
+    </div>
+
+    <div class="plan dark r2">
+      <div class="plan-eyebrow">Mais popular</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-tagline">Para equipes que precisam de volume e CRM.</div>
+      <div class="plan-price"><span class="price-cur">R$</span><span class="price-amt">197</span><span class="price-per">/mês</span></div>
+      <div class="plan-hr"></div>
+      <ul class="plan-feats">
+        <li><span class="feat-dot fd-dark"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></span>1.000 exportações/mês</li>
+        <li><span class="feat-dot fd-dark"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></span>200 leads curados/mês</li>
+        <li><span class="feat-dot fd-dark"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></span>Score completo + CRM leve</li>
+        <li><span class="feat-dot fd-dark"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></span>Alertas por e-mail</li>
+        <li><span class="feat-dot fd-dark"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></span>Suporte prioritário</li>
+      </ul>
+      <button class="btn-p btn-solid" onclick="open_co('pro')">Assinar Pro</button>
+    </div>
+
+    <div class="plan r3">
+      <div class="plan-eyebrow">Para agências</div>
+      <div class="plan-name">Agency</div>
+      <div class="plan-tagline">Máximo volume com gerente dedicado.</div>
+      <div class="plan-price"><span class="price-cur">R$</span><span class="price-amt">397</span><span class="price-per">/mês</span></div>
+      <div class="plan-hr"></div>
+      <ul class="plan-feats">
+        <li><span class="feat-dot fd-light"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></span>Exportações ilimitadas</li>
+        <li><span class="feat-dot fd-light"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></span>500 leads curados/mês</li>
+        <li><span class="feat-dot fd-light"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></span>Multi-usuário (até 5)</li>
+        <li><span class="feat-dot fd-light"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></span>API de integração</li>
+        <li><span class="feat-dot fd-light"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></span>Gerente de conta dedicado</li>
+      </ul>
+      <button class="btn-p btn-outline" onclick="open_co('agency')">Assinar Agency</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="trust-bar">
+  <div class="trust-item">
+    <div class="trust-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+    <div class="trust-text"><strong>Pagamento seguro</strong><span>SSL 256-bit · Asaas</span></div>
+  </div>
+  <div class="trust-sep"></div>
+  <div class="trust-item">
+    <div class="trust-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14H7L5 6"/><path d="M10 11v6M14 11v6"/></svg></div>
+    <div class="trust-text"><strong>Cancele quando quiser</strong><span>Sem multa, sem fidelidade</span></div>
+  </div>
+  <div class="trust-sep"></div>
+  <div class="trust-item">
+    <div class="trust-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+    <div class="trust-text"><strong>Acesso imediato</strong><span>Liberado após confirmação</span></div>
+  </div>
+  <div class="trust-sep"></div>
+  <div class="trust-item">
+    <div class="trust-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+    <div class="trust-text"><strong>Suporte incluso</strong><span>Equipe disponível</span></div>
+  </div>
+</div>
+
+<!-- DRAWER -->
+<div class="overlay" id="overlay" onclick="co_overlay(event)">
+  <div class="drawer">
+    <div class="dh"></div>
+    <div class="drawer-top">
+      <div class="drawer-title">Finalizar assinatura</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="d-badge" id="d-badge">Pro · R$197</span>
+        <button class="btn-x" onclick="close_co()">×</button>
+      </div>
+    </div>
+    <div class="dbody">
+
+      <div class="steps" id="steps">
+        <div class="stp on" id="s1"><div class="stp-n">1</div><div class="stp-l">Dados</div></div>
+        <div class="sl" id="l1"></div>
+        <div class="stp off" id="s2"><div class="stp-n">2</div><div class="stp-l">Pagamento</div></div>
+        <div class="sl" id="l2"></div>
+        <div class="stp off" id="s3"><div class="stp-n">3</div><div class="stp-l">Confirmação</div></div>
+      </div>
+
+      <!-- Pane 1 -->
+      <div id="p1">
+        <div class="frow fg"><div class="fg"><label class="flabel">Nome completo</label><input class="finput" id="fn" type="text" placeholder="Seu nome"></div><div class="fg"><label class="flabel">E-mail</label><input class="finput" id="fe" type="email" placeholder="seu@email.com"></div></div>
+        <div class="frow fg"><div class="fg"><label class="flabel">CPF / CNPJ</label><input class="finput" id="fc" type="text" placeholder="000.000.000-00" oninput="md(this)"></div><div class="fg"><label class="flabel">Telefone <span style="font-weight:400;color:var(--text3)">(opcional)</span></label><input class="finput" id="ft" type="text" placeholder="(00) 00000-0000" oninput="mt(this)"></div></div>
+        <div class="sbox" style="margin-top:4px;">
+          <div class="srow"><span class="sl2">Plano</span><span class="sv" id="s1p">Pro</span></div>
+          <div class="srow"><span class="sl2">Recorrência</span><span class="sv">Mensal</span></div>
+          <div class="srow"><span class="sl2">Total</span><span class="sv" id="s1t">R$ 197,00</span></div>
+        </div>
+        <button class="btn-cta" onclick="go2()">Continuar <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+      </div>
+
+      <!-- Pane 2 -->
+      <div id="p2" style="display:none;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:11px;">Forma de pagamento</div>
+        <div class="pmethods">
+          <div class="pm sel" id="pm-pix" onclick="sm('pix')"><div class="pm-ico">⚡</div><div class="pm-lbl">PIX</div></div>
+          <div class="pm" id="pm-boleto" onclick="sm('boleto')"><div class="pm-ico">🧾</div><div class="pm-lbl">Boleto</div></div>
+          <div class="pm" id="pm-card" onclick="sm('card')"><div class="pm-ico">💳</div><div class="pm-lbl">Cartão</div></div>
+        </div>
+        <div id="fp"><div class="ibox neu"><strong>PIX — aprovação imediata</strong><br>Um QR Code será gerado. Escaneie pelo app do seu banco e o acesso é liberado automaticamente.</div></div>
+        <div id="fb" style="display:none;"><div class="ibox org"><strong>Boleto bancário</strong><br>Vencimento em 3 dias úteis. Acesso liberado em 1–2 dias úteis após o pagamento.</div></div>
+        <div id="fc2" style="display:none;">
+          <div class="brands"><span class="brand">Visa</span><span class="brand">Master</span><span class="brand">Elo</span><span class="brand">Amex</span></div>
+          <div class="fg"><label class="flabel">Número do cartão</label><input class="finput" id="cn" placeholder="0000 0000 0000 0000" maxlength="19" oninput="mc(this)"></div>
+          <div class="frow fg"><div class="fg"><label class="flabel">Validade</label><input class="finput" id="ce" placeholder="MM/AA" maxlength="5" oninput="mex(this)"></div><div class="fg"><label class="flabel">CVV</label><input class="finput" id="cv" placeholder="123" maxlength="4" type="password"></div></div>
+          <div class="fg"><label class="flabel">Nome no cartão</label><input class="finput" id="ch" placeholder="Como impresso"></div>
+          <div class="fg" style="margin-bottom:16px;"><label class="flabel">Parcelas</label><select class="finput" id="cp"></select></div>
+        </div>
+        <div class="sbox"><div class="srow"><span class="sl2">Total</span><span class="sv" id="s2t">R$ 197,00</span></div></div>
+        <button class="btn-cta" id="bpay" onclick="pay()"><span id="bpayt">Pagar agora</span></button>
+        <div class="sec-note"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Pagamento 100% seguro · Asaas · SSL</div>
+        <button class="btn-back" onclick="go1()">← Voltar</button>
+      </div>
+
+      <!-- Pane 3 -->
+      <div id="p3" style="display:none;">
+        <div class="ra" id="r-pix">
+          <div class="pix-wrap">
+            <div style="font-family:'Instrument Serif',serif;font-size:22px;letter-spacing:-.02em;margin-bottom:4px;">Escaneie e pague</div>
+            <div style="font-size:13px;color:var(--text2);margin-bottom:18px;">Abra o app do seu banco</div>
+            <div class="pix-frame" id="pqr"><div class="spin-d"></div></div>
+            <div class="code-box" id="pcod">Gerando...</div>
+            <button class="btn-copy" onclick="cpx()">Copiar código PIX</button>
+            <div class="pix-note">Válido por <strong>30 minutos</strong> · Acesso liberado automaticamente</div>
+          </div>
+        </div>
+        <div class="ra" id="r-bol">
+          <div class="boleto-wrap">
+            <div style="font-family:'Instrument Serif',serif;font-size:22px;letter-spacing:-.02em;margin-bottom:4px;">Boleto gerado</div>
+            <div style="font-size:13px;color:var(--text2);">Vencimento em <strong id="bv" style="color:var(--text);">—</strong></div>
+            <div class="barcode"></div>
+            <div class="code-box" id="bcod">Gerando...</div>
+            <button class="btn-copy" onclick="cbol()">Copiar código de barras</button>
+            <a id="bpdf" href="#" target="_blank" style="display:block;margin-top:10px;font-size:13px;color:var(--accent);text-decoration:none;font-weight:600;">Abrir PDF do boleto →</a>
+          </div>
+        </div>
+        <div class="ra" id="r-card">
+          <div class="ok-wrap">
+            <div class="ok-ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a7a4a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="ok-title">Pagamento aprovado!</div>
+            <div class="ok-sub">Acesso ao plano <strong id="cpn" style="color:var(--accent);"></strong> ativado.<br>Verifique seu e-mail.</div>
+          </div>
+        </div>
+        <div class="ra" id="r-err">
+          <div class="ok-wrap">
+            <div class="err-ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+            <div class="ok-title">Erro no pagamento</div>
+            <div class="ok-sub" id="em">Tente novamente.</div>
+            <button onclick="go2()" style="margin-top:20px;background:var(--text);border:none;color:var(--bg);padding:12px 26px;border-radius:10px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;">Tentar novamente</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script>
+const AK='$aact_hmlg_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmMzMTgyYTBkLTk3ZWUtNGRmOS1iMzQ5LTU2ZjNkYjUzMzdjMTo6JGFhY2hfZGRmOTQ3ZGYtZTgxZi00ODQzLWI0NDEtYzU0MGE0M2EwZDZh';
+const AU='https://sandbox.asaas.com/api/v3';
+const PL={starter:{name:'Starter',price:97},pro:{name:'Pro',price:197},agency:{name:'Agency',price:397}};
+let pl='pro',mt2='pix',cd={},pxc='',blc='';
+const fmt=v=>'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2});
+
+function open_co(p){
+  pl=p;const P=PL[p];
+  document.getElementById('d-badge').textContent=P.name+' · R$'+P.price;
+  document.getElementById('s1p').textContent=P.name;
+  document.getElementById('s1t').textContent=fmt(P.price);
+  document.getElementById('s2t').textContent=fmt(P.price);
+  fp();reset();
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function close_co(){document.getElementById('overlay').classList.remove('open');document.body.style.overflow='';}
+function co_overlay(e){if(e.target===document.getElementById('overlay'))close_co();}
+function reset(){sp('p1');ss(1);sm('pix');}
+function sp(n){['p1','p2','p3'].forEach(x=>document.getElementById(x).style.display=x===n?'block':'none');}
+function ss(n){[1,2,3].forEach(i=>{const e=document.getElementById('s'+i);e.className='stp '+(i<n?'done':i===n?'on':'off');});[1,2].forEach(i=>{document.getElementById('l'+i).className='sl'+(i<n?' done':'');});}
+function sm(m){mt2=m;['pix','boleto','card'].forEach(x=>{document.getElementById('pm-'+x).classList.toggle('sel',x===m);});document.getElementById('fp').style.display=m==='pix'?'block':'none';document.getElementById('fb').style.display=m==='boleto'?'block':'none';document.getElementById('fc2').style.display=m==='card'?'block':'none';}
+function fp(){const p=PL[pl].price,s=document.getElementById('cp');if(!s)return;s.innerHTML='';for(let i=1;i<=12;i++){const v=(p/i).toFixed(2).replace('.',',');const o=document.createElement('option');o.value=i;o.textContent=i+'x de R$ '+v+(i>1?' sem juros':'');s.appendChild(o);}}
+function md(el){let v=el.value.replace(/\D/g,'');if(v.length<=11)v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');else v=v.replace(/^(\d{2})(\d)/,'$1.$2').replace(/^(\d{2})\.(\d{3})(\d)/,'$1.$2.$3').replace(/\.(\d{3})(\d)/,'.$1/$2').replace(/(\d{4})(\d)/,'$1-$2');el.value=v;}
+function mt(el){let v=el.value.replace(/\D/g,'').slice(0,11);v=v.replace(/^(\d{2})(\d)/,'($1) $2').replace(/(\d{5})(\d{4})$/,'$1-$2');el.value=v;}
+function mc(el){let v=el.value.replace(/\D/g,'').slice(0,16);el.value=v.replace(/(.{4})/g,'$1 ').trim();}
+function mex(el){let v=el.value.replace(/\D/g,'').slice(0,4);if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2);el.value=v;}
+function go1(){sp('p1');ss(1);}
+function go2(){
+  const n=document.getElementById('fn').value.trim(),e=document.getElementById('fe').value.trim(),c=document.getElementById('fc').value.trim();
+  if(!n||!e||!c){toast('Preencha nome, e-mail e CPF.','err');return;}
+  if(!e.includes('@')){toast('E-mail inválido.','err');return;}
+  cd={n,e,c,t:document.getElementById('ft').value.trim()};
+  sp('p2');ss(2);
+}
+function sr(t){sp('p3');ss(3);['pix','bol','card','err'].forEach(x=>{document.getElementById('r-'+x).className='ra'+(x===t?' show':'');});}
+async function api(ep,m='GET',b=null){const o={method:m,headers:{accept:'application/json','content-type':'application/json',access_token:AK}};if(b)o.body=JSON.stringify(b);const r=await fetch(AU+ep,o);const d=await r.json();if(!r.ok)throw new Error(d.errors?.[0]?.description||d.description||'Erro');return d;}
+async function goc(){const doc=cd.c.replace(/\D/g,'');const l=await api('/customers?cpfCnpj='+doc);if(l.data&&l.data.length>0)return l.data[0].id;const c=await api('/customers','POST',{name:cd.n,email:cd.e,cpfCnpj:doc,mobilePhone:cd.t.replace(/\D/g,'')||undefined});return c.id;}
+async function pay(){
+  const b=document.getElementById('bpay'),t=document.getElementById('bpayt');
+  b.disabled=true;t.innerHTML='<div class="spin"></div>';
+  try{const cid=await goc();if(mt2==='pix')await dpix(cid);else if(mt2==='boleto')await dbol(cid);else await dcard(cid);}
+  catch(e){sr('err');document.getElementById('em').textContent=e.message||'Erro.';}
+  finally{b.disabled=false;t.textContent='Pagar agora';}
+}
+async function dpix(cid){const d=new Date();d.setDate(d.getDate()+1);const ch=await api('/payments','POST',{customer:cid,billingType:'PIX',value:PL[pl].price,dueDate:d.toISOString().split('T')[0],description:'Wexio Lead — '+PL[pl].name});const px=await api('/payments/'+ch.id+'/pixQrCode');pxc=px.payload;sr('pix');const qr=document.getElementById('pqr');qr.innerHTML=px.encodedImage?`<img src="data:image/png;base64,${px.encodedImage}" style="width:100%;height:100%;object-fit:contain;">`:'<span style="font-size:9px;padding:6px;color:var(--text3);word-break:break-all;">'+pxc+'</span>';document.getElementById('pcod').textContent=pxc;}
+async function dbol(cid){const d=new Date();d.setDate(d.getDate()+3);const ch=await api('/payments','POST',{customer:cid,billingType:'BOLETO',value:PL[pl].price,dueDate:d.toISOString().split('T')[0],description:'Wexio Lead — '+PL[pl].name});blc=ch.nossoNumero||ch.id;document.getElementById('bv').textContent=d.toLocaleDateString('pt-BR');document.getElementById('bcod').textContent=blc;if(ch.bankSlipUrl)document.getElementById('bpdf').href=ch.bankSlipUrl;sr('bol');}
+async function dcard(cid){const n=document.getElementById('cn').value.replace(/\s/g,''),ex=document.getElementById('ce').value.split('/'),cv=document.getElementById('cv').value,h=document.getElementById('ch').value.trim(),pa=parseInt(document.getElementById('cp').value);if(!n||n.length<16||!ex[0]||!ex[1]||!cv||!h)throw new Error('Preencha todos os dados do cartão.');const d=new Date();d.setDate(d.getDate()+1);const doc=cd.c.replace(/\D/g,'');await api('/payments','POST',{customer:cid,billingType:'CREDIT_CARD',value:PL[pl].price,dueDate:d.toISOString().split('T')[0],description:'Wexio Lead — '+PL[pl].name,installmentCount:pa>1?pa:undefined,installmentValue:pa>1?(PL[pl].price/pa):undefined,creditCard:{holderName:h,number:n,expiryMonth:ex[0],expiryYear:'20'+ex[1],ccv:cv},creditCardHolderInfo:{name:cd.n,email:cd.e,cpfCnpj:doc,mobilePhone:cd.t.replace(/\D/g,'')||'00000000000',postalCode:'00000000',addressNumber:'S/N'}});document.getElementById('cpn').textContent=PL[pl].name;sr('card');}
+function cpx(){navigator.clipboard.writeText(pxc).then(()=>toast('Código PIX copiado!','ok'));}
+function cbol(){navigator.clipboard.writeText(blc).then(()=>toast('Código copiado!','ok'));}
+function toast(msg,type){const w=document.getElementById('toasts');const t=document.createElement('div');t.className='t '+type;t.textContent=msg;w.appendChild(t);setTimeout(()=>t.remove(),3200);}
+</script>
+</body>
+</html>

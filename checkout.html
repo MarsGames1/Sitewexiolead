@@ -382,58 +382,216 @@ select.finput{cursor:pointer;-webkit-appearance:none;appearance:none;background-
 
 <div class="toasts" id="toasts"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const AK='$aact_hmlg_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmMzMTgyYTBkLTk3ZWUtNGRmOS1iMzQ5LTU2ZjNkYjUzMzdjMTo6JGFhY2hfZGRmOTQ3ZGYtZTgxZi00ODQzLWI0NDEtYzU0MGE0M2EwZDZh';
-const AU='https://sandbox.asaas.com/api/v3';
-const PL={starter:{name:'Starter',price:97},pro:{name:'Pro',price:197},agency:{name:'Agency',price:397}};
-let pl='pro',mt2='pix',cd={},pxc='',blc='';
-const fmt=v=>'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2});
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+// ATENÇÃO: substitua pelos seus valores reais. A chave Asaas fica APENAS no
+// back-end (Edge Function do Supabase) — nunca exponha no front.
+const SUPA_URL  = 'https://tbnoiwkproawwncuorpw.supabase.co';
+const SUPA_ANON = 'SUA_ANON_KEY_AQUI'; // substitua pela sua anon key
+const sb = supabase.createClient(SUPA_URL, SUPA_ANON);
 
-function open_co(p){
-  pl=p;const P=PL[p];
-  document.getElementById('d-badge').textContent=P.name+' · R$'+P.price;
-  document.getElementById('s1p').textContent=P.name;
-  document.getElementById('s1t').textContent=fmt(P.price);
-  document.getElementById('s2t').textContent=fmt(P.price);
-  fp();reset();
+// A URL da sua Edge Function que faz as chamadas à API Asaas com segurança
+const EF_URL = SUPA_URL + '/functions/v1/asaas-checkout';
+
+const PL = {
+  starter: { name:'Starter', price:97,  quota:300  },
+  pro:     { name:'Pro',     price:197, quota:1000 },
+  agency:  { name:'Agency',  price:397, quota:99999 }
+};
+
+let pl = 'pro', mt2 = 'pix', cd = {}, pxc = '', blc = '', paymentId = '';
+let pixPollTimer = null;
+
+const fmt = v => 'R$ ' + v.toLocaleString('pt-BR', {minimumFractionDigits:2});
+
+// ─── UI HELPERS ──────────────────────────────────────────────────────────────
+function open_co(p) {
+  pl = p; const P = PL[p];
+  document.getElementById('d-badge').textContent = P.name + ' · R$' + P.price;
+  document.getElementById('s1p').textContent = P.name;
+  document.getElementById('s1t').textContent = fmt(P.price);
+  document.getElementById('s2t').textContent = fmt(P.price);
+  fp(); reset();
   document.getElementById('overlay').classList.add('open');
-  document.body.style.overflow='hidden';
+  document.body.style.overflow = 'hidden';
 }
-function close_co(){document.getElementById('overlay').classList.remove('open');document.body.style.overflow='';}
-function co_overlay(e){if(e.target===document.getElementById('overlay'))close_co();}
-function reset(){sp('p1');ss(1);sm('pix');}
-function sp(n){['p1','p2','p3'].forEach(x=>document.getElementById(x).style.display=x===n?'block':'none');}
-function ss(n){[1,2,3].forEach(i=>{const e=document.getElementById('s'+i);e.className='stp '+(i<n?'done':i===n?'on':'off');});[1,2].forEach(i=>{document.getElementById('l'+i).className='sl'+(i<n?' done':'');});}
-function sm(m){mt2=m;['pix','boleto','card'].forEach(x=>{document.getElementById('pm-'+x).classList.toggle('sel',x===m);});document.getElementById('fp').style.display=m==='pix'?'block':'none';document.getElementById('fb').style.display=m==='boleto'?'block':'none';document.getElementById('fc2').style.display=m==='card'?'block':'none';}
-function fp(){const p=PL[pl].price,s=document.getElementById('cp');if(!s)return;s.innerHTML='';for(let i=1;i<=12;i++){const v=(p/i).toFixed(2).replace('.',',');const o=document.createElement('option');o.value=i;o.textContent=i+'x de R$ '+v+(i>1?' sem juros':'');s.appendChild(o);}}
+function close_co() {
+  stopPixPoll();
+  document.getElementById('overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function co_overlay(e) { if (e.target === document.getElementById('overlay')) close_co(); }
+function reset() { sp('p1'); ss(1); sm('pix'); }
+function sp(n) { ['p1','p2','p3'].forEach(x => document.getElementById(x).style.display = x===n?'block':'none'); }
+function ss(n) {
+  [1,2,3].forEach(i => { const e = document.getElementById('s'+i); e.className = 'stp ' + (i<n?'done':i===n?'on':'off'); });
+  [1,2].forEach(i => { document.getElementById('l'+i).className = 'sl' + (i<n?' done':''); });
+}
+function sm(m) {
+  mt2 = m;
+  ['pix','boleto','card'].forEach(x => document.getElementById('pm-'+x).classList.toggle('sel', x===m));
+  document.getElementById('fp').style.display  = m==='pix'    ? 'block' : 'none';
+  document.getElementById('fb').style.display  = m==='boleto' ? 'block' : 'none';
+  document.getElementById('fc2').style.display = m==='card'   ? 'block' : 'none';
+}
+function fp() {
+  const p = PL[pl].price, s = document.getElementById('cp');
+  if (!s) return; s.innerHTML = '';
+  for (let i = 1; i <= 12; i++) {
+    const v = (p/i).toFixed(2).replace('.',',');
+    const o = document.createElement('option');
+    o.value = i; o.textContent = i+'x de R$ '+v+(i>1?' sem juros':'');
+    s.appendChild(o);
+  }
+}
 function md(el){let v=el.value.replace(/\D/g,'');if(v.length<=11)v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');else v=v.replace(/^(\d{2})(\d)/,'$1.$2').replace(/^(\d{2})\.(\d{3})(\d)/,'$1.$2.$3').replace(/\.(\d{3})(\d)/,'.$1/$2').replace(/(\d{4})(\d)/,'$1-$2');el.value=v;}
 function mt(el){let v=el.value.replace(/\D/g,'').slice(0,11);v=v.replace(/^(\d{2})(\d)/,'($1) $2').replace(/(\d{5})(\d{4})$/,'$1-$2');el.value=v;}
 function mc(el){let v=el.value.replace(/\D/g,'').slice(0,16);el.value=v.replace(/(.{4})/g,'$1 ').trim();}
 function mex(el){let v=el.value.replace(/\D/g,'').slice(0,4);if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2);el.value=v;}
 function go1(){sp('p1');ss(1);}
-function go2(){
-  const n=document.getElementById('fn').value.trim(),e=document.getElementById('fe').value.trim(),c=document.getElementById('fc').value.trim();
-  if(!n||!e||!c){toast('Preencha nome, e-mail e CPF.','err');return;}
-  if(!e.includes('@')){toast('E-mail inválido.','err');return;}
-  cd={n,e,c,t:document.getElementById('ft').value.trim()};
-  sp('p2');ss(2);
+
+function go2() {
+  const n=document.getElementById('fn').value.trim(),
+        e=document.getElementById('fe').value.trim(),
+        c=document.getElementById('fc').value.trim();
+  if (!n||!e||!c) { toast('Preencha nome, e-mail e CPF.','err'); return; }
+  if (!e.includes('@')) { toast('E-mail inválido.','err'); return; }
+  const doc = c.replace(/\D/g,'');
+  if (doc.length < 11) { toast('CPF/CNPJ inválido.','err'); return; }
+  cd = { n, e, c, t: document.getElementById('ft').value.trim() };
+  sp('p2'); ss(2);
 }
-function sr(t){sp('p3');ss(3);['pix','bol','card','err'].forEach(x=>{document.getElementById('r-'+x).className='ra'+(x===t?' show':'');});}
-async function api(ep,m='GET',b=null){const o={method:m,headers:{accept:'application/json','content-type':'application/json',access_token:AK}};if(b)o.body=JSON.stringify(b);const r=await fetch(AU+ep,o);const d=await r.json();if(!r.ok)throw new Error(d.errors?.[0]?.description||d.description||'Erro');return d;}
-async function goc(){const doc=cd.c.replace(/\D/g,'');const l=await api('/customers?cpfCnpj='+doc);if(l.data&&l.data.length>0)return l.data[0].id;const c=await api('/customers','POST',{name:cd.n,email:cd.e,cpfCnpj:doc,mobilePhone:cd.t.replace(/\D/g,'')||undefined});return c.id;}
-async function pay(){
-  const b=document.getElementById('bpay'),t=document.getElementById('bpayt');
-  b.disabled=true;t.innerHTML='<div class="spin"></div>';
-  try{const cid=await goc();if(mt2==='pix')await dpix(cid);else if(mt2==='boleto')await dbol(cid);else await dcard(cid);}
-  catch(e){sr('err');document.getElementById('em').textContent=e.message||'Erro.';}
-  finally{b.disabled=false;t.textContent='Pagar agora';}
+
+function sr(t) {
+  sp('p3'); ss(3);
+  ['pix','bol','card','err'].forEach(x => {
+    document.getElementById('r-'+x).className = 'ra' + (x===t?' show':'');
+  });
 }
-async function dpix(cid){const d=new Date();d.setDate(d.getDate()+1);const ch=await api('/payments','POST',{customer:cid,billingType:'PIX',value:PL[pl].price,dueDate:d.toISOString().split('T')[0],description:'Wexio Lead — '+PL[pl].name});const px=await api('/payments/'+ch.id+'/pixQrCode');pxc=px.payload;sr('pix');const qr=document.getElementById('pqr');qr.innerHTML=px.encodedImage?`<img src="data:image/png;base64,${px.encodedImage}" style="width:100%;height:100%;object-fit:contain;">`:'<span style="font-size:9px;padding:6px;color:var(--text3);word-break:break-all;">'+pxc+'</span>';document.getElementById('pcod').textContent=pxc;}
-async function dbol(cid){const d=new Date();d.setDate(d.getDate()+3);const ch=await api('/payments','POST',{customer:cid,billingType:'BOLETO',value:PL[pl].price,dueDate:d.toISOString().split('T')[0],description:'Wexio Lead — '+PL[pl].name});blc=ch.nossoNumero||ch.id;document.getElementById('bv').textContent=d.toLocaleDateString('pt-BR');document.getElementById('bcod').textContent=blc;if(ch.bankSlipUrl)document.getElementById('bpdf').href=ch.bankSlipUrl;sr('bol');}
-async function dcard(cid){const n=document.getElementById('cn').value.replace(/\s/g,''),ex=document.getElementById('ce').value.split('/'),cv=document.getElementById('cv').value,h=document.getElementById('ch').value.trim(),pa=parseInt(document.getElementById('cp').value);if(!n||n.length<16||!ex[0]||!ex[1]||!cv||!h)throw new Error('Preencha todos os dados do cartão.');const d=new Date();d.setDate(d.getDate()+1);const doc=cd.c.replace(/\D/g,'');await api('/payments','POST',{customer:cid,billingType:'CREDIT_CARD',value:PL[pl].price,dueDate:d.toISOString().split('T')[0],description:'Wexio Lead — '+PL[pl].name,installmentCount:pa>1?pa:undefined,installmentValue:pa>1?(PL[pl].price/pa):undefined,creditCard:{holderName:h,number:n,expiryMonth:ex[0],expiryYear:'20'+ex[1],ccv:cv},creditCardHolderInfo:{name:cd.n,email:cd.e,cpfCnpj:doc,mobilePhone:cd.t.replace(/\D/g,'')||'00000000000',postalCode:'00000000',addressNumber:'S/N'}});document.getElementById('cpn').textContent=PL[pl].name;sr('card');}
-function cpx(){navigator.clipboard.writeText(pxc).then(()=>toast('Código PIX copiado!','ok'));}
-function cbol(){navigator.clipboard.writeText(blc).then(()=>toast('Código copiado!','ok'));}
-function toast(msg,type){const w=document.getElementById('toasts');const t=document.createElement('div');t.className='t '+type;t.textContent=msg;w.appendChild(t);setTimeout(()=>t.remove(),3200);}
+
+// ─── API CALL — via Edge Function (chave Asaas fica no servidor) ──────────────
+async function ef(action, body = {}) {
+  const { data: { session } } = await sb.auth.getSession();
+  const token = session?.access_token || '';
+  const r = await fetch(EF_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    },
+    body: JSON.stringify({ action, ...body })
+  });
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.error || d.message || 'Erro no servidor');
+  return d;
+}
+
+// ─── PAGAMENTO ────────────────────────────────────────────────────────────────
+async function pay() {
+  const b = document.getElementById('bpay'), t = document.getElementById('bpayt');
+  b.disabled = true; t.innerHTML = '<div class="spin"></div>';
+  try {
+    if      (mt2 === 'pix')    await dpix();
+    else if (mt2 === 'boleto') await dbol();
+    else                       await dcard();
+  } catch(e) {
+    sr('err');
+    document.getElementById('em').textContent = e.message || 'Erro ao processar pagamento.';
+  } finally {
+    b.disabled = false; t.textContent = 'Pagar agora';
+  }
+}
+
+async function dpix() {
+  const res = await ef('create_pix', { plan: pl, customer: cd });
+  paymentId = res.paymentId;
+  pxc = res.pixPayload;
+  sr('pix');
+  const qr = document.getElementById('pqr');
+  qr.innerHTML = res.pixImage
+    ? '<img src="data:image/png;base64,'+res.pixImage+'" style="width:100%;height:100%;object-fit:contain;">'
+    : '<span style="font-size:9px;padding:6px;color:var(--text3);word-break:break-all;">'+pxc+'</span>';
+  document.getElementById('pcod').textContent = pxc;
+  startPixPoll();
+}
+
+async function dbol() {
+  const res = await ef('create_boleto', { plan: pl, customer: cd });
+  blc = res.barCode || res.paymentId;
+  document.getElementById('bv').textContent = res.dueDate
+    ? new Date(res.dueDate+'T12:00:00').toLocaleDateString('pt-BR') : '—';
+  document.getElementById('bcod').textContent = blc;
+  if (res.bankSlipUrl) document.getElementById('bpdf').href = res.bankSlipUrl;
+  sr('bol');
+}
+
+async function dcard() {
+  const n  = document.getElementById('cn').value.replace(/\s/g,'');
+  const ex = document.getElementById('ce').value.split('/');
+  const cv = document.getElementById('cv').value;
+  const h  = document.getElementById('ch').value.trim();
+  const pa = parseInt(document.getElementById('cp').value);
+  if (!n||n.length<16||!ex[0]||!ex[1]||!cv||!h)
+    throw new Error('Preencha todos os dados do cartão.');
+  await ef('create_card', {
+    plan: pl, customer: cd,
+    card: { holderName:h, number:n, expiryMonth:ex[0], expiryYear:'20'+ex[1], ccv:cv },
+    installments: pa
+  });
+  await activatePlan();
+  document.getElementById('cpn').textContent = PL[pl].name;
+  sr('card');
+}
+
+// ─── ATIVAR PLANO NO SUPABASE ─────────────────────────────────────────────────
+async function activatePlan() {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) return; // usuário não logado: webhook cuidará disso
+  const quota = PL[pl].quota;
+  await sb.from('profiles').update({
+    plan: pl,
+    leads_quota: quota,
+    leads_used: 0,
+    plan_activated_at: new Date().toISOString(),
+    plan_expires_at: new Date(Date.now() + 30*24*60*60*1000).toISOString()
+  }).eq('email', cd.e);
+}
+
+// ─── PIX POLLING — verifica confirmação a cada 5s por até 10min ───────────────
+function startPixPoll() {
+  let attempts = 0;
+  pixPollTimer = setInterval(async () => {
+    attempts++;
+    if (attempts > 120) { stopPixPoll(); return; } // desiste após 10min
+    try {
+      const res = await ef('check_payment', { paymentId });
+      if (res.status === 'RECEIVED' || res.status === 'CONFIRMED') {
+        stopPixPoll();
+        await activatePlan();
+        // Atualiza UI para confirmação
+        document.getElementById('r-pix').innerHTML =
+          '<div class="ok-wrap">' +
+          '<div class="ok-ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a7a4a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>' +
+          '<div class="ok-title">Pagamento confirmado!</div>' +
+          '<div class="ok-sub">Plano <strong style="color:var(--accent);">'+PL[pl].name+'</strong> ativado.<br>Verifique seu e-mail.</div>' +
+          '</div>';
+      }
+    } catch(e) { /* silently ignore polling errors */ }
+  }, 5000);
+}
+function stopPixPoll() {
+  if (pixPollTimer) { clearInterval(pixPollTimer); pixPollTimer = null; }
+}
+
+function cpx()  { navigator.clipboard.writeText(pxc).then(() => toast('Código PIX copiado!','ok')); }
+function cbol() { navigator.clipboard.writeText(blc).then(() => toast('Código copiado!','ok')); }
+function toast(msg, type) {
+  const w = document.getElementById('toasts');
+  const t = document.createElement('div');
+  t.className = 't ' + type; t.textContent = msg;
+  w.appendChild(t); setTimeout(() => t.remove(), 3200);
+}
 </script>
 </body>
 </html>

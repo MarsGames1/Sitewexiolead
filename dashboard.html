@@ -1306,6 +1306,83 @@ textarea.form-input { resize: vertical; min-height: 90px; }
 </div>
 </div>
 
+<!-- LEAD DETAIL MODAL (abre após revelar) -->
+<div class="modal-overlay" id="leadDetailModal">
+  <div class="modal-box" style="max-width:620px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
+      <div>
+        <div class="modal-title" id="ldmTitle">—</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:3px;" id="ldmSub">—</div>
+      </div>
+      <button class="btn btn-ghost" style="padding:5px 10px;flex-shrink:0;" onclick="document.getElementById('leadDetailModal').classList.remove('open')">✕</button>
+    </div>
+    <!-- Dados do lead -->
+    <div id="ldmBody" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;"></div>
+    <!-- CRM inline -->
+    <div style="border-top:1px solid var(--border);padding-top:16px;">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--accent);fill:none;stroke-width:2;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        CRM — Acompanhamento
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+        <div class="form-group" style="margin:0;">
+          <label class="form-label">Status</label>
+          <select class="form-input form-select" id="ldmCrmStatus">
+            <option value="novo">Novo</option><option value="contatado">Contatado</option>
+            <option value="negociando">Negociando</option><option value="fechado">Fechado</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label class="form-label">Follow-up em</label>
+          <input type="date" class="form-input" id="ldmCrmFollowup">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:14px;">
+        <label class="form-label">Anotações</label>
+        <textarea class="form-input" id="ldmCrmNotes" placeholder="Ex: Falei com o sócio, interesse em fornecimento de cimento..." style="min-height:70px;"></textarea>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;">
+        <button class="btn btn-ghost" onclick="document.getElementById('leadDetailModal').classList.remove('open')">Fechar</button>
+        <button class="btn btn-accent" onclick="saveLeadDetailCrm()">
+          <svg viewBox="0 0 24 24" style="width:13px;height:13px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Salvar no CRM
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CREDIT PURCHASE MODAL -->
+<div class="modal-overlay" id="creditModal">
+  <div class="modal-box" style="max-width:520px;text-align:center;">
+    <button class="btn btn-ghost" style="position:absolute;top:16px;right:16px;padding:5px 10px;" onclick="document.getElementById('creditModal').classList.remove('open')">✕</button>
+    <div style="width:56px;height:56px;background:var(--accent-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+      <svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:var(--accent);fill:none;stroke-width:2;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </div>
+    <div class="modal-title" style="margin-bottom:8px;">Você usou todos os créditos</div>
+    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:24px;">Escolha um pacote para continuar acessando leads completos com telefone, e-mail e CNPJ.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;" id="creditPlanGrid">
+      <div class="pw-plan" onclick="selectCreditPlan('starter',this)">
+        <div class="pw-plan-name">Starter</div>
+        <div class="pw-plan-price">R$97<small>/mês</small></div>
+        <div class="pw-plan-feat">300 leads · CSV</div>
+      </div>
+      <div class="pw-plan sel" onclick="selectCreditPlan('pro',this)">
+        <div class="pw-plan-name">Pro ⭐</div>
+        <div class="pw-plan-price">R$197<small>/mês</small></div>
+        <div class="pw-plan-feat">1.000 leads · CRM · Alertas</div>
+      </div>
+      <div class="pw-plan" onclick="selectCreditPlan('agency',this)">
+        <div class="pw-plan-name">Agency</div>
+        <div class="pw-plan-price">R$397<small>/mês</small></div>
+        <div class="pw-plan-feat">Ilimitado · API · SLA</div>
+      </div>
+    </div>
+    <button class="pw-cta" id="creditPlanCta" onclick="goToCreditPayment()">Assinar Pro — R$197/mês →</button>
+    <p style="font-size:11px;color:var(--dim);margin-top:8px;">Sem fidelidade · Cancele quando quiser</p>
+  </div>
+</div>
+
 <!-- NAV -->
 <nav id="topnav">
   <div style="display:flex;align-items:center;gap:10px;">
@@ -1315,13 +1392,19 @@ textarea.form-input { resize: vertical; min-height: 90px; }
     <a href="index.html" class="logo">Wexio<span>Lead</span></a>
 </div>
   <div class="nav-right">
+    <!-- Contador de créditos em tempo real -->
+    <div id="creditPill" onclick="showPage('leads')" title="Créditos restantes — clique para buscar leads" style="display:none;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;background:var(--accent-bg);border:1.5px solid rgba(249,115,22,0.25);cursor:pointer;transition:all .2s;">
+      <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:var(--accent);fill:none;stroke-width:2;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--accent);" id="creditPillCount">—</span>
+      <span style="font-size:11px;color:var(--muted);font-weight:500;" id="creditPillLabel">créditos</span>
+    </div>
     <div class="user-chip">
       <div class="user-ava" id="userAvatar">?</div>
       <span class="user-name" id="userName">Carregando...</span>
       <span class="plan-badge plan-free" id="userPlanBadge">free</span>
-</div>
+    </div>
     <button class="btn-logout" onclick="handleLogout()">Sair</button>
-</div>
+  </div>
 </nav>
 
 <!-- LAYOUT -->
@@ -1961,7 +2044,8 @@ async function fetchLeadsFromServer(filters = {}) {
   if (canFilterAll && filters.segmento) {
     query = query.ilike('segmento_simplificado', `%${filters.segmento}%`);
   }
-  if (canFilterBasic && filters.q) {
+  // Busca por texto disponível para TODOS os planos
+  if (filters.q) {
     query = query.or(
       `razao_social.ilike.%${filters.q}%,nome_fantasia.ilike.%${filters.q}%,municipio.ilike.%${filters.q}%,cnpj.ilike.%${filters.q}%`
     );
@@ -1978,9 +2062,9 @@ async function fetchLeadsFromServer(filters = {}) {
   leadsPage = 1;
   renderLeadsTable();
 
-  // Show plan filter lock notice for free/starter
-  if (isFree && (filters.tipo || filters.estado || filters.segmento || filters.q)) {
-    showToast('Filtros avançados disponíveis no plano Starter ou superior.', true);
+  // Avisa free que filtros avançados (tipo/estado/segmento) requerem upgrade
+  if (isFree && (filters.tipo || filters.estado || filters.segmento)) {
+    showToast('Filtros por tipo, estado e segmento disponíveis no plano Starter ou superior.', true);
   }
 }
 
@@ -2336,6 +2420,9 @@ function updateQuotaUI() {
   const quota = currentProfile?.leads_quota || 10;
   const used = currentProfile?.leads_used || 0;
   const pct = Math.min(100, Math.round(used / quota * 100));
+  const remaining = Math.max(0, quota - used);
+
+  // Dashboard quota card
   document.getElementById('quotaUsed').textContent = used;
   document.getElementById('quotaTotal').textContent = quota;
   const fill = document.getElementById('quotaFill');
@@ -2343,7 +2430,37 @@ function updateQuotaUI() {
   fill.style.background = pct >= 90 ? 'var(--red)' : pct >= 70 ? '#D97706' : 'var(--accent)';
   document.getElementById('quotaHint').textContent = pct >= 100
     ? ' Limite atingido! Faça upgrade para continuar.'
-    : `Renova no dia 1º do próximo mês. ${quota - used} leads restantes.`;
+    : `Renova no dia 1º do próximo mês. ${remaining} crédito${remaining !== 1 ? 's' : ''} restante${remaining !== 1 ? 's' : ''}.`;
+
+  // Topnav real-time pill
+  const pill = document.getElementById('creditPill');
+  const pillCount = document.getElementById('creditPillCount');
+  const pillLabel = document.getElementById('creditPillLabel');
+  if (pill && pillCount) {
+    pill.style.display = 'flex';
+    pillCount.textContent = remaining;
+    pillLabel.textContent = remaining === 1 ? 'crédito' : 'créditos';
+    // Color feedback
+    if (pct >= 100) {
+      pill.style.background = 'var(--red-bg)';
+      pill.style.borderColor = 'rgba(220,38,38,0.3)';
+      pillCount.style.color = 'var(--red)';
+      pill.querySelector('svg').style.stroke = 'var(--red)';
+      pillLabel.textContent = '— sem créditos';
+    } else if (pct >= 80) {
+      pill.style.background = 'rgba(217,119,6,0.08)';
+      pill.style.borderColor = 'rgba(217,119,6,0.3)';
+      pillCount.style.color = '#D97706';
+      pill.querySelector('svg').style.stroke = '#D97706';
+    } else {
+      pill.style.background = 'var(--accent-bg)';
+      pill.style.borderColor = 'rgba(249,115,22,0.25)';
+      pillCount.style.color = 'var(--accent)';
+      pill.querySelector('svg').style.stroke = 'var(--accent)';
+    }
+    // Pulse animation on change
+    pill.animate([{transform:'scale(1.12)'},{transform:'scale(1)'}], {duration:300, easing:'ease-out'});
+  }
 }
 
 // 
@@ -2947,41 +3064,34 @@ async function revealLead(leadId) {
   const quota = currentProfile?.leads_quota || 10;
 
   if (used >= quota) {
-    document.getElementById('paywallOverlay').classList.add('active');
-    document.body.style.overflow = 'hidden';
+    openCreditModal();
     return;
   }
 
-  // Already revealed — just re-render
+  // Already revealed — just open modal
   if (revealedLeads.has(leadId)) {
-    renderLeadsTable();
+    openLeadDetailModal(leadId);
     return;
   }
 
   try {
-    // RPC segura — crédito consumido e validado atomicamente no banco
+    // Tenta RPC primeiro
     const { data, error } = await sb.rpc('revelar_lead', { p_lead_id: leadId });
 
     if (error) {
       if (error.message?.includes('quota_exceeded')) {
-        document.getElementById('paywallOverlay').classList.add('active');
-        document.body.style.overflow = 'hidden';
+        openCreditModal();
         return;
       }
-      // RPC não existe ou parâmetro diferente — fallback: atualiza profile manualmente
+      // RPC falhou (400/404) — fallback manual: incrementa leads_used no profile
       console.warn('revelar_lead RPC error, usando fallback:', error.message);
       const newUsed = used + 1;
-      const { error: updateErr } = await sb.from('profiles')
-        .update({ leads_used: newUsed })
-        .eq('id', currentUser.id);
-      if (updateErr) {
-        showToast('Erro ao revelar lead. Tente novamente.', true);
-        return;
-      }
+      // Tenta update; se der erro de RLS/not found, só avança localmente
+      await sb.from('profiles').update({ leads_used: newUsed }).eq('id', currentUser.id);
       currentProfile.leads_used = newUsed;
     } else {
-      // RPC funcionou — atualiza dados do lead com os dados completos retornados
-      if (data) {
+      // RPC ok — mescla dados completos retornados no lead local
+      if (data && typeof data === 'object') {
         const idx = allLeads.findIndex(l => l.id === leadId);
         if (idx !== -1) Object.assign(allLeads[idx], data);
       }
@@ -2993,19 +3103,88 @@ async function revealLead(leadId) {
     renderLeadsTable();
     renderSuggestedLeads();
 
-    const remaining = quota - currentProfile.leads_used;
-    showToast(`Lead desbloqueado! ${remaining} crédito${remaining !== 1 ? 's' : ''} restante${remaining !== 1 ? 's' : ''}.`);
+    // Abre o modal de detalhes do lead
+    openLeadDetailModal(leadId);
 
     if (currentProfile.leads_used >= quota) {
-      setTimeout(() => {
-        document.getElementById('paywallOverlay').classList.add('active');
-        document.body.style.overflow = 'hidden';
-      }, 1200);
+      setTimeout(() => openCreditModal(), 1200);
     }
   } catch (err) {
     showToast('Erro de conexão. Tente novamente.', true);
     console.error('revealLead error:', err);
   }
+}
+
+function openLeadDetailModal(leadId) {
+  const lead = allLeads.find(l => l.id === leadId);
+  if (!lead) return;
+
+  const name = lead.nome_fantasia || lead.razao_social || '—';
+  const seg = lead.segmento_simplificado || '';
+  document.getElementById('ldmTitle').textContent = name;
+  document.getElementById('ldmSub').textContent = [seg, lead.municipio, lead.estado].filter(Boolean).join(' · ');
+
+  const scoreClass = s => s >= 80 ? 'score-high' : s >= 60 ? 'score-mid' : 'score-low';
+
+  const fields = [
+    { icon: '🏢', label: 'CNPJ', value: lead.cnpj || '—' },
+    { icon: '📍', label: 'Cidade / UF', value: (lead.municipio || '—') + (lead.estado ? ' · ' + lead.estado : '') },
+    { icon: '📞', label: 'Telefone', value: lead.telefone_1 || '—' },
+    { icon: '✉️', label: 'E-mail', value: lead.email_comercial || '—' },
+    { icon: '👤', label: 'Sócio', value: lead.nome_socio_1 || '—' },
+    { icon: '💰', label: 'Faturamento est.', value: lead.estimativa_faturamento_anual ? 'R$ ' + Number(lead.estimativa_faturamento_anual).toLocaleString('pt-BR', { maximumFractionDigits: 0 }) : '—' },
+    { icon: '🏭', label: 'Tipo', value: lead.tipo_empresa || '—' },
+    { icon: '⭐', label: 'Score', value: lead.score_lead ? `<span class="score-badge ${scoreClass(lead.score_lead)}" style="width:auto;padding:2px 10px;">${lead.score_lead}</span>` : '—' },
+  ];
+
+  document.getElementById('ldmBody').innerHTML = fields.map(f => `
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;">
+      <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">${f.icon} ${f.label}</div>
+      <div style="font-size:14px;font-weight:500;color:var(--text);">${f.value}</div>
+    </div>`).join('');
+
+  // Preenche CRM se existir
+  const crm = crmData[leadId] || {};
+  document.getElementById('ldmCrmStatus').value = crm.status || 'novo';
+  document.getElementById('ldmCrmNotes').value = crm.notes || '';
+  document.getElementById('ldmCrmFollowup').value = crm.followup || '';
+  document.getElementById('leadDetailModal').dataset.leadId = leadId;
+  document.getElementById('leadDetailModal').classList.add('open');
+}
+
+function saveLeadDetailCrm() {
+  const leadId = document.getElementById('leadDetailModal').dataset.leadId;
+  if (!leadId) return;
+  crmData[leadId] = {
+    leadId,
+    status: document.getElementById('ldmCrmStatus').value,
+    notes: document.getElementById('ldmCrmNotes').value.trim(),
+    followup: document.getElementById('ldmCrmFollowup').value,
+    updatedAt: new Date().toISOString()
+  };
+  saveCrmToStorage();
+  renderCrm();
+  renderLeadsTable();
+  document.getElementById('leadDetailModal').classList.remove('open');
+  showToast('Lead salvo no CRM!');
+}
+
+function openCreditModal() {
+  document.getElementById('creditModal').classList.add('open');
+}
+
+let selectedCreditPlan = 'pro';
+function selectCreditPlan(plan, el) {
+  selectedCreditPlan = plan;
+  document.querySelectorAll('#creditPlanGrid .pw-plan').forEach(p => p.classList.remove('sel'));
+  el.classList.add('sel');
+  const labels = { starter: 'Assinar Starter — R$97/mês →', pro: 'Assinar Pro — R$197/mês →', agency: 'Assinar Agency — R$397/mês →' };
+  document.getElementById('creditPlanCta').textContent = labels[plan] || 'Assinar →';
+}
+
+function goToCreditPayment() {
+  document.getElementById('creditModal').classList.remove('open');
+  window.location.href = 'checkout.html?plan=' + selectedCreditPlan;
 }
 
 //

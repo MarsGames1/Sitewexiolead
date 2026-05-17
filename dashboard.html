@@ -1381,7 +1381,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
 <!-- MAIN CONTENT -->
 <div class="main-content">
 
-<!-- ══ DASHBOARD ══ -->
+<!--  DASHBOARD ═-->
 <div class="page-section active" id="page-dashboard">
   <div class="page-header">
     <div class="page-title" id="greetingTitle">Olá!</div>
@@ -1449,7 +1449,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
 </div>
 </div>
 
-<!-- ══ LEADS ══ -->
+<!--  LEADS ═-->
 <div class="page-section" id="page-leads">
   <div class="page-header">
     <div class="page-title">Buscar Leads</div>
@@ -1529,7 +1529,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
 </div>
 </div>
 
-<!-- ══ CRM ══ -->
+<!--  CRM ═-->
 <div class="page-section" id="page-crm">
   <div class="page-header">
     <div class="page-title">Meu CRM</div>
@@ -1552,7 +1552,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
 </div>
 </div>
 
-<!-- ══ EXPORTAÇÕES ══ -->
+<!--  EXPORTAÇÕES ═-->
 <div class="page-section" id="page-exports">
   <div class="page-header">
     <div class="page-title">Histórico de Exportações</div>
@@ -1570,7 +1570,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
 </div>
 </div>
 
-<!-- ══ PLANOS ══ -->
+<!--  PLANOS ═-->
 <div class="page-section" id="page-planos">
   <div class="page-header">
     <div class="page-title">Planos & Assinatura</div>
@@ -1621,7 +1621,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
 </div>
 </div>
 
-<!-- ══ PERFIL ══ -->
+<!--  PERFIL ═-->
 <div class="page-section" id="page-perfil">
   <div class="page-header">
     <div class="page-title">Meu Perfil</div>
@@ -1683,7 +1683,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
 </div>
 </div>
 
-<!-- ══ SUPORTE ══ -->
+<!--  SUPORTE ═-->
 <div class="page-section" id="page-suporte">
   <div class="page-header">
     <div class="page-title">Suporte</div>
@@ -1921,9 +1921,9 @@ async function changePassword() {
   showToast('Senha alterada com sucesso!');
 }
 
-// ══════════════════════════════════════════════════════
+//
 // LEADS
-// ══════════════════════════════════════════════════════
+//
 async function loadLeads() {
   const plan = currentProfile?.plan || 'free';
   const limit = plan === 'free' ? 10 : 1000;
@@ -1984,67 +1984,37 @@ function renderLeadsTable() {
     return `<span class="crm-status ${cls[c.status]||''}">${labels[c.status]||c.status}</span>`;
   };
 
-function renderLeadsTable() {
-  if (!filteredLeads.length && allLeads.length) filteredLeads = [...allLeads];
-
-  const plan = currentProfile?.plan || 'free';
-  const used = currentProfile?.leads_used || 0;
-  const quota = currentProfile?.leads_quota || 10;
-  const total = filteredLeads.length;
-  const pages = Math.ceil(total / LEADS_PER_PAGE) || 1;
-  if (leadsPage >pages) leadsPage = 1;
-  const slice = filteredLeads.slice((leadsPage-1)*LEADS_PER_PAGE, leadsPage*LEADS_PER_PAGE);
-
-  document.getElementById('leadsCountLabel').textContent = `${total} lead${total!==1?'s':''} encontrado${total!==1?'s':''}`;
-  document.getElementById('leadsPageInfo').textContent = `Página ${leadsPage} de ${pages} · ${total} resultado${total!==1?'s':''}`;
-
-  if (plan === 'free') document.getElementById('leadsFreeNote').style.display = 'flex';
-  else document.getElementById('leadsFreeNote').style.display = 'none';
-
-  const scoreClass = s =>s >= 80 ? 'score-high' : s >= 60 ? 'score-mid' : 'score-low';
-  const crmStatus = (id) =>{
-    const c = crmData[id];
-    if (!c?.status) return '';
-    const cls = {novo:'crm-novo',contatado:'crm-contatado',negociando:'crm-negociando',fechado:'crm-fechado'};
-    const labels = {novo:'Novo',contatado:'Contatado',negociando:'Negociando',fechado:'Fechado'};
-    return `<span class="crm-status ${cls[c.status]||''}">${labels[c.status]||c.status}</span>`;
-  };
-
   const tbody = document.getElementById('leadsTbody');
 
   // If no results but we have leads loaded, show 4 suggested locked leads as preview
   if (!slice.length && allLeads.length > 0) {
     const suggested = allLeads.slice(0, 4);
-    tbody.innerHTML = `
-      <tr><td colspan="7" style="padding:10px 14px 4px;border-bottom:none;">
-        <div style="font-size:12px;color:var(--muted);font-weight:500;">Nenhum lead encontrado com esses filtros. Veja algumas sugestões da base:</div>
-      </td></tr>
-      ${suggested.map(l => {
-        const name = l.nome_fantasia || l.razao_social || '—';
-        const score = l.score_lead ? `<span class="score-badge ${scoreClass(l.score_lead)}">${l.score_lead}</span>` : '<span class="score-badge score-low">—</span>';
-        return `<tr class="lead-locked-row" id="lead-row-${l.id}">
-          <td>
-            <div style="font-weight:500;margin-bottom:2px;">${name}</div>
-            <div style="font-size:11px;color:var(--muted);">${l.cnpj ? l.cnpj.replace(/\d(?=\d{3})/g,'*') : '—'}</div>
-          </td>
-          <td><span class="badge b-orange" style="font-size:10px;">${l.segmento_simplificado||'—'}</span></td>
-          <td style="color:var(--muted);font-size:13px;">${l.municipio||'—'}${l.estado?' · '+l.estado:''}</td>
-          <td>
-            <span style="display:inline-flex;align-items:center;gap:5px;background:var(--surface3);border-radius:6px;padding:3px 9px;font-size:11px;color:var(--dim);">
-              <svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              Bloqueado
-            </span>
-          </td>
-          <td>${score}</td>
-          <td><span style="color:var(--dim);font-size:12px;">—</span></td>
-          <td>
-            <button class="btn btn-accent" style="padding:5px 10px;font-size:11px;" onclick="revealLead('${l.id}')">
-              <svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:#fff;fill:none;stroke-width:2;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              Ver Lead
-            </button>
-          </td>
-        </tr>`;
-      }).join('')}`;
+    var sugRows = '';
+    for (var si = 0; si < suggested.length; si++) {
+      var sl = suggested[si];
+      var sname = sl.nome_fantasia || sl.razao_social || '-';
+      var ssc = sl.score_lead;
+      var sscore = ssc ? '<span class="score-badge ' + scoreClass(ssc) + '">' + ssc + '</span>' : '<span class="score-badge score-low">-</span>';
+      var scnpj = sl.cnpj ? sl.cnpj.replace(/\d(?=\d{3})/g,'*') : '-';
+      var scidade = (sl.municipio||'-') + (sl.estado?' - '+sl.estado:'');
+      var sseg = sl.segmento_simplificado||'-';
+      sugRows += '<tr class="lead-locked-row" id="lead-row-'+sl.id+'">' +
+        '<td><div style="font-weight:500;margin-bottom:2px;">'+sname+'</div>' +
+        '<div style="font-size:11px;color:var(--muted);">'+scnpj+'</div></td>' +
+        '<td><span class="badge b-orange" style="font-size:10px;">'+sseg+'</span></td>' +
+        '<td style="color:var(--muted);font-size:13px;">'+scidade+'</td>' +
+        '<td><span style="display:inline-flex;align-items:center;gap:5px;background:var(--surface3);border-radius:6px;padding:3px 9px;font-size:11px;color:var(--dim);">' +
+        '<svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Bloqueado</span></td>' +
+        '<td>'+sscore+'</td>' +
+        '<td><span style="color:var(--dim);font-size:12px;">-</span></td>' +
+        '<td><button class="btn btn-accent" style="padding:5px 10px;font-size:11px;" onclick="revealLead(\''+sl.id+'\')">'+
+        '<svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:#fff;fill:none;stroke-width:2;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'+
+        'Ver Lead</button></td></tr>';
+    }
+    tbody.innerHTML =
+      '<tr><td colspan="7" style="padding:10px 14px 4px;border-bottom:none;">' +
+      '<div style="font-size:12px;color:var(--muted);font-weight:500;">Nenhum lead encontrado. Veja sugestoes da base:</div>' +
+      '</td></tr>' + sugRows;
     return;
   }
 
@@ -2407,9 +2377,9 @@ function goToPlanPayment() {
   showToast(`Para assinar o plano, envie e-mail para: financeiro@wexiolead.com.br`);
 }
 
-// ══════════════════════════════════════════════════════
+//
 // ONBOARDING — 5 steps com X, voltar e entrada na base
-// ══════════════════════════════════════════════════════
+//
 let obStep = 0;
 let obType = '';
 let obData = {};
@@ -2843,17 +2813,17 @@ function closeMobileSidebar() {
   document.getElementById('sidebarOverlay').style.display = 'none';
 }
 
-// ══════════════════════════════════════════════════════
+//
 // LOGOUT
-// ══════════════════════════════════════════════════════
+//
 async function handleLogout() {
   await sb.auth.signOut();
   window.location.href = 'index.html';
 }
 
-// ══════════════════════════════════════════════════════
+//
 // TOAST
-// ══════════════════════════════════════════════════════
+//
 let toastTimer;
 function showToast(msg, isError = false) {
   const toast = document.getElementById('toast');
@@ -2865,56 +2835,42 @@ function showToast(msg, isError = false) {
   toastTimer = setTimeout(() =>toast.classList.remove('show'), 4000);
 }
 
-// ══════════════════════════════════════════════════════
+//
 // SUGGESTED LEADS — 4 leads bloqueados exibidos ao abrir a busca
-// ══════════════════════════════════════════════════════
+//
 function renderSuggestedLeads() {
-  const container = document.getElementById('suggestedLeadsSection');
+  var container = document.getElementById('suggestedLeadsSection');
   if (!container || !allLeads.length) return;
-
-  const scoreClass = s => s >= 80 ? 'score-high' : s >= 60 ? 'score-mid' : 'score-low';
-  const suggested = allLeads.slice(0, 4);
-
-  container.innerHTML = `
-    <div style="margin-bottom:16px;">
-      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text);margin-bottom:4px;">Sugestões para você</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Leads da base selecionados com base no seu perfil. Clique em Ver Lead para desbloquear.</div>
-      <div class="card" style="margin-bottom:0;">
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr><th>Empresa</th><th>Segmento</th><th>Cidade/UF</th><th>Contato</th><th>Score</th><th></th><th>Ação</th></tr></thead>
-            <tbody>
-              ${suggested.map(l => {
-                const name = l.nome_fantasia || l.razao_social || '—';
-                const score = l.score_lead ? `<span class="score-badge ${scoreClass(l.score_lead)}">${l.score_lead}</span>` : '<span class="score-badge score-low">—</span>';
-                return `<tr>
-                  <td>
-                    <div style="font-weight:500;margin-bottom:2px;">${name}</div>
-                    <div style="font-size:11px;color:var(--muted);">${l.cnpj ? l.cnpj.replace(/\d(?=\d{3})/g,'*') : '—'}</div>
-                  </td>
-                  <td><span class="badge b-orange" style="font-size:10px;">${l.segmento_simplificado||'—'}</span></td>
-                  <td style="color:var(--muted);font-size:13px;">${l.municipio||'—'}${l.estado?' · '+l.estado:''}</td>
-                  <td>
-                    <span style="display:inline-flex;align-items:center;gap:5px;background:var(--surface3);border-radius:6px;padding:3px 9px;font-size:11px;color:var(--dim);">
-                      <svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                      Bloqueado
-                    </span>
-                  </td>
-                  <td>${score}</td>
-                  <td></td>
-                  <td>
-                    <button class="btn btn-accent" style="padding:5px 10px;font-size:11px;" onclick="revealLead('${l.id}')">
-                      <svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:#fff;fill:none;stroke-width:2;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                      Ver Lead
-                    </button>
-                  </td>
-                </tr>`;
-              }).join('')}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>`;
+  var suggested = allLeads.slice(0, 4);
+  function scClass(s) { return s >= 80 ? 'score-high' : s >= 60 ? 'score-mid' : 'score-low'; }
+  var rows = '';
+  for (var i = 0; i < suggested.length; i++) {
+    var l = suggested[i];
+    var name = l.nome_fantasia || l.razao_social || '-';
+    var sc = l.score_lead;
+    var scoreBadge = sc ? '<span class="score-badge ' + scClass(sc) + '">' + sc + '</span>' : '<span class="score-badge score-low">-</span>';
+    var cnpjMasked = l.cnpj ? l.cnpj.replace(/\d(?=\d{3})/g, '*') : '-';
+    var cidade = (l.municipio || '-') + (l.estado ? ' - ' + l.estado : '');
+    var segmento = l.segmento_simplificado || '-';
+    rows += '<tr>' +
+      '<td><div style="font-weight:500;margin-bottom:2px;">' + name + '</div>' +
+      '<div style="font-size:11px;color:var(--muted);">' + cnpjMasked + '</div></td>' +
+      '<td><span class="badge b-orange" style="font-size:10px;">' + segmento + '</span></td>' +
+      '<td style="color:var(--muted);font-size:13px;">' + cidade + '</td>' +
+      '<td><span style="display:inline-flex;align-items:center;gap:5px;background:var(--surface3);border-radius:6px;padding:3px 9px;font-size:11px;color:var(--dim);">' +
+      '<svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Bloqueado</span></td>' +
+      '<td>' + scoreBadge + '</td><td></td>' +
+      '<td><button class="btn btn-accent" style="padding:5px 10px;font-size:11px;" onclick="revealLead(\'' + l.id + '\')">' +
+      '<svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:#fff;fill:none;stroke-width:2;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>' +
+      'Ver Lead</button></td></tr>';
+  }
+  container.innerHTML =
+    '<div style="margin-bottom:16px;">' +
+    '<div style="font-family:Syne,sans-serif;font-weight:700;font-size:13px;color:var(--text);margin-bottom:4px;">Sugestoes para voce</div>' +
+    '<div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Leads selecionados com base no seu perfil. Clique em Ver Lead para desbloquear.</div>' +
+    '<div class="card" style="margin-bottom:0;"><div class="tbl-wrap"><table>' +
+    '<thead><tr><th>Empresa</th><th>Segmento</th><th>Cidade/UF</th><th>Contato</th><th>Score</th><th></th><th>Acao</th></tr></thead>' +
+    '<tbody>' + rows + '</tbody></table></div></div></div>';
 }
 
 
@@ -2968,9 +2924,9 @@ async function revealLead(leadId) {
   }
 }
 
-// ══════════════════════════════════════════════════════
+//
 // WEX TOUR — overlay interativo pela página
-// ══════════════════════════════════════════════════════
+//
 let tourStep = 0;
 const TOUR_STEPS = [
   {
@@ -3094,9 +3050,9 @@ function endTour() {
   showToast('Tour concluído! Bons negócios.');
 }
 
-// ══════════════════════════════════════════════════════
+//
 // SUPORTE — CHAT AUTOMÁTICO DA WEX (zero tokens)
-// ══════════════════════════════════════════════════════
+//
 const SUPPORT_FAQ = [
   {
     keys: ['limite', 'aumentar', 'mais leads', 'quota', 'credito', 'acabou'],

@@ -193,7 +193,7 @@ select.finput{cursor:pointer;-webkit-appearance:none;appearance:none;background-
 
 <header>
   <div class="logo">Wexio<em>Lead</em><div class="logo-dot"></div></div>
-  <a href="#" class="back-link">
+  <a href="javascript:history.back()" class="back-link">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
     Voltar
   </a>
@@ -385,10 +385,8 @@ select.finput{cursor:pointer;-webkit-appearance:none;appearance:none;background-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
-// ATENÇÃO: substitua pelos seus valores reais. A chave Asaas fica APENAS no
-// back-end (Edge Function do Supabase) — nunca exponha no front.
 const SUPA_URL  = 'https://tbnoiwkproawwncuorpw.supabase.co';
-const SUPA_ANON = 'SUA_ANON_KEY_AQUI'; // substitua pela sua anon key
+const SUPA_ANON = 'sb_publishable_6sJeXecAy_M6gBP_b-j0QQ_0Ybgx_ng';
 const sb = supabase.createClient(SUPA_URL, SUPA_ANON);
 
 // A URL da sua Edge Function que faz as chamadas à API Asaas com segurança
@@ -404,6 +402,30 @@ let pl = 'pro', mt2 = 'pix', cd = {}, pxc = '', blc = '', paymentId = '';
 let pixPollTimer = null;
 
 const fmt = v => 'R$ ' + v.toLocaleString('pt-BR', {minimumFractionDigits:2});
+
+// ─── INIT — auto-detect session and pre-fill user data ────────────────────────
+window.addEventListener('load', async () => {
+  // Read plan from URL param
+  const urlPlan = new URLSearchParams(window.location.search).get('plan');
+  if (urlPlan && PL[urlPlan]) pl = urlPlan;
+
+  // Try to get logged-in user and pre-fill form
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session?.user) {
+      const user = session.user;
+      const { data: profile } = await sb.from('profiles').select('full_name,email,phone').eq('id', user.id).single();
+      if (profile?.full_name) document.getElementById('fn').value = profile.full_name;
+      document.getElementById('fe').value = profile?.email || user.email || '';
+      if (profile?.phone) document.getElementById('ft').value = profile.phone;
+    }
+  } catch(e) { /* not logged in, that's fine */ }
+
+  // Open checkout for the selected plan if coming from dashboard
+  if (urlPlan && PL[urlPlan]) {
+    open_co(urlPlan);
+  }
+});
 
 // ─── UI HELPERS ──────────────────────────────────────────────────────────────
 function open_co(p) {

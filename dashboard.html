@@ -2349,7 +2349,8 @@ function updatePlanCards() {
 }
 
 function selectPlan(plan) {
-  showToast(`Para assinar o plano ${plan.charAt(0).toUpperCase()+plan.slice(1)}, entre em contato: financeiro@wexiolead.com.br`);
+  // Redirect to checkout with plan pre-selected
+  window.location.href = 'checkout.html?plan=' + plan;
 }
 
 // 
@@ -2374,7 +2375,9 @@ function selectPaywallPlan(plan, el) {
 }
 
 function goToPlanPayment() {
-  showToast(`Para assinar o plano, envie e-mail para: financeiro@wexiolead.com.br`);
+  document.getElementById('paywallOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+  window.location.href = 'checkout.html?plan=' + (selectedPaywallPlan || 'pro');
 }
 
 //
@@ -2386,11 +2389,16 @@ let obData = {};
 
 function checkOnboarding() {
   const key = `wl_ob_done_${currentUser?.id}`;
+  // Skip if already done in this session OR if profile already has tipo set
   const done = sessionStorage.getItem(key);
-  if (!done && !currentProfile?.tipo) {
-    document.getElementById('onboardingModal').classList.add('open');
-    document.body.style.overflow = 'hidden';
+  if (done) return;
+  if (currentProfile?.tipo) {
+    // Profile already has tipo — mark as done and skip
+    sessionStorage.setItem(key, '1');
+    return;
   }
+  document.getElementById('onboardingModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 
 function exitOnboarding() {

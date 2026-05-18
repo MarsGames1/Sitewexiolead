@@ -755,7 +755,7 @@ async function handleGoogleLogin(){
   const b=document.getElementById('btnGoogle');b.disabled=true;
   b.innerHTML='<div class="spin"></div>Conectando...';
   try{
-    const{error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+'/dashboard.html'}});
+    const{error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://marsgames1.github.io/Sitewexiolead/dashboard.html'}});
     if(error) throw error;
   }catch(e){
     toast(e.message,true);b.disabled=false;

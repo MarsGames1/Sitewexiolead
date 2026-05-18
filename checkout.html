@@ -556,28 +556,58 @@ async function dcard() {
   const pa = parseInt(document.getElementById('cp').value);
   if (!n||n.length<16||!ex[0]||!ex[1]||!cv||!h)
     throw new Error('Preencha todos os dados do cartão.');
-  await ef('create_card', {
+
+  // Chamar Edge Function — resposta precisa ter status CONFIRMED
+  const res = await ef('create_card', {
     plan: pl, customer: cd,
     card: { holderName:h, number:n, expiryMonth:ex[0], expiryYear:'20'+ex[1], ccv:cv },
     installments: pa
   });
-  await activatePlan();
+
+  // Verificar status retornado pela Asaas antes de ativar o plano
+  const status = res?.status || '';
+  const CONFIRMED = ['CONFIRMED', 'RECEIVED', 'APPROVED'];
+  if (!CONFIRMED.includes(status)) {
+    throw new Error(res?.message || `Pagamento não confirmado (status: ${status || 'desconhecido'}). Verifique os dados do cartão.`);
+  }
+
+  // Só ativa o plano após confirmação real
+  await activatePlan(status);
   document.getElementById('cpn').textContent = PL[pl].name;
   sr('card');
 }
 
 // ─── ATIVAR PLANO NO SUPABASE ─────────────────────────────────────────────────
-async function activatePlan() {
+// Recebe o objeto de resposta confirmada da Asaas e só ativa se status ok
+async function activatePlan(confirmedStatus) {
+  const CONFIRMED = ['CONFIRMED', 'RECEIVED'];
+  if (!CONFIRMED.includes(confirmedStatus)) {
+    // Pagamento não confirmado — não ativa. Webhook fará isso quando confirmado.
+    console.warn('activatePlan ignorado: status não confirmado:', confirmedStatus);
+    return false;
+  }
+
   const { data: { user } } = await sb.auth.getUser();
-  if (!user) return; // usuário não logado: webhook cuidará disso
+  if (!user) {
+    // Usuário não autenticado: webhook Asaas será responsável pela ativação.
+    console.warn('activatePlan: usuário não autenticado, delegando ao webhook.');
+    return false;
+  }
+
   const quota = PL[pl].quota;
-  await sb.from('profiles').update({
+  const { error } = await sb.from('profiles').update({
     plan: pl,
     leads_quota: quota,
     leads_used: 0,
     plan_activated_at: new Date().toISOString(),
     plan_expires_at: new Date(Date.now() + 30*24*60*60*1000).toISOString()
-  }).eq('email', cd.e);
+  }).eq('id', user.id); // ← user.id autenticado, nunca e-mail digitado pelo usuário
+
+  if (error) {
+    console.error('Erro ao ativar plano no Supabase:', error.message);
+    return false;
+  }
+  return true;
 }
 
 // ─── PIX POLLING — verifica confirmação a cada 5s por até 10min ───────────────
@@ -590,7 +620,7 @@ function startPixPoll() {
       const res = await ef('check_payment', { paymentId });
       if (res.status === 'RECEIVED' || res.status === 'CONFIRMED') {
         stopPixPoll();
-        await activatePlan();
+        await activatePlan(res.status);
         // Atualiza UI para confirmação
         document.getElementById('r-pix').innerHTML =
           '<div class="ok-wrap">' +

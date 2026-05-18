@@ -1903,8 +1903,8 @@ textarea.form-input { resize: vertical; min-height: 90px; }
 // 
 const SUPABASE_URL = 'https://tbnoiwkproawwncuorpw.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_6sJeXecAy_M6gBP_b-j0QQ_0Ybgx_ng';
-const GROQ_KEY = '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';
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+// GROQ_KEY removida — chamadas via Edge Function /functions/v1/wex-chat
+const WEX_CHAT_URL = SUPABASE_URL + '/functions/v1/wex-chat';
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -2839,17 +2839,18 @@ async function sendWexMessage() {
       ? wexHistory.slice(-10)
       : [...wexHistory];
 
-    const response = await fetch(GROQ_API_URL, {
+    // Chamada via Edge Function — chave Groq nunca exposta ao cliente
+    const { data: { session } } = await sb.auth.getSession();
+    const response = await fetch(WEX_CHAT_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${GROQ_KEY}`
+        'Authorization': 'Bearer ' + (session?.access_token || SUPABASE_KEY)
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
         messages: [
           { role: 'system', content: WEX_SYSTEM + '\n\n' + contextMsg },
-          ...messages.map(m =>({
+          ...messages.map(m => ({
             role: m.role === 'model' ? 'assistant' : 'user',
             content: m.parts?.[0]?.text || m.content || ''
           })),
@@ -2868,8 +2869,8 @@ async function sendWexMessage() {
       addWexMessage(reply, 'bot');
     } else {
       const errMsg = data.error?.message || 'Resposta inesperada da API.';
-      addWexMessage(`Desculpe, não consegui processar sua pergunta agora. Tente novamente em instantes.`, 'bot');
-      console.error('Groq error:', errMsg);
+      addWexMessage('Desculpe, não consegui processar sua pergunta agora. Tente novamente em instantes.', 'bot');
+      console.error('Wex Edge Function error:', errMsg);
     }
   } catch (err) {
     removeWexTyping();
@@ -3083,20 +3084,18 @@ async function revealLead(leadId) {
         openCreditModal();
         return;
       }
-      // RPC falhou (400/404) — fallback manual: incrementa leads_used no profile
-      console.warn('revelar_lead RPC error, usando fallback:', error.message);
-      const newUsed = used + 1;
-      // Tenta update; se der erro de RLS/not found, só avança localmente
-      await sb.from('profiles').update({ leads_used: newUsed }).eq('id', currentUser.id);
-      currentProfile.leads_used = newUsed;
-    } else {
-      // RPC ok — mescla dados completos retornados no lead local
-      if (data && typeof data === 'object') {
-        const idx = allLeads.findIndex(l => l.id === leadId);
-        if (idx !== -1) Object.assign(allLeads[idx], data);
-      }
-      currentProfile.leads_used = (currentProfile.leads_used || 0) + 1;
+      // RPC falhou — bloquear revelação, não revelar lead sem confirmação server-side
+      console.error('revelar_lead RPC error:', error.message);
+      toast('Não foi possível revelar este lead agora. Tente novamente em instantes.', 'error');
+      return; // ← interrompe: sem fallback client-side inseguro
     }
+
+    // RPC ok — mescla dados completos retornados no lead local
+    if (data && typeof data === 'object') {
+      const idx = allLeads.findIndex(l => l.id === leadId);
+      if (idx !== -1) Object.assign(allLeads[idx], data);
+    }
+    currentProfile.leads_used = (currentProfile.leads_used || 0) + 1;
 
     revealedLeads.add(leadId);
     updateQuotaUI();

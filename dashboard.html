@@ -1991,13 +1991,13 @@ async function loadProfile() {
   // Se o tipo foi preenchido no cadastro (user_metadata) mas ainda não foi salvo em profiles,
   // sincroniza agora e marca onboarding como concluído para não exibir o modal novamente.
   const metaTipo = currentUser.user_metadata?.tipo;
-  if (metaTipo && !currentProfile.tipo) {
-    const patch = { tipo: metaTipo, onboarding_done: true };
+  if (metaTipo && !currentProfile.tipo_empresa) {
+    const patch = { tipo_empresa: metaTipo, onboarding_done: true };
     await sb.from('profiles').update(patch).eq('id', currentUser.id);
     Object.assign(currentProfile, patch);
   }
   // Se já tem tipo mas onboarding_done ainda está false/null, corrige também
-  if (currentProfile.tipo && !currentProfile.onboarding_done) {
+  if (currentProfile.tipo_empresa && !currentProfile.onboarding_done) {
     await sb.from('profiles').update({ onboarding_done: true }).eq('id', currentUser.id);
     currentProfile.onboarding_done = true;
   }
@@ -2017,7 +2017,7 @@ async function loadProfile() {
   document.getElementById('profileEmail').value = currentProfile.email || currentUser.email || '';
   document.getElementById('profileCompany').value = currentProfile.company || '';
   document.getElementById('profilePhone').value = currentProfile.phone || '';
-  if (currentProfile.tipo) document.getElementById('profileTipo').value = currentProfile.tipo;
+  if (currentProfile.tipo_empresa) document.getElementById('profileTipo').value = currentProfile.tipo_empresa;
   if (currentProfile.estado) document.getElementById('profileEstado').value = currentProfile.estado;
 }
 
@@ -2555,7 +2555,7 @@ let obData = {};
 function checkOnboarding() {
   // Verificar no perfil do banco — não em sessionStorage (que some ao fechar o navegador)
   if (currentProfile?.onboarding_done === true) return;
-  if (currentProfile?.tipo) return; // já tem tipo definido = já passou pelo onboarding
+  if (currentProfile?.tipo_empresa) return; // já tem tipo definido = já passou pelo onboarding
   document.getElementById('onboardingModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -2866,7 +2866,7 @@ async function sendWexMessage() {
   showWexTyping();
 
   // Context for the API
-  const contextMsg = `[Contexto do usuário: plano=${currentProfile?.plan||'free'}, tipo=${currentProfile?.tipo||'não definido'}, estado=${currentProfile?.estado||'não definido'}, leads na base=${allLeads.length}]`;
+  const contextMsg = `[Contexto do usuário: plano=${currentProfile?.plan||'free'}, tipo=${currentProfile?.tipo_empresa||'não definido'}, estado=${currentProfile?.estado||'não definido'}, leads na base=${allLeads.length}]`;
 
   try {
     const messages = wexHistory.length >10

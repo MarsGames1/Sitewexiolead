@@ -1985,7 +1985,15 @@ async function loadProfile() {
     if (insertError) console.warn('Erro ao criar perfil:', insertError.message);
     currentProfile = newProfile;
   } else {
-    currentProfile = data;
+    // CORREÇÃO: preservar leads_used e leads_quota exatamente como estão no banco.
+    // Nunca usar fallback || 10 aqui — isso causaria reset visual dos créditos.
+    // Se o banco retornar null (coluna ainda não populada), usamos o valor atual em memória
+    // para não regredir o contador do usuário.
+    const preserved = {
+      leads_used:  data.leads_used  ?? currentProfile?.leads_used  ?? 0,
+      leads_quota: data.leads_quota ?? currentProfile?.leads_quota ?? 10,
+    };
+    currentProfile = { ...data, ...preserved };
   }
 
   // Se o tipo foi preenchido no cadastro (user_metadata) mas ainda não foi salvo em profiles,
@@ -3581,6 +3589,125 @@ function showTicketForm() {
     setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ATIVAÇÃO DE PLANO — só executa após pagamento CONFIRMADO pelo Asaas
+// ─────────────────────────────────────────────────────────────────────────────
+const CHECKOUT_URL = SUPABASE_URL + '/functions/v1/asaas-checkout';
+const PLAN_QUOTA   = { starter: 300, pro: 1000, agency: 5000 };
+
+/**
+ * Ativa o plano no banco SOMENTE quando o Asaas confirmar o pagamento.
+ * Chamado tanto por PIX/cartão (confirmação imediata) quanto
+ * pelo polling de boleto (confirmação assíncrona).
+ */
+async function activatePlan(plan) {
+  const quota = PLAN_QUOTA[plan];
+  if (!quota) return;
+
+  const { error } = await sb.from('profiles').update({
+    plan,
+    leads_quota: quota,
+    // NÃO zeramos leads_used — o usuário já usou X créditos este mês
+  }).eq('id', currentUser.id);
+
+  if (error) {
+    console.error('Erro ao ativar plano:', error.message);
+    showToast('Erro ao ativar plano. Entre em contato com o suporte.', true);
+    return;
+  }
+
+  // Atualiza memória local
+  currentProfile.plan      = plan;
+  currentProfile.leads_quota = quota;
+
+  // Atualiza UI
+  updateQuotaUI();
+  updatePlanCards();
+  showToast(`Plano ${plan.charAt(0).toUpperCase() + plan.slice(1)} ativado com sucesso! 🎉`);
+
+  // Remove paywall se estava ativo
+  const pw = document.getElementById('paywallOverlay');
+  if (pw) { pw.classList.remove('active'); document.body.style.overflow = ''; }
+}
+
+/**
+ * Polling para boleto bancário — verifica a cada 30s por até 3 dias.
+ * Persiste o paymentId em sessionStorage para sobreviver a recarregamentos
+ * (o usuário pode fechar e reabrir o dashboard antes do banco compensar).
+ */
+const BOLETO_POLL_KEY = 'wl_boleto_pending';
+const BOLETO_POLL_INTERVAL_MS  = 30_000;   // 30 segundos
+const BOLETO_POLL_MAX_ATTEMPTS = 8_640;    // 3 dias × 24h × 60min × 2
+
+let _boletoPollTimer = null;
+
+function startBoletoPoll(paymentId, plan) {
+  // Persiste no sessionStorage para caso de reload
+  sessionStorage.setItem(BOLETO_POLL_KEY, JSON.stringify({ paymentId, plan, attempts: 0 }));
+  _runBoletoPoll();
+}
+
+async function _runBoletoPoll() {
+  const raw = sessionStorage.getItem(BOLETO_POLL_KEY);
+  if (!raw) return;
+
+  let state;
+  try { state = JSON.parse(raw); } catch { sessionStorage.removeItem(BOLETO_POLL_KEY); return; }
+
+  const { paymentId, plan, attempts } = state;
+
+  if (attempts >= BOLETO_POLL_MAX_ATTEMPTS) {
+    sessionStorage.removeItem(BOLETO_POLL_KEY);
+    return;
+  }
+
+  try {
+    const session = await sb.auth.getSession();
+    const token   = session?.data?.session?.access_token;
+
+    const res = await fetch(CHECKOUT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ action: 'check_payment', paymentId }),
+    });
+    const data = await res.json();
+
+    if (data.status === 'CONFIRMED' || data.status === 'RECEIVED') {
+      // Pagamento confirmado — ativa o plano e encerra o polling
+      sessionStorage.removeItem(BOLETO_POLL_KEY);
+      await activatePlan(plan);
+      return;
+    }
+
+    if (data.status === 'OVERDUE' || data.status === 'REFUNDED' || data.status === 'CANCELED') {
+      // Boleto vencido/cancelado — encerra o polling sem ativar
+      sessionStorage.removeItem(BOLETO_POLL_KEY);
+      showToast('O boleto expirou ou foi cancelado. Gere um novo para ativar seu plano.', true);
+      return;
+    }
+  } catch (err) {
+    console.warn('Boleto poll error:', err.message);
+  }
+
+  // Ainda PENDING — agenda próxima verificação
+  state.attempts += 1;
+  sessionStorage.setItem(BOLETO_POLL_KEY, JSON.stringify(state));
+  _boletoPollTimer = setTimeout(_runBoletoPoll, BOLETO_POLL_INTERVAL_MS);
+}
+
+// Retoma polling pendente se o usuário recarregar o dashboard
+(function resumeBoletoPollOnLoad() {
+  const raw = sessionStorage.getItem(BOLETO_POLL_KEY);
+  if (!raw) return;
+  // Aguarda o currentUser estar disponível (init roda antes)
+  window.addEventListener('load', () => {
+    setTimeout(_runBoletoPoll, 3000); // pequeno delay para garantir que sb.auth foi inicializado
+  });
+})();
 
 </script>
 <script>

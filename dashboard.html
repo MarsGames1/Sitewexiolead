@@ -1556,7 +1556,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
   <div id="suggestedLeadsSection"></div>
 
   <!-- Hidden filter selects for JS to use -->
-  <select id="leadTipo" style="display:none;"><option value=""></option><option value="construtora">Construtoras</option><option value="fornecedor">Fornecedores</option><option value="empreiteiro">Empreiteiros</option></select>
+  <select id="leadTipo" style="display:none;"><option value=""></option><option value="Construtora">Construtoras</option><option value="Fornecedor">Fornecedores</option><option value="Empreiteiro">Empreiteiros</option><option value="Prestador de Serviço">Prestadores de Serviço</option></select>
   <select id="leadSegmento" style="display:none;"><option value=""></option><option>Construção Residencial</option><option>Construção Comercial</option><option>Construção Industrial</option><option>Infraestrutura</option><option>Reformas e Manutenção</option><option>Materiais de Construção</option><option>Instalações Elétricas</option><option>Hidráulica e Encanamento</option><option>Construção</option><option>Tecnologia</option></select>
   <select id="leadEstado" style="display:none;"><option value=""></option><option>SP</option><option>RJ</option><option>MG</option><option>RS</option><option>PR</option><option>BA</option><option>CE</option><option>PE</option><option>GO</option><option>DF</option><option>SC</option><option>ES</option></select>
 
@@ -1580,9 +1580,9 @@ textarea.form-input { resize: vertical; min-height: 90px; }
     <!-- Quick filters chips -->
     <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;" id="filterChips">
       <span style="font-size:11px;color:var(--muted);align-self:center;font-weight:500;">Filtros:</span>
-      <button onclick="applyChip('tipo','construtora',this)" class="filter-chip">Construtoras</button>
-      <button onclick="applyChip('tipo','fornecedor',this)" class="filter-chip">Fornecedores</button>
-      <button onclick="applyChip('tipo','empreiteiro',this)" class="filter-chip">Empreiteiros</button>
+      <button onclick="applyChip('tipo','Construtora',this)" class="filter-chip">Construtoras</button>
+      <button onclick="applyChip('tipo','Fornecedor',this)" class="filter-chip">Fornecedores</button>
+      <button onclick="applyChip('tipo','Empreiteiro',this)" class="filter-chip">Empreiteiros</button>
       <button onclick="applyChip('estado','SP',this)" class="filter-chip">São Paulo</button>
       <button onclick="applyChip('estado','RJ',this)" class="filter-chip">Rio de Janeiro</button>
       <button onclick="applyChip('estado','MG',this)" class="filter-chip">Minas Gerais</button>
@@ -2042,12 +2042,12 @@ async function fetchLeadsFromServer(filters = {}) {
 
   // Build query
   let query = sb.from('leads')
-    .select('id,razao_social,nome_fantasia,cnpj,segmento_simplificado,municipio,estado,telefone_1,email_comercial,score_lead,nome_socio_1,capital_social,estimativa_faturamento_anual,situacao_cadastral,tipo_empresa,cnae_principal')
+    .select('id,razao_social,nome_fantasia,cnpj,segmento_simplificado,municipio,estado,telefone_1,email_comercial,score_lead,nome_socio_1,capital_social,estimativa_faturamento_anual,situacao_cadastral,tipo_empresa')
     .order('score_lead', { ascending: false });
 
   // Apply server-side filters based on plan
   if (canFilterBasic && filters.tipo) {
-    query = query.eq('tipo_empresa', filters.tipo);
+    query = query.ilike('tipo_empresa', filters.tipo);
   }
   if (canFilterBasic && filters.estado) {
     query = query.eq('estado', filters.estado);
@@ -2072,6 +2072,7 @@ async function fetchLeadsFromServer(filters = {}) {
   filteredLeads = [...allLeads];
   leadsPage = 1;
   renderLeadsTable();
+  renderSuggestedLeads();
 
   // Avisa free que filtros avançados (tipo/estado/segmento) requerem upgrade
   if (isFree && (filters.tipo || filters.estado || filters.segmento)) {

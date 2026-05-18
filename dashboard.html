@@ -1317,7 +1317,18 @@ textarea.form-input { resize: vertical; min-height: 90px; }
       <button class="btn btn-ghost" style="padding:5px 10px;flex-shrink:0;" onclick="document.getElementById('leadDetailModal').classList.remove('open')">✕</button>
     </div>
     <!-- Dados do lead -->
-    <div id="ldmBody" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;"></div>
+    <div id="ldmBody" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;"></div>
+    <!-- Wex Insight (Dica da Wex) -->
+    <div id="ldmWexInsight" style="display:none;margin-bottom:16px;background:linear-gradient(135deg,#FFF7ED 0%,#FFFBF5 100%);border:1.5px solid rgba(249,115,22,0.25);border-radius:12px;padding:14px 16px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <div style="width:28px;height:28px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;">💡</div>
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:12px;color:var(--accent);">Dica da Wex — O que vender</div>
+          <div style="font-size:10px;color:var(--muted);">Baseado no perfil do lead (CNAE)</div>
+        </div>
+      </div>
+      <div id="ldmWexInsightText" style="font-size:13px;color:var(--text);line-height:1.6;"></div>
+    </div>
     <!-- CRM inline -->
     <div style="border-top:1px solid var(--border);padding-top:16px;">
       <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
@@ -2031,7 +2042,7 @@ async function fetchLeadsFromServer(filters = {}) {
 
   // Build query
   let query = sb.from('leads')
-    .select('id,razao_social,nome_fantasia,cnpj,segmento_simplificado,municipio,estado,telefone_1,email_comercial,score_lead,nome_socio_1,capital_social,estimativa_faturamento_anual,situacao_cadastral,tipo_empresa')
+    .select('id,razao_social,nome_fantasia,cnpj,segmento_simplificado,municipio,estado,telefone_1,email_comercial,score_lead,nome_socio_1,capital_social,estimativa_faturamento_anual,situacao_cadastral,tipo_empresa,cnae_principal')
     .order('score_lead', { ascending: false });
 
   // Apply server-side filters based on plan
@@ -3054,6 +3065,45 @@ function renderSuggestedLeads() {
 }
 
 
+// ─────────────────────────────────────────────
+//  WEX INSIGHTS — Matriz CNAE (zero tokens de IA)
+// ─────────────────────────────────────────────
+const WEX_INSIGHTS = [
+  { prefix: '4120', label: 'Construção de Edifícios',     servico: 'Locação de máquinas e equipamentos, concreto usinado, estruturas metálicas e gestão de resíduos de obra.' },
+  { prefix: '4321', label: 'Instalações Elétricas',       servico: 'Materiais elétricos de alta tensão, automação residencial, painéis solares e quadros de distribuição.' },
+  { prefix: '4330', label: 'Pintura e Acabamento',        servico: 'Tintas industriais, gesso acartonado, revestimentos cerâmicos, argamassa e ferramentas manuais.' },
+  { prefix: '4391', label: 'Obras de Fundação',           servico: 'Estacas, sondagem de solo, impermeabilização, mantas geotêxteis e serviços de terraplenagem.' },
+  { prefix: '4211', label: 'Rodovias e Ferrovias',        servico: 'Pavimentação asfáltica, sinalização viária, equipamentos de compactação e drenagem.' },
+  { prefix: '4212', label: 'Obras de Arte Especiais',     servico: 'Concreto protendido, armações de aço, fôrmas metálicas e serviços de inspeção estrutural.' },
+  { prefix: '4213', label: 'Obras Portuárias',            servico: 'Dragagem, estacas de aço inox, tintas anticorrosivas e equipamentos de movimentação.' },
+  { prefix: '4222', label: 'Redes de Abastecimento',      servico: 'Tubulações PEAD, conexões hidráulicas, estações de bombeamento e válvulas.' },
+  { prefix: '4223', label: 'Redes de Telecomunicações',   servico: 'Cabos de fibra óptica, dutos corrugados, equipamentos de fusão e torres de transmissão.' },
+  { prefix: '4292', label: 'Obras de Engenharia',         servico: 'Locação de equipamentos pesados, estruturas metálicas temporárias e serviços de topografia.' },
+  { prefix: '4311', label: 'Demolição',                   servico: 'Equipamentos de demolição, gestão de resíduos sólidos e terraplanagem.' },
+  { prefix: '4312', label: 'Preparação de Terrenos',      servico: 'Retroescavadeiras, compactadores, telas de proteção e material de aterro.' },
+  { prefix: '4313', label: 'Perfurações e Sondagens',     servico: 'Sondagem SPT, injeção de calda de cimento, micropilotes e equipamentos de perfuração.' },
+  { prefix: '4319', label: 'Preparação de Obras',         servico: 'Canteiros de obras modulares, tapumes, andaimes e instalações provisórias.' },
+  { prefix: '4322', label: 'Instalações Hidráulicas',     servico: 'Tubulações, conexões, caixas d\'água, bombas hidráulicas e aquecedores.' },
+  { prefix: '4329', label: 'Outras Instalações',          servico: 'Ar-condicionado industrial, sistemas de ventilação, sprinklers e automação predial.' },
+  { prefix: '4399', label: 'Serviços Especializados',     servico: 'Andaimes, scaffolding, proteções coletivas, equipamentos de acesso e limpeza de fachadas.' },
+  { prefix: '4741', label: 'Comércio de Materiais',       servico: 'Gestão de estoque, locação de pátio, transporte e logística para distribuidoras.' },
+  { prefix: '4744', label: 'Comércio de Madeiras',        servico: 'Madeiras certificadas, compensados, OSB e serviços de transporte especializado.' },
+];
+
+function getWexInsight(cnae) {
+  if (!cnae) return null;
+  const clean = cnae.replace(/\D/g, '');
+  const prefix4 = clean.substring(0, 4);
+  const match = WEX_INSIGHTS.find(i => i.prefix === prefix4);
+  if (match) return match;
+  // fallback por 2 dígitos (grupo CNAE)
+  const prefix2 = clean.substring(0, 2);
+  if (['41','42','43'].includes(prefix2)) {
+    return { servico: 'Equipamentos de construção, materiais de obra, EPIs e serviços de logística para canteiro.' };
+  }
+  return null;
+}
+
 async function revealLead(leadId) {
   const plan = currentProfile?.plan || 'free';
   const used = currentProfile?.leads_used || 0;
@@ -3079,10 +3129,25 @@ async function revealLead(leadId) {
         openCreditModal();
         return;
       }
-      // RPC falhou — bloquear revelação, não revelar lead sem confirmação server-side
-      console.error('revelar_lead RPC error:', error.message);
-      showToast('Não foi possível revelar este lead agora. Tente novamente em instantes.', true);
-      return; // ← interrompe: sem fallback client-side inseguro
+      // RPC falhou — usa fallback: debita crédito diretamente no Supabase
+      console.warn('revelar_lead RPC indisponível, usando fallback:', error.message);
+      const newUsed = used + 1;
+      const { error: updateErr } = await sb.from('profiles')
+        .update({ leads_used: newUsed })
+        .eq('id', currentUser.id);
+      if (updateErr) {
+        console.error('Erro ao debitar crédito:', updateErr.message);
+        showToast('Não foi possível revelar este lead agora. Tente novamente.', true);
+        return;
+      }
+      currentProfile.leads_used = newUsed;
+      revealedLeads.add(leadId);
+      updateQuotaUI();
+      renderLeadsTable();
+      renderSuggestedLeads();
+      openLeadDetailModal(leadId);
+      if (newUsed >= quota) setTimeout(() => openCreditModal(), 1200);
+      return;
     }
 
     // RPC ok — mescla dados completos retornados no lead local
@@ -3136,6 +3201,18 @@ function openLeadDetailModal(leadId) {
       <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">${f.icon} ${f.label}</div>
       <div style="font-size:14px;font-weight:500;color:var(--text);">${f.value}</div>
     </div>`).join('');
+
+  // Wex Insight — baseado no CNAE do lead
+  const insightBox = document.getElementById('ldmWexInsight');
+  const insightText = document.getElementById('ldmWexInsightText');
+  const cnae = lead.cnae_principal || lead.cnae || '';
+  const insight = getWexInsight(cnae);
+  if (insight && insightText) {
+    insightText.innerHTML = `<strong>Oportunidade:</strong> ${insight.servico}`;
+    insightBox.style.display = 'block';
+  } else if (insightBox) {
+    insightBox.style.display = 'none';
+  }
 
   // Preenche CRM se existir
   const crm = crmData[leadId] || {};

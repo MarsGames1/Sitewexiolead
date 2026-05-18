@@ -2514,15 +2514,9 @@ let obType = '';
 let obData = {};
 
 function checkOnboarding() {
-  const key = `wl_ob_done_${currentUser?.id}`;
-  // Skip if already done in this session OR if profile already has tipo set
-  const done = sessionStorage.getItem(key);
-  if (done) return;
-  if (currentProfile?.tipo) {
-    // Profile already has tipo — mark as done and skip
-    sessionStorage.setItem(key, '1');
-    return;
-  }
+  // Verificar no perfil do banco — não em sessionStorage (que some ao fechar o navegador)
+  if (currentProfile?.onboarding_done === true) return;
+  if (currentProfile?.tipo) return; // já tem tipo definido = já passou pelo onboarding
   document.getElementById('onboardingModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -2708,8 +2702,9 @@ async function finishOnboarding(wantsTutorial) {
     if (leadErr) console.warn('Erro ao inserir lead:', leadErr.message);
   }
 
-  // 3. Marcar onboarding como feito
-  sessionStorage.setItem(`wl_ob_done_${currentUser?.id}`, '1');
+  // 3. Marcar onboarding como feito no banco (persiste entre sessões)
+  await sb.from('profiles').update({ onboarding_done: true }).eq('id', currentUser.id);
+  currentProfile.onboarding_done = true;
   document.getElementById('onboardingModal').classList.remove('open');
   document.body.style.overflow = '';
 

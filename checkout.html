@@ -393,9 +393,9 @@ const sb = supabase.createClient(SUPA_URL, SUPA_ANON);
 const EF_URL = SUPA_URL + '/functions/v1/asaas-checkout';
 
 const PL = {
-  starter: { name:'Starter', price:0.01, quota:300  },
-  pro:     { name:'Pro',     price:0.01, quota:1000 },
-  agency:  { name:'Agency',  price:0.01, quota:99999 }
+  starter: { name:'Starter', price:97,  quota:300  },
+  pro:     { name:'Pro',     price:197, quota:1000 },
+  agency:  { name:'Agency',  price:397, quota:99999 }
 };
 
 let pl = 'pro', mt2 = 'pix', cd = {}, pxc = '', blc = '', paymentId = '';

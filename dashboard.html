@@ -3081,7 +3081,7 @@ async function revealLead(leadId) {
       }
       // RPC falhou — bloquear revelação, não revelar lead sem confirmação server-side
       console.error('revelar_lead RPC error:', error.message);
-      toast('Não foi possível revelar este lead agora. Tente novamente em instantes.', 'error');
+      showToast('Não foi possível revelar este lead agora. Tente novamente em instantes.', true);
       return; // ← interrompe: sem fallback client-side inseguro
     }
 

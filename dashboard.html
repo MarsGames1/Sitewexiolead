@@ -1943,6 +1943,12 @@ window.addEventListener('load', async () =>{
   if (!session) { window.location.href = 'index.html'; return; }
   currentUser = session.user;
 
+  // Registra listener só após confirmar sessão, evitando redirecionamento
+  // prematuro durante o processamento do hash OAuth (access_token)
+  sb.auth.onAuthStateChange((event, session) =>{
+    if (event === 'SIGNED_OUT') window.location.href = 'index.html';
+  });
+
   await Promise.all([loadProfile(), loadLeads(), loadExports()]);
   loadCrmFromStorage();
   renderDashboard();
@@ -1958,22 +1964,29 @@ window.addEventListener('load', async () =>{
   initWex();
 });
 
-sb.auth.onAuthStateChange((event, session) =>{
-  if (event === 'SIGNED_OUT') window.location.href = 'index.html';
-});
-
 // 
 // PROFILE
 // 
 async function loadProfile() {
   const { data, error } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
-  currentProfile = data || {
-    full_name: currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0],
-    email: currentUser.email,
-    plan: 'free',
-    leads_quota: 10,
-    leads_used: 0
-  };
+
+  if (!data) {
+    // Usuário novo (ex: Google OAuth) — perfil ainda não existe, cria agora
+    const newProfile = {
+      id: currentUser.id,
+      full_name: currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0],
+      email: currentUser.email,
+      plan: 'free',
+      leads_quota: 10,
+      leads_used: 0,
+      onboarding_done: false
+    };
+    const { error: insertError } = await sb.from('profiles').insert(newProfile);
+    if (insertError) console.warn('Erro ao criar perfil:', insertError.message);
+    currentProfile = newProfile;
+  } else {
+    currentProfile = data;
+  }
 
   // Se o tipo foi preenchido no cadastro (user_metadata) mas ainda não foi salvo em profiles,
   // sincroniza agora e marca onboarding como concluído para não exibir o modal novamente.

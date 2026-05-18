@@ -2712,9 +2712,9 @@ async function finishOnboarding(wantsTutorial) {
   const objetivo  = document.getElementById('obObjetivo').value;
   const cnpj      = document.getElementById('obCnpj').value.replace(/\D/g,'');
 
-  // 1. Atualizar perfil do usuário
+  // 1. Atualizar perfil do usuário (tipo_empresa é o nome real da coluna no banco)
   const profileUpdate = {
-    tipo: obType || null,
+    tipo_empresa: obType || null,
     estado: estado || null,
     company: empresa || null,
     full_name: nome || currentProfile?.full_name,
@@ -2726,14 +2726,14 @@ async function finishOnboarding(wantsTutorial) {
   await sb.from('profiles').update(profileUpdate).eq('id', currentUser.id);
   if (currentProfile) Object.assign(currentProfile, profileUpdate);
 
-  // 2. Se construtora ou prestadora: inserir na base de leads via RPC segura
-  if ((obType === 'construtora' || obType === 'prestadora' || obType === 'empreiteiro') && empresa) {
+  // 2. Inserir empresa na base de leads para TODOS os tipos (fornecedor, construtora, empreiteiro)
+  if (empresa) {
     const { error: leadErr } = await sb.rpc('inserir_lead_onboarding', {
       p_razao_social: empresa,
       p_email: email || null,
       p_telefone: telefone || null,
       p_estado: estado || null,
-      p_tipo_lead: obType,
+      p_tipo_lead: obType || null,
       p_segmento: segmento || null,
       p_nome_socio: nome || null,
       p_cnpj: cnpj || null

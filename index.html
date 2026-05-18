@@ -774,8 +774,18 @@ async function handleSignup(){
   try{
     const{data,error}=await sb.auth.signUp({email:e,password:p,options:{data:{full_name:n,tipo:tp}}});
     if(error) throw error;
-    if(data.user&&!data.session){toast('Verifique seu e-mail para confirmar a conta.');document.getElementById('authModal').classList.remove('open');document.body.style.overflow='';}
-    else if(data.session){const pending=sessionStorage.getItem('pendingPlan');if(pending){sessionStorage.removeItem('pendingPlan');location.href='checkout.html?plan='+pending;}else location.href='dashboard.html';}
+    // Se sessão veio direto (confirmação de e-mail desativada no Supabase), redireciona imediatamente
+    if(data.session){
+      const pending=sessionStorage.getItem('pendingPlan');
+      if(pending){sessionStorage.removeItem('pendingPlan');location.href='checkout.html?plan='+pending;}
+      else location.href='dashboard.html';
+    } else if(data.user&&!data.session){
+      // Fallback: confirmação ainda ativa — orienta o usuário a fazer login
+      toast('Conta criada! Entre com seu e-mail e senha.');
+      document.getElementById('authModal').classList.remove('open');
+      document.body.style.overflow='';
+      setTimeout(()=>openModal('login'),1800);
+    }
   }catch(err){setE('eE',err.message.includes('already')?'E-mail já cadastrado.':err.message);}
   finally{document.getElementById('bSuT').textContent='Criar conta grátis →';document.getElementById('bSu').disabled=false;}
 }

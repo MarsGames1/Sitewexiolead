@@ -677,31 +677,11 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
   <div class="fg">
     <div><div class="flogo">wexio<span>lead</span></div><p class="fdesc">A plataforma de leads B2B especializada em construção civil. Conectando fornecedores e construtoras em todo o Brasil.</p></div>
     <div><div class="fct">Produto</div><ul class="fls"><li><a href="#problema">Para quem é</a></li><li><a href="#como">Como funciona</a></li><li><a href="#features">Funcionalidades</a></li><li><a href="#pricing">Preços</a></li><li><a href="#" onclick="openModal('signup');return false;" class="ac">Começar grátis →</a></li></ul></div>
-    <div><div class="fct">Empresa</div><ul class="fls"><li><a href="#" onclick="openSupportModal();return false;">Suporte</a></li><li><a href="mailto:parceiros@wexiolead.com.br">Parcerias</a></li><li><a href="mailto:contato@wexiolead.com.br">Contato</a></li></ul></div>
+    <div><div class="fct">Empresa</div><ul class="fls"><li><a href="mailto:suporte@wexiolead.com.br">Suporte</a></li><li><a href="mailto:parceiros@wexiolead.com.br">Parcerias</a></li><li><a href="mailto:contato@wexiolead.com.br">Contato</a></li></ul></div>
     <div><div class="fct">Legal</div><ul class="fls"><li><a href="#" onclick="openPolicy('privacidade');return false;">Política de Privacidade</a></li><li><a href="#" onclick="openPolicy('termos');return false;">Termos de Uso</a></li><li><a href="#" onclick="openPolicy('lgpd');return false;">LGPD</a></li><li><a href="#" onclick="openPolicy('dpo');return false;">DPO / Privacidade</a></li></ul></div>
   </div>
   <div class="fb"><div class="fc">© 2026 wexiolead · Rio de Janeiro, RJ · Brasil</div></div>
 
-<!-- Modal de Suporte -->
-<div class="modal-overlay" id="supportModal" onclick="if(event.target===this)this.classList.remove('open')" style="z-index:9999;">
-  <div class="modal-box" style="max-width:420px;text-align:center;padding:40px 36px;">
-    <div style="width:52px;height:52px;border-radius:14px;background:rgba(249,115,22,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    </div>
-    <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#1a1814;margin-bottom:10px;">Precisa de ajuda?</div>
-    <p style="font-size:14px;color:#6b7280;line-height:1.6;margin-bottom:24px;">
-      Nosso suporte é feito pela <strong style="color:#F97316">Wex</strong>, a assistente inteligente disponível dentro da plataforma.<br><br>
-      Faça login e acesse o botão <strong>"Falar com Wex"</strong> no painel — ela resolve a maioria das dúvidas na hora.
-    </p>
-    <button onclick="document.getElementById('supportModal').classList.remove('open');document.getElementById('login-modal')?.classList.add('open')||openAuth('login')" style="width:100%;padding:13px;background:#F97316;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;">
-      Fazer login e falar com a Wex →
-    </button>
-    <button onclick="document.getElementById('supportModal').classList.remove('open')" style="width:100%;padding:11px;background:transparent;color:#9ca3af;border:1px solid #e5e7eb;border-radius:10px;font-size:13px;cursor:pointer;">
-      Fechar
-    </button>
-    <p style="font-size:11px;color:#9ca3af;margin-top:16px;">Ou envie um e-mail para <a href="mailto:suporte@wexiolead.com.br" style="color:#F97316;">suporte@wexiolead.com.br</a></p>
-  </div>
-</div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -937,10 +917,6 @@ const POL={
       <li>Reclamações sobre tratamento de dados</li>
     </ul>`
 };
-function openSupportModal() {
-  document.getElementById('supportModal').classList.add('open');
-}
-
 function openPolicy(k){
   const p=POL[k];if(!p) return;
   document.getElementById('polT').textContent=p.title;

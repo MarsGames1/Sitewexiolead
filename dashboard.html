@@ -1283,8 +1283,8 @@ textarea.form-input { resize: vertical; min-height: 90px; }
           <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--blue);fill:none;stroke-width:2;"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
         </div>
         <div>
-          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text);">Licitações & Contratos Públicos</div>
-          <div style="font-size:11px;color:var(--muted);">Fonte: Portal Nacional de Contratações Públicas (PNCP)</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text);">Atividade Pública & Contratos</div>
+          <div style="font-size:11px;color:var(--muted);">PNCP · Portal da Transparência · BrasilAPI</div>
         </div>
       </div>
       <div id="pncpContent">
@@ -2304,71 +2304,117 @@ async function fetchPncp(cnpj) {
 
   el.innerHTML = `<div style="display:flex;align-items:center;gap:8px;padding:12px;background:var(--surface2);border-radius:10px;font-size:13px;color:var(--muted);">
     <svg style="width:14px;height:14px;stroke:var(--accent);fill:none;stroke-width:2;animation:spin 1s linear infinite;flex-shrink:0;" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-    Consultando PNCP...
+    Consultando bases públicas...
   </div>`;
 
+  // Helper para montar card de item
+  const card = (obj, valor, dt, badge, cor) => `
+    <div style="padding:10px 12px;background:var(--surface2);border-radius:10px;margin-bottom:8px;border-left:3px solid ${cor};">
+      <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.4;">${(obj||'—').length > 100 ? (obj||'—').slice(0,100)+'…' : (obj||'—')}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        ${valor ? `<span style="font-size:11px;color:var(--muted);">💰 ${valor}</span>` : ''}
+        ${dt    ? `<span style="font-size:11px;color:var(--muted);">📅 ${dt}</span>`    : ''}
+        ${badge ? `<span style="font-size:10px;padding:2px 7px;border-radius:5px;background:${cor}18;color:${cor};font-weight:600;">${badge}</span>` : ''}
+      </div>
+    </div>`;
+
+  const fmtValor = v => v ? 'R$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) : '';
+  const fmtData  = d => d ? new Date(d).toLocaleDateString('pt-BR') : '';
+
   try {
-    const [resContratos, resLicitacoes] = await Promise.all([
+    // ── 1. PNCP: contratos onde o CNPJ é FORNECEDOR (empresa contratada) ──────
+    const [rPncpForn, rPncpOrgao, rTransp] = await Promise.all([
+      fetch(`https://pncp.gov.br/api/consulta/v1/contratos?cnpjFornecedor=${cnpjLimpo}&pagina=1&tamanhoPagina=5`).catch(() => null),
       fetch(`https://pncp.gov.br/api/consulta/v1/contratos?cnpjOrgao=${cnpjLimpo}&pagina=1&tamanhoPagina=5`).catch(() => null),
-      fetch(`https://pncp.gov.br/api/consulta/v1/contratacoes/publicacao?cnpjOrgao=${cnpjLimpo}&pagina=1&tamanhoPagina=5`).catch(() => null)
+      fetch(`https://api.portaldatransparencia.gov.br/api-de-dados/contratos?cnpjFornecedor=${cnpjLimpo}&pagina=1&tamanhoPagina=5`, {
+        headers: { 'Accept': 'application/json', 'chave-api-dados': '86db9d4d5eb46779b8f588d90ee22fd6' }
+      }).catch(() => null),
     ]);
 
-    const contratos   = resContratos?.ok   ? (await resContratos.json().catch(() => null))   : null;
-    const licitacoes  = resLicitacoes?.ok  ? (await resLicitacoes.json().catch(() => null))  : null;
+    // Parse PNCP fornecedor
+    const jsonForn  = rPncpForn?.ok  ? await rPncpForn.json().catch(() => null)  : null;
+    const jsonOrgao = rPncpOrgao?.ok ? await rPncpOrgao.json().catch(() => null) : null;
+    const jsonTransp = rTransp?.ok && rTransp.status !== 403 ? await rTransp.json().catch(() => null) : null;
 
-    const listaC = contratos?.data   || contratos?.content   || (Array.isArray(contratos)  ? contratos  : []);
-    const listaL = licitacoes?.data  || licitacoes?.content  || (Array.isArray(licitacoes) ? licitacoes : []);
+    const listaForn  = jsonForn?.data  || jsonForn?.content  || (Array.isArray(jsonForn)  ? jsonForn  : []);
+    const listaOrgao = jsonOrgao?.data || jsonOrgao?.content || (Array.isArray(jsonOrgao) ? jsonOrgao : []);
+    const listaTransp = Array.isArray(jsonTransp) ? jsonTransp : (jsonTransp?.data || jsonTransp?.content || []);
 
-    if (!listaC.length && !listaL.length) {
-      el.innerHTML = `<div style="padding:12px 14px;background:var(--surface2);border-radius:10px;font-size:12px;color:var(--dim);display:flex;align-items:center;gap:8px;">
-        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--dim);fill:none;stroke-width:2;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        Nenhum registro público encontrado no PNCP para este CNPJ.
+    // ── 2. BrasilAPI: situação cadastral e atividade ────────────────────────
+    const rCnpj = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjLimpo}`).catch(() => null);
+    const cnpjData = rCnpj?.ok ? await rCnpj.json().catch(() => null) : null;
+
+    const totalRegistros = listaForn.length + listaOrgao.length + listaTransp.length;
+
+    // ── Monta HTML ─────────────────────────────────────────────────────────
+    let html = '';
+
+    // Bloco de situação cadastral (BrasilAPI)
+    if (cnpjData && cnpjData.descricao_situacao_cadastral) {
+      const ativa = cnpjData.descricao_situacao_cadastral === 'ATIVA';
+      const corSit = ativa ? 'var(--green)' : 'var(--red)';
+      const bgSit  = ativa ? 'var(--green-bg)' : 'var(--red-bg)';
+      const porte  = cnpjData.porte || '';
+      const cnae   = cnpjData.cnae_fiscal_descricao || '';
+      const abertura = cnpjData.data_inicio_atividade ? new Date(cnpjData.data_inicio_atividade).toLocaleDateString('pt-BR') : '';
+      html += `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+        <span style="font-size:11px;padding:3px 9px;border-radius:6px;background:${bgSit};color:${corSit};font-weight:700;">⬤ ${cnpjData.descricao_situacao_cadastral}</span>
+        ${porte   ? `<span style="font-size:11px;padding:3px 9px;border-radius:6px;background:var(--surface3);color:var(--muted);font-weight:600;">${porte}</span>` : ''}
+        ${abertura? `<span style="font-size:11px;padding:3px 9px;border-radius:6px;background:var(--surface3);color:var(--muted);">Desde ${abertura}</span>` : ''}
+        ${cnae    ? `<span style="font-size:11px;padding:3px 9px;border-radius:6px;background:var(--blue-bg);color:var(--blue);max-width:100%;">${cnae.length>60?cnae.slice(0,60)+'…':cnae}</span>` : ''}
       </div>`;
+    }
+
+    if (totalRegistros === 0) {
+      html += `<div style="padding:12px 14px;background:var(--surface2);border-radius:10px;font-size:12px;color:var(--dim);display:flex;align-items:center;gap:8px;">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--dim);fill:none;stroke-width:2;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Nenhum contrato ou licitação pública encontrada. Esta empresa pode atuar apenas no setor privado.
+      </div>`;
+      el.innerHTML = html;
       return;
     }
 
-    let html = '';
-
-    if (listaC.length) {
-      html += `<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Contratos (${listaC.length})</div>`;
-      html += listaC.map(c => {
-        const valor = c.valorInicial ? 'R$ ' + Number(c.valorInicial).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
-        const obj   = c.objetoContrato || c.objeto || '—';
-        const dt    = c.dataVigenciaInicio ? new Date(c.dataVigenciaInicio).toLocaleDateString('pt-BR') : (c.dataAssinatura ? new Date(c.dataAssinatura).toLocaleDateString('pt-BR') : '—');
-        const sit   = c.situacaoContrato?.nome || c.situacao || '';
-        return `<div style="padding:10px 12px;background:var(--surface2);border-radius:10px;margin-bottom:8px;border-left:3px solid var(--blue);">
-          <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.4;">${obj.length > 90 ? obj.slice(0,90)+'…' : obj}</div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;">
-            <span style="font-size:11px;color:var(--muted);">💰 ${valor}</span>
-            <span style="font-size:11px;color:var(--muted);">📅 ${dt}</span>
-            ${sit ? `<span style="font-size:10px;padding:2px 7px;border-radius:5px;background:var(--blue-bg);color:var(--blue);font-weight:600;">${sit}</span>` : ''}
-          </div>
-        </div>`;
-      }).join('');
+    // Contratos PNCP onde a empresa é FORNECEDORA
+    if (listaForn.length) {
+      html += `<div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">✅ Contratos como Fornecedor — PNCP (${listaForn.length})</div>`;
+      html += listaForn.map(c => card(
+        c.objetoContrato || c.objeto,
+        fmtValor(c.valorInicial || c.valorGlobal),
+        fmtData(c.dataVigenciaInicio || c.dataAssinatura),
+        c.situacaoContrato?.nome || c.situacao || '',
+        'var(--green)'
+      )).join('');
     }
 
-    if (listaL.length) {
-      html += `<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin:${listaC.length?'12px':0} 0 8px;">Licitações (${listaL.length})</div>`;
-      html += listaL.map(l => {
-        const valor = l.valorTotalEstimado ? 'R$ ' + Number(l.valorTotalEstimado).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
-        const obj   = l.objetoCompra || l.objeto || '—';
-        const dt    = l.dataPublicacaoPncp ? new Date(l.dataPublicacaoPncp).toLocaleDateString('pt-BR') : '—';
-        const modal = l.modalidadeNome || l.modalidade || '';
-        return `<div style="padding:10px 12px;background:var(--surface2);border-radius:10px;margin-bottom:8px;border-left:3px solid var(--accent);">
-          <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.4;">${obj.length > 90 ? obj.slice(0,90)+'…' : obj}</div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;">
-            <span style="font-size:11px;color:var(--muted);">💰 ${valor}</span>
-            <span style="font-size:11px;color:var(--muted);">📅 ${dt}</span>
-            ${modal ? `<span style="font-size:10px;padding:2px 7px;border-radius:5px;background:var(--accent-bg);color:var(--accent);font-weight:600;">${modal}</span>` : ''}
-          </div>
-        </div>`;
-      }).join('');
+    // Contratos PNCP onde a empresa é ÓRGÃO contratante
+    if (listaOrgao.length) {
+      html += `<div style="font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:0.06em;margin:${listaForn.length?'12px':0} 0 8px;">🏛️ Contratações como Órgão — PNCP (${listaOrgao.length})</div>`;
+      html += listaOrgao.map(c => card(
+        c.objetoContrato || c.objeto,
+        fmtValor(c.valorInicial || c.valorGlobal),
+        fmtData(c.dataVigenciaInicio || c.dataAssinatura),
+        c.situacaoContrato?.nome || c.situacao || '',
+        'var(--blue)'
+      )).join('');
+    }
+
+    // Contratos Portal da Transparência
+    if (listaTransp.length) {
+      html += `<div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.06em;margin:${(listaForn.length||listaOrgao.length)?'12px':0} 0 8px;">📋 Contratos Federais — Transparência (${listaTransp.length})</div>`;
+      html += listaTransp.map(c => card(
+        c.objeto || c.objetoContrato,
+        fmtValor(c.valorInicial || c.valor),
+        fmtData(c.dataInicioVigencia || c.dataAssinatura),
+        c.situacao || '',
+        'var(--accent)'
+      )).join('');
     }
 
     el.innerHTML = html;
+
   } catch(err) {
-    el.innerHTML = `<div style="padding:10px 12px;background:var(--red-bg);border-radius:10px;font-size:12px;color:var(--red);">Erro ao consultar PNCP. Tente novamente.</div>`;
-    console.warn('PNCP error:', err);
+    el.innerHTML = `<div style="padding:10px 12px;background:var(--red-bg);border-radius:10px;font-size:12px;color:var(--red);">Erro ao consultar bases públicas. Verifique sua conexão.</div>`;
+    console.warn('fetchPncp error:', err);
   }
 }
 

@@ -212,7 +212,7 @@ select.finput{cursor:pointer;-webkit-appearance:none;appearance:none;background-
       <div class="plan-eyebrow">Para começar</div>
       <div class="plan-name">Starter</div>
       <div class="plan-tagline">Ideal para quem está iniciando.</div>
-      <div class="plan-price"><span class="price-cur">R$</span><span class="price-amt">1</span><span class="price-per">/mês</span><!-- TESTE — original: 97 --></div>
+      <div class="plan-price"><span class="price-cur">R$</span><span class="price-amt">97</span><span class="price-per">/mês</span></div>
       <div class="plan-hr"></div>
       <ul class="plan-feats">
         <li><span class="feat-dot fd-light"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></span>300 exportações/mês</li>
@@ -393,7 +393,7 @@ const sb = supabase.createClient(SUPA_URL, SUPA_ANON);
 const EF_URL = SUPA_URL + '/functions/v1/asaas-checkout';
 
 const PL = {
-  starter: { name:'Starter', price:1,   quota:300  }, // TESTE — preço original: 97
+  starter: { name:'Starter', price:97,  quota:300  },
   pro:     { name:'Pro',     price:197, quota:1000 },
   agency:  { name:'Agency',  price:397, quota:99999 }
 };

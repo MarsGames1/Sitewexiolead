@@ -248,6 +248,7 @@ body {
 .page-section { display: none; }
 .page-section.active { display: block; animation: fadeUp 0.2s ease; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
 /*  PAGE HEADER  */
 .page-header { margin-bottom: 24px; }
@@ -1274,7 +1275,27 @@ textarea.form-input { resize: vertical; min-height: 90px; }
       <button class="btn btn-ghost" style="padding:5px 10px;" onclick="closeCrm()"></button>
 </div>
     <div id="crmModalBody"></div>
-    <div style="border-top:1px solid var(--border);padding-top:16px;margin-top:4px;">
+
+    <!-- SEÇÃO PNCP — Licitações & Contratos Públicos -->
+    <div id="pncpSection" style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <div style="width:28px;height:28px;background:var(--blue-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--blue);fill:none;stroke-width:2;"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+        </div>
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text);">Licitações & Contratos Públicos</div>
+          <div style="font-size:11px;color:var(--muted);">Fonte: Portal Nacional de Contratações Públicas (PNCP)</div>
+        </div>
+      </div>
+      <div id="pncpContent">
+        <div style="display:flex;align-items:center;gap:8px;padding:12px;background:var(--surface2);border-radius:10px;font-size:13px;color:var(--muted);">
+          <svg style="width:14px;height:14px;stroke:var(--accent);fill:none;stroke-width:2;animation:spin 1s linear infinite;flex-shrink:0;" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+          Consultando PNCP...
+        </div>
+      </div>
+    </div>
+
+    <div style="border-top:1px solid var(--border);padding-top:16px;margin-top:16px;">
       <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:12px;">CRM — Acompanhamento</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
         <div class="form-group" style="margin:0;">
@@ -2265,6 +2286,90 @@ function openCrmModal(leadId) {
   document.getElementById('crmFollowup').value = crm.followup || '';
 
   document.getElementById('crmModal').classList.add('open');
+
+  // Busca PNCP ao abrir o modal
+  fetchPncp(lead.cnpj);
+}
+
+// ─── PNCP — Licitações & Contratos Públicos ───────────────────────────────────
+async function fetchPncp(cnpj) {
+  const el = document.getElementById('pncpContent');
+  if (!el) return;
+
+  const cnpjLimpo = (cnpj || '').replace(/\D/g, '');
+  if (!cnpjLimpo || cnpjLimpo.length !== 14) {
+    el.innerHTML = `<div style="padding:10px 12px;background:var(--surface2);border-radius:10px;font-size:12px;color:var(--dim);">CNPJ não disponível para consulta.</div>`;
+    return;
+  }
+
+  el.innerHTML = `<div style="display:flex;align-items:center;gap:8px;padding:12px;background:var(--surface2);border-radius:10px;font-size:13px;color:var(--muted);">
+    <svg style="width:14px;height:14px;stroke:var(--accent);fill:none;stroke-width:2;animation:spin 1s linear infinite;flex-shrink:0;" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+    Consultando PNCP...
+  </div>`;
+
+  try {
+    const [resContratos, resLicitacoes] = await Promise.all([
+      fetch(`https://pncp.gov.br/api/consulta/v1/contratos?cnpjOrgao=${cnpjLimpo}&pagina=1&tamanhoPagina=5`).catch(() => null),
+      fetch(`https://pncp.gov.br/api/consulta/v1/contratacoes/publicacao?cnpjOrgao=${cnpjLimpo}&pagina=1&tamanhoPagina=5`).catch(() => null)
+    ]);
+
+    const contratos   = resContratos?.ok   ? (await resContratos.json().catch(() => null))   : null;
+    const licitacoes  = resLicitacoes?.ok  ? (await resLicitacoes.json().catch(() => null))  : null;
+
+    const listaC = contratos?.data   || contratos?.content   || (Array.isArray(contratos)  ? contratos  : []);
+    const listaL = licitacoes?.data  || licitacoes?.content  || (Array.isArray(licitacoes) ? licitacoes : []);
+
+    if (!listaC.length && !listaL.length) {
+      el.innerHTML = `<div style="padding:12px 14px;background:var(--surface2);border-radius:10px;font-size:12px;color:var(--dim);display:flex;align-items:center;gap:8px;">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--dim);fill:none;stroke-width:2;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Nenhum registro público encontrado no PNCP para este CNPJ.
+      </div>`;
+      return;
+    }
+
+    let html = '';
+
+    if (listaC.length) {
+      html += `<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Contratos (${listaC.length})</div>`;
+      html += listaC.map(c => {
+        const valor = c.valorInicial ? 'R$ ' + Number(c.valorInicial).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
+        const obj   = c.objetoContrato || c.objeto || '—';
+        const dt    = c.dataVigenciaInicio ? new Date(c.dataVigenciaInicio).toLocaleDateString('pt-BR') : (c.dataAssinatura ? new Date(c.dataAssinatura).toLocaleDateString('pt-BR') : '—');
+        const sit   = c.situacaoContrato?.nome || c.situacao || '';
+        return `<div style="padding:10px 12px;background:var(--surface2);border-radius:10px;margin-bottom:8px;border-left:3px solid var(--blue);">
+          <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.4;">${obj.length > 90 ? obj.slice(0,90)+'…' : obj}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <span style="font-size:11px;color:var(--muted);">💰 ${valor}</span>
+            <span style="font-size:11px;color:var(--muted);">📅 ${dt}</span>
+            ${sit ? `<span style="font-size:10px;padding:2px 7px;border-radius:5px;background:var(--blue-bg);color:var(--blue);font-weight:600;">${sit}</span>` : ''}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    if (listaL.length) {
+      html += `<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin:${listaC.length?'12px':0} 0 8px;">Licitações (${listaL.length})</div>`;
+      html += listaL.map(l => {
+        const valor = l.valorTotalEstimado ? 'R$ ' + Number(l.valorTotalEstimado).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
+        const obj   = l.objetoCompra || l.objeto || '—';
+        const dt    = l.dataPublicacaoPncp ? new Date(l.dataPublicacaoPncp).toLocaleDateString('pt-BR') : '—';
+        const modal = l.modalidadeNome || l.modalidade || '';
+        return `<div style="padding:10px 12px;background:var(--surface2);border-radius:10px;margin-bottom:8px;border-left:3px solid var(--accent);">
+          <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.4;">${obj.length > 90 ? obj.slice(0,90)+'…' : obj}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <span style="font-size:11px;color:var(--muted);">💰 ${valor}</span>
+            <span style="font-size:11px;color:var(--muted);">📅 ${dt}</span>
+            ${modal ? `<span style="font-size:10px;padding:2px 7px;border-radius:5px;background:var(--accent-bg);color:var(--accent);font-weight:600;">${modal}</span>` : ''}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    el.innerHTML = html;
+  } catch(err) {
+    el.innerHTML = `<div style="padding:10px 12px;background:var(--red-bg);border-radius:10px;font-size:12px;color:var(--red);">Erro ao consultar PNCP. Tente novamente.</div>`;
+    console.warn('PNCP error:', err);
+  }
 }
 
 function saveCrm() {

@@ -882,13 +882,13 @@ document.getElementById('polMo').addEventListener('click',e=>{
 function showEmailCard(el) {
   const card = document.getElementById('emailCard');
   const rect = el.getBoundingClientRect();
-  card.style.display = 'block';
   const top = rect.bottom + window.scrollY + 8;
   let left = rect.left + window.scrollX;
   if (left + 240 > window.innerWidth) left = window.innerWidth - 260;
   card.style.top = top + 'px';
   card.style.left = left + 'px';
-  document.addEventListener('click', closeEmailCard, true);
+  card.style.display = 'block';
+  setTimeout(() => document.addEventListener('click', closeEmailCard, true), 0);
 }
 function closeEmailCard(e) {
   const card = document.getElementById('emailCard');

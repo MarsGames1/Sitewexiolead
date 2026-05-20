@@ -323,7 +323,18 @@ select.finput{cursor:pointer;-webkit-appearance:none;appearance:none;background-
           <div class="pm" id="pm-boleto" onclick="sm('boleto')"><div class="pm-ico">🧾</div><div class="pm-lbl">Boleto</div></div>
           <div class="pm" id="pm-card" onclick="sm('card')"><div class="pm-ico">💳</div><div class="pm-lbl">Cartão</div></div>
         </div>
-        <div id="fp"><div class="ibox neu"><strong>PIX — aprovação imediata</strong><br>Um QR Code será gerado. Escaneie pelo app do seu banco e o acesso é liberado automaticamente.</div></div>
+        <div id="fp">
+          <div class="ibox neu"><strong>PIX — aprovação imediata</strong><br>Um QR Code será gerado. Escaneie pelo app do seu banco e o acesso é liberado automaticamente.</div>
+          <div style="display:flex;align-items:flex-start;gap:10px;background:#f5f4f0;border:1px solid #e8e6e0;border-radius:10px;padding:12px 14px;margin-bottom:16px;">
+            <div style="width:28px;height:28px;border-radius:8px;background:#fff;border:1px solid #e8e6e0;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6b6760" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:600;color:#1a1814;margin-bottom:2px;">Beneficiário do pagamento</div>
+              <div style="font-size:12px;color:#6b6760;line-height:1.5;">O PIX será gerado em nome de <strong style="color:#1a1814;">Ronie Gonçalves Santos</strong>. Não se preocupe — o pagamento é processado com segurança pela <strong style="color:#1a1814;">Asaas</strong>, plataforma regulamentada pelo Banco Central.</div>
+            </div>
+          </div>
+        </div>
         <div id="fb" style="display:none;"><div class="ibox org"><strong>Boleto bancário</strong><br>Vencimento em 3 dias úteis. Acesso liberado em 1–2 dias úteis após o pagamento.</div></div>
         <div id="fc2" style="display:none;">
           <div class="brands"><span class="brand">Visa</span><span class="brand">Master</span><span class="brand">Elo</span><span class="brand">Amex</span></div>

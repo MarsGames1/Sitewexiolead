@@ -678,7 +678,7 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
   <div class="fg">
     <div><a href="index.html" style="text-decoration:none;"><div class="flogo">wexio<span>lead</span></div></a><p class="fdesc">A plataforma de leads B2B especializada em construção civil. Conectando fornecedores e construtoras em todo o Brasil.</p></div>
     <div><div class="fct">Produto</div><ul class="fls"><li><a href="#problema">Para quem é</a></li><li><a href="#como">Como funciona</a></li><li><a href="#features">Funcionalidades</a></li><li><a href="#pricing">Preços</a></li><li><a href="#" onclick="openModal('signup');return false;" class="ac">Começar grátis →</a></li></ul></div>
-    <div><div class="fct">Empresa</div><ul class="fls"><li><a href="mailto:wexiolead@yahoo.com">Suporte</a></li><li><a href="mailto:wexiolead@yahoo.com">Parcerias</a></li><li><a href="mailto:wexiolead@yahoo.com">Contato</a></li></ul></div>
+    <div><div class="fct">Empresa</div><ul class="fls"><li><a href="https://docs.google.com/forms/d/e/1FAIpQLSd1LTDbsPZQyQXxiV62iMrsHdwSev1WYoWMSIi50WBP8kHUrA/viewform" target="_blank" rel="noopener">Trabalhe conosco</a></li><li><a href="#" onclick="showEmailCard(this);return false;">Suporte</a></li><li><a href="#" onclick="showEmailCard(this);return false;">Parcerias</a></li><li><a href="#" onclick="showEmailCard(this);return false;">Contato</a></li></ul></div>
     <div><div class="fct">Legal</div><ul class="fls"><li><a href="#" onclick="openPolicy('privacidade');return false;">Política de Privacidade</a></li><li><a href="#" onclick="openPolicy('termos');return false;">Termos de Uso</a></li><li><a href="#" onclick="openPolicy('lgpd');return false;">LGPD</a></li><li><a href="#" onclick="openPolicy('dpo');return false;">DPO / Privacidade</a></li></ul></div>
   </div>
   <div class="fb"><div class="fc">© 2026 wexiolead · Rio de Janeiro, RJ · Brasil</div></div>
@@ -870,6 +870,40 @@ function openPolicy(k){
 document.getElementById('polMo').addEventListener('click',e=>{
   if(e.target===document.getElementById('polMo')){document.getElementById('polMo').classList.remove('open');document.body.style.overflow='';}
 });
+</script>
+
+<!-- EMAIL CARD -->
+<div id="emailCard" style="display:none;position:fixed;z-index:9999;background:#1a1a1a;border:1px solid rgba(249,115,22,.35);border-radius:12px;padding:16px 20px;box-shadow:0 8px 32px rgba(0,0,0,.5);min-width:240px;pointer-events:all;">
+  <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#F97316;font-weight:700;margin-bottom:8px;">E-mail de contato</div>
+  <div style="font-size:15px;font-weight:500;color:#fff;letter-spacing:-.01em;margin-bottom:12px;">wexiolead@yahoo.com</div>
+  <button onclick="copyEmail()" style="background:#F97316;color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;width:100%;font-family:'Inter',sans-serif;" id="copyBtn">Copiar e-mail</button>
+</div>
+<script>
+function showEmailCard(el) {
+  const card = document.getElementById('emailCard');
+  const rect = el.getBoundingClientRect();
+  card.style.display = 'block';
+  const top = rect.bottom + window.scrollY + 8;
+  let left = rect.left + window.scrollX;
+  if (left + 240 > window.innerWidth) left = window.innerWidth - 260;
+  card.style.top = top + 'px';
+  card.style.left = left + 'px';
+  document.addEventListener('click', closeEmailCard, true);
+}
+function closeEmailCard(e) {
+  const card = document.getElementById('emailCard');
+  if (!card.contains(e.target)) {
+    card.style.display = 'none';
+    document.removeEventListener('click', closeEmailCard, true);
+  }
+}
+function copyEmail() {
+  navigator.clipboard.writeText('wexiolead@yahoo.com').then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✓ Copiado!';
+    setTimeout(() => { btn.textContent = 'Copiar e-mail'; document.getElementById('emailCard').style.display='none'; }, 1500);
+  });
+}
 </script>
 </body>
 </html>

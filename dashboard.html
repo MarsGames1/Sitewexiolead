@@ -1422,7 +1422,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
     <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
       <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
 </button>
-    <a href="/inicio" class="logo">Wexio<span>Lead</span></a>
+    <a href="/" class="logo">Wexio<span>Lead</span></a>
 </div>
   <div class="nav-right">
     <!-- Contador de créditos em tempo real -->
@@ -1962,13 +1962,13 @@ window.addEventListener('load', async () =>{
   if (hash && hash.includes('access_token')) await new Promise(r =>setTimeout(r, 600));
 
   const { data: { session } } = await sb.auth.getSession();
-  if (!session) { window.location.href = '/inicio'; return; }
+  if (!session) { window.location.href = '/'; return; }
   currentUser = session.user;
 
   // Registra listener só após confirmar sessão, evitando redirecionamento
   // prematuro durante o processamento do hash OAuth (access_token)
   sb.auth.onAuthStateChange((event, session) =>{
-    if (event === 'SIGNED_OUT') window.location.href = '/inicio';
+    if (event === 'SIGNED_OUT') window.location.href = '/';
   });
 
   await Promise.all([loadProfile(), loadLeads(), loadExports()]);
@@ -2724,7 +2724,7 @@ function exitOnboarding() {
   // X ou "Voltar ao site" — fecha modal e redireciona à landing
   document.getElementById('onboardingModal').classList.remove('open');
   document.body.style.overflow = '';
-  window.location.href = '/inicio';
+  window.location.href = '/';
 }
 
 function selectObType(type, el) {
@@ -3147,7 +3147,7 @@ function closeMobileSidebar() {
 //
 async function handleLogout() {
   await sb.auth.signOut();
-  window.location.href = '/inicio';
+  window.location.href = '/';
 }
 
 //

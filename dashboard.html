@@ -772,6 +772,8 @@ textarea.form-input { resize: vertical; min-height: 90px; }
   max-width: 540px; width: 100%;
   box-shadow: var(--shadow-lg);
   animation: modalIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 @keyframes modalIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: none; } }
 .modal-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: var(--text); margin-bottom: 8px; }
@@ -1577,14 +1579,11 @@ textarea.form-input { resize: vertical; min-height: 90px; }
 
   <div id="suggestedLeadsSection"></div>
 
-  <!-- Hidden filter selects for JS to use -->
-  <select id="leadTipo" style="display:none;"><option value=""></option><option value="Construtora">Construtoras</option><option value="Fornecedor">Fornecedores</option><option value="Empreiteiro">Empreiteiros</option><option value="Prestador de Serviço">Prestadores de Serviço</option></select>
-  <select id="leadSegmento" style="display:none;"><option value=""></option><option>Construção Residencial</option><option>Construção Comercial</option><option>Construção Industrial</option><option>Infraestrutura</option><option>Reformas e Manutenção</option><option>Materiais de Construção</option><option>Instalações Elétricas</option><option>Hidráulica e Encanamento</option><option>Construção</option><option>Tecnologia</option></select>
-  <select id="leadEstado" style="display:none;"><option value=""></option><option>SP</option><option>RJ</option><option>MG</option><option>RS</option><option>PR</option><option>BA</option><option>CE</option><option>PE</option><option>GO</option><option>DF</option><option>SC</option><option>ES</option></select>
+  <!-- BARRA DE BUSCA E FILTROS -->
+  <div style="margin-bottom:20px;" id="leadSearchWrap">
 
-  <!-- Clean search bar -->
-  <div style="position:relative;margin-bottom:20px;" id="leadSearchWrap">
-    <div style="display:flex;gap:10px;align-items:center;">
+    <!-- Linha 1: campo de busca + botão -->
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;">
       <div style="flex:1;position:relative;">
         <svg viewBox="0 0 24 24" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:2;pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="text" id="leadSearch" placeholder="Buscar empresa, cidade ou CNPJ..."
@@ -1599,15 +1598,60 @@ textarea.form-input { resize: vertical; min-height: 90px; }
         Buscar
       </button>
     </div>
-    <!-- Quick filters chips -->
-    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;" id="filterChips">
-      <span style="font-size:11px;color:var(--muted);align-self:center;font-weight:500;">Filtros:</span>
+
+    <!-- Linha 2: selects de filtro visíveis -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <select id="leadTipo" onchange="filterLeads()"
+        style="flex:1;min-width:150px;padding:8px 30px 8px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:var(--surface);outline:none;cursor:pointer;appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 10px center;box-shadow:var(--shadow);transition:border-color .15s;"
+        onfocus="this.style.borderColor='rgba(249,115,22,0.4)'" onblur="this.style.borderColor='var(--border)'">
+        <option value="">Todos os tipos</option>
+        <option value="Construtora">Construtoras</option>
+        <option value="Fornecedor">Fornecedores</option>
+        <option value="Empreiteiro">Empreiteiros</option>
+        <option value="Prestador de Serviço">Prestadores de Serviço</option>
+      </select>
+
+      <select id="leadSegmento" onchange="filterLeads()"
+        style="flex:1;min-width:170px;padding:8px 30px 8px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:var(--surface);outline:none;cursor:pointer;appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 10px center;box-shadow:var(--shadow);transition:border-color .15s;"
+        onfocus="this.style.borderColor='rgba(249,115,22,0.4)'" onblur="this.style.borderColor='var(--border)'">
+        <option value="">Todos os segmentos</option>
+        <option>Construção Residencial</option>
+        <option>Construção Comercial</option>
+        <option>Construção Industrial</option>
+        <option>Infraestrutura</option>
+        <option>Reformas e Manutenção</option>
+        <option>Materiais de Construção</option>
+        <option>Instalações Elétricas</option>
+        <option>Hidráulica e Encanamento</option>
+        <option>Construção</option>
+        <option>Tecnologia</option>
+      </select>
+
+      <select id="leadEstado" onchange="filterLeads()"
+        style="flex:1;min-width:130px;padding:8px 30px 8px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:var(--surface);outline:none;cursor:pointer;appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 10px center;box-shadow:var(--shadow);transition:border-color .15s;"
+        onfocus="this.style.borderColor='rgba(249,115,22,0.4)'" onblur="this.style.borderColor='var(--border)'">
+        <option value="">Todos os estados</option>
+        <option>SP</option><option>RJ</option><option>MG</option><option>RS</option>
+        <option>PR</option><option>BA</option><option>CE</option><option>PE</option>
+        <option>GO</option><option>DF</option><option>SC</option><option>ES</option>
+      </select>
+
+      <button onclick="limparFiltros()" title="Limpar filtros"
+        style="height:38px;padding:0 14px;border:1.5px solid var(--border);border-radius:10px;background:var(--surface);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;transition:all .15s;"
+        onmouseover="this.style.borderColor='rgba(239,68,68,0.4)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+        <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Limpar
+      </button>
+    </div>
+
+    <!-- Chips rápidos -->
+    <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;" id="filterChips">
+      <span style="font-size:11px;color:var(--dim);align-self:center;font-weight:500;">Rápidos:</span>
       <button onclick="applyChip('tipo','Construtora',this)" class="filter-chip">Construtoras</button>
       <button onclick="applyChip('tipo','Fornecedor',this)" class="filter-chip">Fornecedores</button>
-      <button onclick="applyChip('tipo','Empreiteiro',this)" class="filter-chip">Empreiteiros</button>
-      <button onclick="applyChip('estado','SP',this)" class="filter-chip">São Paulo</button>
-      <button onclick="applyChip('estado','RJ',this)" class="filter-chip">Rio de Janeiro</button>
-      <button onclick="applyChip('estado','MG',this)" class="filter-chip">Minas Gerais</button>
+      <button onclick="applyChip('estado','SP',this)" class="filter-chip">SP</button>
+      <button onclick="applyChip('estado','RJ',this)" class="filter-chip">RJ</button>
+      <button onclick="applyChip('estado','MG',this)" class="filter-chip">MG</button>
       <button onclick="applyChip('segmento','Construção',this)" class="filter-chip">Construção Civil</button>
       <button onclick="applyChip('segmento','Infraestrutura',this)" class="filter-chip">Infraestrutura</button>
     </div>
@@ -3187,6 +3231,16 @@ function applyChip(field, value, el) {
     if (field === 'estado') document.getElementById('leadEstado').value = value;
     if (field === 'segmento') document.getElementById('leadSegmento').value = value;
   }
+  filterLeads();
+}
+
+function limparFiltros() {
+  document.getElementById('leadSearch').value = '';
+  document.getElementById('leadTipo').value = '';
+  document.getElementById('leadSegmento').value = '';
+  document.getElementById('leadEstado').value = '';
+  activeChips = {};
+  document.querySelectorAll('#filterChips .filter-chip').forEach(c => c.classList.remove('active'));
   filterLeads();
 }
 

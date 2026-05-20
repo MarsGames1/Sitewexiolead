@@ -591,27 +591,40 @@ async function activatePlan(confirmedStatus) {
     return false;
   }
 
-  const { data: { user } } = await sb.auth.getUser();
+  let user = null;
+  try {
+    const { data } = await sb.auth.getUser();
+    user = data?.user || null;
+  } catch(e) {
+    console.error('[WexioLead] activatePlan: erro ao obter sessão:', e.message || e);
+  }
+
   if (!user) {
     // Usuário não autenticado: webhook Asaas será responsável pela ativação.
+    // Retorna null (distinguível de false=erro de update) para exibir mensagem específica.
     console.warn('activatePlan: usuário não autenticado, delegando ao webhook.');
-    return false;
+    return null;
   }
 
   const quota = PL[pl].quota;
-  const { error } = await sb.from('profiles').update({
-    plan: pl,
-    leads_quota: quota,
-    leads_used: 0,
-    plan_activated_at: new Date().toISOString(),
-    plan_expires_at: new Date(Date.now() + 30*24*60*60*1000).toISOString()
-  }).eq('id', user.id); // ← user.id autenticado, nunca e-mail digitado pelo usuário
+  try {
+    const { error } = await sb.from('profiles').update({
+      plan: pl,
+      leads_quota: quota,
+      leads_used: 0,
+      plan_activated_at: new Date().toISOString(),
+      plan_expires_at: new Date(Date.now() + 30*24*60*60*1000).toISOString()
+    }).eq('id', user.id);
 
-  if (error) {
-    console.error('Erro ao ativar plano no Supabase:', error.message);
+    if (error) {
+      console.error('[WexioLead] Erro ao ativar plano no Supabase:', error.message, '| Code:', error.code);
+      return false;
+    }
+    return true;
+  } catch(e) {
+    console.error('[WexioLead] activatePlan exception:', e.message || e);
     return false;
   }
-  return true;
 }
 
 // ─── PIX POLLING — verifica confirmação a cada 5s por até 10min ───────────────
@@ -624,8 +637,28 @@ function startPixPoll() {
       const res = await ef('check_payment', { paymentId });
       if (res.status === 'RECEIVED' || res.status === 'CONFIRMED') {
         stopPixPoll();
-        await activatePlan(res.status);
-        // Atualiza UI para confirmação
+        const activated = await activatePlan(res.status);
+        if (activated === null) {
+          // Usuário não autenticado — webhook Asaas ativará o plano em background
+          document.getElementById('r-pix').innerHTML =
+            '<div class="ok-wrap">' +
+            '<div class="ok-ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a7a4a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>' +
+            '<div class="ok-title">Pagamento confirmado!</div>' +
+            '<div class="ok-sub">Seu plano será ativado automaticamente. Faça login na sua conta para confirmar. ID: <strong>' + paymentId + '</strong></div>' +
+            '</div>';
+          return;
+        }
+        if (!activated) {
+          // Erro real no update do Supabase (ex: RLS bloqueando)
+          console.error('[WexioLead] activatePlan retornou false após PIX confirmado. Status Asaas:', res.status);
+          document.getElementById('r-pix').innerHTML =
+            '<div class="ok-wrap">' +
+            '<div class="ok-ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>' +
+            '<div class="ok-title" style="color:var(--red);">Pagamento recebido, mas houve um erro ao ativar o plano.</div>' +
+            '<div class="ok-sub">Seu pagamento foi confirmado pela Asaas. Entre em contato com o suporte informando o ID: <strong>' + paymentId + '</strong></div>' +
+            '</div>';
+          return;
+        }
         document.getElementById('r-pix').innerHTML =
           '<div class="ok-wrap">' +
           '<div class="ok-ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a7a4a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>' +
@@ -633,7 +666,9 @@ function startPixPoll() {
           '<div class="ok-sub">Plano <strong style="color:var(--accent);">'+PL[pl].name+'</strong> ativado.<br>Verifique seu e-mail.</div>' +
           '</div>';
       }
-    } catch(e) { /* silently ignore polling errors */ }
+    } catch(e) {
+      console.error('[WexioLead] Erro no polling PIX (tentativa ' + attempts + '):', e.message || e);
+    }
   }, 5000);
 }
 function stopPixPoll() {
@@ -651,7 +686,27 @@ function startBoletoPoll() {
       const res = await ef('check_payment', { paymentId });
       if (res.status === 'RECEIVED' || res.status === 'CONFIRMED') {
         stopBoletoPoll();
-        await activatePlan(res.status);
+        const activated = await activatePlan(res.status);
+        if (activated === null) {
+          // Usuário não autenticado — webhook ativará o plano
+          document.getElementById('r-bol').innerHTML =
+            '<div class="ok-wrap">' +
+            '<div class="ok-ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a7a4a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>' +
+            '<div class="ok-title">Boleto compensado!</div>' +
+            '<div class="ok-sub">Seu plano será ativado automaticamente. Faça login para confirmar. ID: <strong>' + paymentId + '</strong></div>' +
+            '</div>';
+          return;
+        }
+        if (!activated) {
+          console.error('[WexioLead] activatePlan retornou false após boleto confirmado. Status Asaas:', res.status);
+          document.getElementById('r-bol').innerHTML =
+            '<div class="ok-wrap">' +
+            '<div class="ok-ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>' +
+            '<div class="ok-title" style="color:var(--red);">Pagamento recebido, mas houve um erro ao ativar o plano.</div>' +
+            '<div class="ok-sub">Entre em contato com o suporte informando o ID: <strong>' + paymentId + '</strong></div>' +
+            '</div>';
+          return;
+        }
         document.getElementById('r-bol').innerHTML =
           '<div class="ok-wrap">' +
           '<div class="ok-ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a7a4a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>' +
@@ -659,7 +714,9 @@ function startBoletoPoll() {
           '<div class="ok-sub">Plano <strong style="color:var(--accent);">'+PL[pl].name+'</strong> ativado.<br>Verifique seu e-mail.</div>' +
           '</div>';
       }
-    } catch(e) { /* silently ignore polling errors */ }
+    } catch(e) {
+      console.error('[WexioLead] Erro no polling boleto (tentativa ' + attempts + '):', e.message || e);
+    }
   }, 30000);
 }
 function stopBoletoPoll() {

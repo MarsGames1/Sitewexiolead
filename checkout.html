@@ -576,7 +576,30 @@ async function dcard() {
   }
 
   // Só ativa o plano após confirmação real
-  await activatePlan(status);
+  const activated = await activatePlan(status);
+
+  if (activated === null) {
+    // Usuário não autenticado — webhook Asaas ativará o plano em background
+    sr('card');
+    document.getElementById('r-card').innerHTML =
+      '<div class="ok-wrap">' +
+      '<div class="ok-ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a7a4a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>' +
+      '<div class="ok-title">Pagamento aprovado!</div>' +
+      '<div class="ok-sub">Seu plano será ativado automaticamente. Faça login na sua conta para confirmar.<br>ID: <strong>' + (res.paymentId || '') + '</strong></div>' +
+      '</div>';
+    return;
+  }
+
+  if (!activated) {
+    // Pagamento confirmado pela Asaas mas erro ao salvar no Supabase
+    console.error('[WexioLead] activatePlan retornou false após cartão confirmado. Status Asaas:', status);
+    sr('err');
+    document.getElementById('em').textContent =
+      'Pagamento aprovado pela operadora, mas houve um erro ao ativar seu plano. ' +
+      'Entre em contato com o suporte. Status: ' + status;
+    return;
+  }
+
   document.getElementById('cpn').textContent = PL[pl].name;
   sr('card');
 }
@@ -584,7 +607,7 @@ async function dcard() {
 // ─── ATIVAR PLANO NO SUPABASE ─────────────────────────────────────────────────
 // Recebe o objeto de resposta confirmada da Asaas e só ativa se status ok
 async function activatePlan(confirmedStatus) {
-  const CONFIRMED = ['CONFIRMED', 'RECEIVED'];
+  const CONFIRMED = ['CONFIRMED', 'RECEIVED', 'APPROVED'];
   if (!CONFIRMED.includes(confirmedStatus)) {
     // Pagamento não confirmado — não ativa. Webhook fará isso quando confirmado.
     console.warn('activatePlan ignorado: status não confirmado:', confirmedStatus);

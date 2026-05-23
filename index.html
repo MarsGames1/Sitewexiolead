@@ -8,11 +8,53 @@
 <meta name="robots" content="index, follow">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="canonical" href="https://wexiolead.com/">
+<link rel="sitemap" type="application/xml" href="/sitemap.xml">
 <meta property="og:title" content="wexiolead — Leads para Construção Civil">
 <meta property="og:description" content="Conectando fornecedores e construtoras. Leads verificados, score inteligente e IA especializada.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://wexiolead.com/">
+<meta property="og:image" content="https://wexiolead.com/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="wexiolead">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="wexiolead — Leads para Construção Civil">
+<meta name="twitter:description" content="Conectando fornecedores e construtoras. Leads verificados, score inteligente e IA especializada.">
+<meta name="twitter:image" content="https://wexiolead.com/og-image.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "wexiolead",
+  "description": "Plataforma B2B de leads especializada em construção civil. Leads verificados, score inteligente, assistente IA Wex.",
+  "url": "https://wexiolead.com/",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+  "offers": [
+    {"@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "BRL"},
+    {"@type": "Offer", "name": "Starter", "price": "97", "priceCurrency": "BRL"},
+    {"@type": "Offer", "name": "Pro", "price": "197", "priceCurrency": "BRL"},
+    {"@type": "Offer", "name": "Agency", "price": "397", "priceCurrency": "BRL"}
+  ],
+  "publisher": {
+    "@type": "Organization",
+    "name": "wexiolead",
+    "url": "https://wexiolead.com/",
+    "logo": "https://wexiolead.com/favicon.png",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Rio de Janeiro",
+      "addressRegion": "RJ",
+      "addressCountry": "BR"
+    }
+  }
+}
+</script>
 <style>
 /* ─── RESET & BASE ─── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -407,7 +449,7 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
   <!-- HERO CONTENT -->
   <div class="hero-body">
     <div class="hero-left">
-      <h1 class="hero-h1" id="heroH1" aria-label="Conectando quem constrói o Brasil."></h1>
+      <h1 class="hero-h1" id="heroH1" aria-label="Conectando quem constrói o Brasil.">Conectando quem constrói o Brasil.</h1>
       <p class="hero-sub fade-in" id="heroSub" style="transition-delay:800ms;">A plataforma B2B de leads para construção civil. Conecte sua empresa às construtoras e fornecedores certos — dados verificados, score inteligente e a assistente <strong style="color:#F97316;font-weight:600;">Wex</strong>.</p>
       <div class="hero-btns fade-in" id="heroBtns" style="transition-delay:1200ms;">
         <button class="btn-white" onclick="openModal('signup')">Começar grátis</button>
@@ -708,6 +750,7 @@ function navLoggedIn(u){
   const lines=['Conectando quem','constrói o Brasil.'];
   const container=document.getElementById('heroH1');
   if(!container) return;
+  container.textContent='';
   const charDelay=30;
   const initialDelay=200;
   let allChars=[];

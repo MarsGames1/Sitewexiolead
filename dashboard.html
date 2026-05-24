@@ -1758,8 +1758,8 @@ textarea.form-input { resize: vertical; min-height: 90px; }
   </style>
 
   <div class="filter-bar" style="margin-bottom:16px;">
-    <input type="text" id="crmSearch" placeholder="Buscar lead salvo..." oninput="renderCrm()">
-    <select id="crmStatusFilter" onchange="renderCrm()">
+    <input type="text" id="crmSearch" placeholder="Buscar lead salvo..." oninput="crmPage=1;renderCrm()">
+    <select id="crmStatusFilter" onchange="crmPage=1;renderCrm()">
       <option value="">Todos os status</option>
       <option value="novo">Novo</option>
       <option value="contatado">Contatado</option>
@@ -2046,6 +2046,8 @@ let leadsPage = 1;
 const LEADS_PER_PAGE = 15;
 let filteredLeads = [];
 let currentCrmLeadId = null;
+let crmPage = 1;
+const CRM_PER_PAGE = 8;
 let wexOpen = false;
 let selectedPaywallPlan = 'starter';
 
@@ -2068,7 +2070,7 @@ window.addEventListener('load', async () =>{
 
   await Promise.all([loadProfile(), loadLeads(), loadExports()]);
   loadCrmFromStorage();
-  renderDashboard();
+  renderDashboard();   // agora roda APÓS loadExports, então userExports.length é correto
   renderLeadsTable();
   renderSuggestedLeads();
   renderCrm();
@@ -2127,10 +2129,10 @@ async function loadProfile() {
     currentProfile.onboarding_done = true;
   }
 
-  const name = currentProfile.full_name || currentProfile.email || 'Usuário';
-  const initials = name.split(' ').slice(0,2).map(w =>w[0]?.toUpperCase()).join('') || '?';
-  document.getElementById('userAvatar').textContent = initials;
-  document.getElementById('userName').textContent = name.split(' ')[0];
+  // Chip do topo: mostra o email logado
+  const email = currentProfile.email || currentUser.email || '';
+  document.getElementById('userAvatar').textContent = email.charAt(0).toUpperCase() || '?';
+  document.getElementById('userName').textContent = email;
 
   const planBadge = document.getElementById('userPlanBadge');
   const plan = currentProfile.plan || 'free';
@@ -2691,13 +2693,22 @@ function renderCrm() {
   const container = document.getElementById('crmContainer');
   if (!entries.length) {
     container.innerHTML = `<div class="empty-state"><div class="empty-icon"></div><p>Nenhum lead no CRM ainda.<br>Na busca de leads, clique em "CRM" para adicionar.</p></div>`;
+    // clear pagination
+    const pg = document.getElementById('crmPagination');
+    if (pg) pg.style.display = 'none';
     return;
   }
+
+  // Paginação
+  const total = entries.length;
+  const pages = Math.ceil(total / CRM_PER_PAGE) || 1;
+  if (crmPage > pages) crmPage = pages;
+  const slice = entries.slice((crmPage - 1) * CRM_PER_PAGE, crmPage * CRM_PER_PAGE);
 
   const statusCls = {novo:'crm-novo',contatado:'crm-contatado',negociando:'crm-negociando',fechado:'crm-fechado'};
   const statusLabel = {novo:' Novo',contatado:' Contatado',negociando:' Negociando',fechado:' Fechado'};
 
-  container.innerHTML = entries.map(c =>{
+  container.innerHTML = slice.map(c =>{
     const lead = allLeads.find(l =>l.id === c.leadId) || {};
     const name = lead.nome_fantasia || lead.razao_social || c.leadId;
     const date = c.updatedAt ? new Date(c.updatedAt).toLocaleDateString('pt-BR') : '';
@@ -2715,17 +2726,37 @@ function renderCrm() {
             <span class="crm-status ${statusCls[c.status]||''}">${statusLabel[c.status]||c.status}</span>
             ${followup}
             ${date?`<span style="font-size:11px;color:var(--dim);">Atualizado ${date}</span>`:''}
-</div>
+          </div>
           ${c.notes?`<div style="margin-top:10px;font-size:12px;color:var(--muted);padding:8px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">${c.notes}</div>`:''}
-</div>
+        </div>
         <button class="btn btn-ghost" style="padding:6px 12px;font-size:12px;flex-shrink:0;" onclick="openCrmModal('${c.leadId}')">Editar</button>
-</div>
-</div>`;
+      </div>
+    </div>`;
   }).join('');
+
+  // Renderiza paginação
+  let pg = document.getElementById('crmPagination');
+  if (!pg) {
+    pg = document.createElement('div');
+    pg.id = 'crmPagination';
+    container.parentNode.insertBefore(pg, container.nextSibling);
+  }
+  if (pages <= 1) {
+    pg.style.display = 'none';
+  } else {
+    pg.style.display = 'flex';
+    pg.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:10px 4px;';
+    pg.innerHTML = `
+      <span style="font-size:12px;color:var(--muted);">Página ${crmPage} de ${pages} · ${total} lead${total!==1?'s':''}</span>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-ghost" style="font-size:12px;padding:6px 12px;" onclick="crmPageNav(-1)" ${crmPage<=1?'disabled style="opacity:.4;pointer-events:none;"':''}>← Anterior</button>
+        <button class="btn btn-ghost" style="font-size:12px;padding:6px 12px;" onclick="crmPageNav(1)" ${crmPage>=pages?'disabled style="opacity:.4;pointer-events:none;"':''}>Próxima →</button>
+      </div>`;
+  }
 
   updateCrmSelCount();
 
-  // Update dashboard CRM preview
+  // Atualiza preview do dashboard
   const recentCrmList = document.getElementById('recentCrmList');
   if (recentCrmList) {
     if (!entries.length) {
@@ -2740,12 +2771,20 @@ function renderCrm() {
           <div>
             <div style="font-size:13px;font-weight:500;">${name}</div>
             <div style="font-size:11px;color:var(--muted);">${lead.segmento_simplificado||''} · ${lead.municipio||''}</div>
-</div>
+          </div>
           <span class="crm-status ${cls[c.status]||''}">${lbl[c.status]||c.status}</span>
-</div>`;
+        </div>`;
       }).join('');
     }
   }
+}
+
+function crmPageNav(dir) {
+  const total = Object.values(crmData).length;
+  const pages = Math.ceil(total / CRM_PER_PAGE) || 1;
+  crmPage = Math.max(1, Math.min(pages, crmPage + dir));
+  renderCrm();
+  document.getElementById('page-crm')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function updateCrmSelCount() {
@@ -2891,17 +2930,13 @@ async function exportLeads() {
 // DASHBOARD
 // 
 function renderDashboard() {
-  const firstName = currentProfile?.full_name?.split(' ')[0] || 'usuário';
-  const companyName = currentProfile?.empresa || currentProfile?.full_name || 'Conta';
+  // Saudação: usa primeiro nome do full_name, ou a parte antes do @ no email
+  const email = currentProfile?.email || currentUser?.email || '';
+  const emailFirstName = email.split('@')[0].split('.')[0];
+  const firstName = currentProfile?.full_name?.split(' ')[0] || emailFirstName || 'você';
   const hr = new Date().getHours();
   const greeting = hr < 12 ? 'Bom dia' : hr < 18 ? 'Boa tarde' : 'Boa noite';
   document.getElementById('greetingTitle').textContent = `${greeting}, ${firstName}!`;
-
-  // Update user chip with company name + avatar initial
-  const userNameEl = document.getElementById('userName');
-  const userAvaEl  = document.getElementById('userAvatar');
-  if (userNameEl) userNameEl.textContent = companyName;
-  if (userAvaEl)  userAvaEl.textContent  = companyName.charAt(0).toUpperCase();
 
   const quota = currentProfile?.leads_quota || 10;
   const used = currentProfile?.leads_used || 0;

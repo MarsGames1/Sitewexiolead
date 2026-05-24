@@ -1540,8 +1540,8 @@ textarea.form-input { resize: vertical; min-height: 90px; }
 
   <div class="quota-card">
     <div class="quota-header">
-      <div class="quota-title">Consultas disponíveis este mês</div>
-      <div class="quota-nums"><strong id="quotaUsed">0</strong>/ <strong id="quotaTotal">10</strong>utilizadas &nbsp;·&nbsp; <strong id="quotaRemaining" style="color:var(--accent);">10</strong> restantes</div>
+      <div class="quota-title">Créditos restantes este mês</div>
+      <div class="quota-nums"><strong id="quotaRemaining" style="color:var(--accent);">10</strong> <span style="color:var(--muted);font-size:12px;">de</span> <strong id="quotaTotal">10</strong></div>
 </div>
     <div class="quota-track"><div class="quota-fill" id="quotaFill" style="width:0%;"></div></div>
     <div class="quota-hint" id="quotaHint">Renova no dia 1º do próximo mês.</div>
@@ -1736,10 +1736,26 @@ textarea.form-input { resize: vertical; min-height: 90px; }
 
 <!--  CRM ═-->
 <div class="page-section" id="page-crm">
-  <div class="page-header">
-    <div class="page-title">Meu CRM</div>
-    <div class="page-sub">Acompanhe o relacionamento com cada lead salvo</div>
-</div>
+  <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+    <div>
+      <div class="page-title">Meu CRM</div>
+      <div class="page-sub">Acompanhe o relacionamento com cada lead salvo</div>
+    </div>
+    <div id="crmBulkBar" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;">
+      <span id="crmSelCount" style="font-size:13px;font-weight:600;color:var(--text);">0 selecionados</span>
+      <button class="btn btn-ghost" style="font-size:12px;padding:6px 12px;" onclick="crmSelectAll()">Selecionar todos</button>
+      <button class="btn btn-ghost" style="font-size:12px;padding:6px 12px;" onclick="crmClearSel()">Limpar</button>
+      <button class="btn btn-accent" style="font-size:12px;padding:6px 14px;" onclick="exportCrmSelected()">
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar selecionados (CSV)
+      </button>
+    </div>
+  </div>
+
+  <style>
+  .crm-cb-wrap { display:flex;align-items:center;justify-content:center;width:28px;height:28px;flex-shrink:0; }
+  .crm-cb { width:16px;height:16px;accent-color:var(--accent);cursor:pointer; }
+  </style>
 
   <div class="filter-bar" style="margin-bottom:16px;">
     <input type="text" id="crmSearch" placeholder="Buscar lead salvo..." oninput="renderCrm()">
@@ -2657,6 +2673,12 @@ function closeCrm() {
 function renderCrm() {
   const q = (document.getElementById('crmSearch')?.value || '').toLowerCase();
   const statusF = document.getElementById('crmStatusFilter')?.value || '';
+  const plan = currentProfile?.plan || 'free';
+  const isPro = plan === 'pro' || plan === 'agency';
+
+  // Show/hide bulk toolbar
+  const bulkBar = document.getElementById('crmBulkBar');
+  if (bulkBar) bulkBar.style.display = isPro ? 'flex' : 'none';
 
   const entries = Object.values(crmData).filter(c =>{
     const lead = allLeads.find(l =>l.id === c.leadId);
@@ -2680,9 +2702,13 @@ function renderCrm() {
     const name = lead.nome_fantasia || lead.razao_social || c.leadId;
     const date = c.updatedAt ? new Date(c.updatedAt).toLocaleDateString('pt-BR') : '';
     const followup = c.followup ? `<span style="font-size:11px;color:var(--muted);">Follow-up: ${new Date(c.followup+'T00:00').toLocaleDateString('pt-BR')}</span>` : '';
+    const cbHtml = isPro
+      ? `<div class="crm-cb-wrap"><input type="checkbox" class="crm-cb" data-lead-id="${c.leadId}" onchange="updateCrmSelCount()"></div>`
+      : '';
     return `<div class="card" style="margin-bottom:12px;">
-      <div style="padding:16px 20px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
-        <div style="flex:1;">
+      <div style="padding:16px 20px;display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;">
+        ${cbHtml}
+        <div style="flex:1;min-width:0;">
           <div style="font-weight:600;font-size:14px;margin-bottom:4px;">${name}</div>
           <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">${lead.municipio||''} ${lead.estado?'· '+lead.estado:''} ${lead.segmento_simplificado?'· '+lead.segmento_simplificado:''}</div>
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -2696,6 +2722,8 @@ function renderCrm() {
 </div>
 </div>`;
   }).join('');
+
+  updateCrmSelCount();
 
   // Update dashboard CRM preview
   const recentCrmList = document.getElementById('recentCrmList');
@@ -2718,6 +2746,62 @@ function renderCrm() {
       }).join('');
     }
   }
+}
+
+function updateCrmSelCount() {
+  const checked = document.querySelectorAll('.crm-cb:checked');
+  const el = document.getElementById('crmSelCount');
+  if (el) el.textContent = `${checked.length} selecionado${checked.length !== 1 ? 's' : ''}`;
+}
+
+function crmSelectAll() {
+  const all = document.querySelectorAll('.crm-cb');
+  const MAX = 10;
+  let count = 0;
+  all.forEach(cb => {
+    if (count < MAX) { cb.checked = true; count++; }
+    else cb.checked = false;
+  });
+  updateCrmSelCount();
+  if (all.length > MAX) showToast(`Seleção limitada a ${MAX} leads por exportação.`, true);
+}
+
+function crmClearSel() {
+  document.querySelectorAll('.crm-cb').forEach(cb => cb.checked = false);
+  updateCrmSelCount();
+}
+
+function exportCrmSelected() {
+  const plan = currentProfile?.plan || 'free';
+  if (plan !== 'pro' && plan !== 'agency') {
+    showUpgradeModal('Exportação em lote do CRM está disponível nos planos Pro e Agency.', 'pro');
+    return;
+  }
+
+  const checked = document.querySelectorAll('.crm-cb:checked');
+  if (!checked.length) { showToast('Selecione ao menos um lead para exportar.', true); return; }
+  if (checked.length > 10) { showToast('Máximo de 10 leads por exportação.', true); return; }
+
+  const ids = Array.from(checked).map(cb => cb.dataset.leadId);
+  const headers = ['Razão Social','Nome Fantasia','CNPJ','Segmento','Cidade','Estado','Telefone','Email','Score','Status CRM','Notas','Follow-up'];
+  const rows = ids.map(id => {
+    const lead = allLeads.find(l => l.id === id) || {};
+    const crm  = crmData[id] || {};
+    return [
+      lead.razao_social, lead.nome_fantasia, lead.cnpj, lead.segmento_simplificado,
+      lead.municipio, lead.estado, lead.telefone_1, lead.email_comercial, lead.score_lead,
+      crm.status || '', crm.notes || '', crm.followup || ''
+    ].map(v => `"${(v||'').toString().replace(/"/g,'""')}"`);
+  });
+
+  const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob(['\ufeff'+csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `wexiolead_crm_${Date.now()}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+  showToast(`${ids.length} lead${ids.length !== 1 ? 's' : ''} exportado${ids.length !== 1 ? 's' : ''} com sucesso!`);
+  crmClearSel();
 }
 
 // 
@@ -2793,10 +2877,17 @@ async function exportLeads() {
 // DASHBOARD
 // 
 function renderDashboard() {
-  const name = currentProfile?.full_name?.split(' ')[0] || 'usuário';
+  const firstName = currentProfile?.full_name?.split(' ')[0] || 'usuário';
+  const companyName = currentProfile?.empresa || currentProfile?.full_name || 'Conta';
   const hr = new Date().getHours();
   const greeting = hr < 12 ? 'Bom dia' : hr < 18 ? 'Boa tarde' : 'Boa noite';
-  document.getElementById('greetingTitle').textContent = `${greeting}, ${name}!`;
+  document.getElementById('greetingTitle').textContent = `${greeting}, ${firstName}!`;
+
+  // Update user chip with company name + avatar initial
+  const userNameEl = document.getElementById('userName');
+  const userAvaEl  = document.getElementById('userAvatar');
+  if (userNameEl) userNameEl.textContent = companyName;
+  if (userAvaEl)  userAvaEl.textContent  = companyName.charAt(0).toUpperCase();
 
   const quota = currentProfile?.leads_quota || 10;
   const used = currentProfile?.leads_used || 0;
@@ -2836,7 +2927,6 @@ function updateQuotaUI() {
   const remaining = Math.max(0, quota - used);
 
   // Dashboard quota card
-  document.getElementById('quotaUsed').textContent = used;
   document.getElementById('quotaTotal').textContent = quota;
   const remEl = document.getElementById('quotaRemaining');
   if (remEl) {

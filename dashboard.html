@@ -2870,7 +2870,21 @@ async function exportLeads() {
   updateQuotaUI();
   await loadExports();
   renderExports();
-  showToast(` ${count} leads exportados com sucesso!`);
+  document.getElementById('dashExports').textContent = userExports.length;
+  const recentExportsList = document.getElementById('recentExportsList');
+  if (recentExportsList && userExports.length) {
+    recentExportsList.innerHTML = userExports.slice(0,3).map(e =>{
+      const date = new Date(e.created_at).toLocaleDateString('pt-BR');
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:9px;background:var(--surface2);margin-bottom:8px;border:1px solid var(--border);">
+        <div>
+          <div style="font-size:13px;font-weight:500;">${date} — ${e.lead_count} leads exportados</div>
+          <div style="font-size:11px;color:var(--muted);">${e.filters?.segmento||'Todos os segmentos'} · ${e.filters?.estado||'Todos os estados'}</div>
+        </div>
+        <span class="badge b-green">CSV</span>
+      </div>`;
+    }).join('');
+  }
+  showToast(`✅ ${count} leads exportados com sucesso!`);
 }
 
 // 

@@ -369,31 +369,13 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
 <div class="mo" id="authModal" role="dialog" aria-modal="true" aria-labelledby="mT">
   <div class="modal">
     <button class="mcl" id="mCl" aria-label="Fechar">✕</button>
-    <h2 id="mT">Comece grátis</h2>
+    <h2 id="mT">Entrar na wexiolead</h2>
     <p class="msub" id="mSb">10 leads gratuitos. Sem cartão de crédito.</p>
     <button class="btn-g" id="btnGoogle" onclick="handleGoogleLogin()">
       <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
       Continuar com Google
     </button>
-    <div class="mdv">ou</div>
-    <div class="mtbs" role="tablist">
-      <button class="mtb active" role="tab" data-tab="signup">Criar conta</button>
-      <button class="mtb" role="tab" data-tab="login">Entrar</button>
-    </div>
-    <div id="fSu">
-      <div class="fg2"><label for="sN">Nome completo</label><input type="text" id="sN" autocomplete="name" placeholder="Seu nome" required><div class="fe" id="eN"></div></div>
-      <div class="fg2"><label for="sTp">Você é</label><select id="sTp"><option value="fornecedor">Fornecedor — quero vender para construtoras</option><option value="construtora">Construtora — quero encontrar parceiros</option><option value="empreiteiro">Empreiteiro — ofereço serviços para obras</option></select></div>
-      <div class="fg2"><label for="sE">E-mail</label><input type="email" id="sE" autocomplete="email" placeholder="seu@email.com" required><div class="fe" id="eE"></div></div>
-      <div class="fg2"><label for="sP">Senha</label><input type="password" id="sP" autocomplete="new-password" placeholder="Mínimo 8 caracteres" required><div class="fe" id="ePw"></div></div>
-      <button class="bsub" id="bSu" onclick="handleSignup()"><span id="bSuT">Criar conta grátis →</span></button>
-      <div class="mft">Ao criar conta você concorda com os <a href="#" onclick="openPolicy('termos');return false;">Termos</a> e <a href="#" onclick="openPolicy('privacidade');return false;">Privacidade</a></div>
-    </div>
-    <div id="fLg" style="display:none;">
-      <div class="fg2"><label for="lE">E-mail</label><input type="email" id="lE" autocomplete="email" placeholder="seu@email.com" required><div class="fe" id="eLE"></div></div>
-      <div class="fg2"><label for="lP">Senha</label><input type="password" id="lP" autocomplete="current-password" placeholder="Sua senha" required><div class="fe" id="eLP"></div></div>
-      <button class="bsub" id="bLg" onclick="handleLogin()"><span id="bLgT">Entrar na conta →</span></button>
-      <div class="mft"><a href="#" onclick="handleForgot()">Esqueci minha senha</a></div>
-    </div>
+    <div class="mft" style="margin-top:6px;">Ao entrar você concorda com os <a href="#" onclick="openPolicy('termos');return false;">Termos</a> e <a href="#" onclick="openPolicy('privacidade');return false;">Privacidade</a></div>
   </div>
 </div>
 
@@ -413,8 +395,8 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
   <a href="#como" onclick="closeMM()">Como funciona</a>
   <a href="#features" onclick="closeMM()">Funcionalidades</a>
   <a href="#pricing" onclick="closeMM()">Preços</a>
-  <button onclick="closeMM();openModal('login')" style="font-family:'Inter',sans-serif;font-size:16px;font-weight:400;color:#9ca3af;background:none;border:none;cursor:pointer;">Entrar</button>
-  <button onclick="closeMM();openModal('signup')" style="background:#F97316;color:#fff;border:none;padding:12px 32px;border-radius:8px;font-family:'Inter',sans-serif;font-size:15px;font-weight:500;cursor:pointer;">Começar grátis</button>
+  <button onclick="closeMM();openModal()" style="font-family:'Inter',sans-serif;font-size:16px;font-weight:400;color:#9ca3af;background:none;border:none;cursor:pointer;">Entrar</button>
+  <button onclick="closeMM();openModal()" style="background:#F97316;color:#fff;border:none;padding:12px 32px;border-radius:8px;font-family:'Inter',sans-serif;font-size:15px;font-weight:500;cursor:pointer;">Começar grátis</button>
 </div>
 
 <!-- ═══════════════════════════════════
@@ -437,8 +419,8 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
         <li><a href="#pricing">Preços</a></li>
       </ul>
       <div style="display:flex;align-items:center;gap:10px;">
-        <a href="#" onclick="openModal('login');return false;" id="navLogin" style="color:#fff;text-decoration:none;font-size:14px;font-weight:400;opacity:.75;transition:opacity .2s;display:none;" class="nav-login-link">Entrar</a>
-        <button class="nav-cta" onclick="openModal('signup')" id="navCta">Começar grátis</button>
+        <a href="#" onclick="openModal();return false;" id="navLogin" style="color:#fff;text-decoration:none;font-size:14px;font-weight:400;opacity:.75;transition:opacity .2s;display:none;" class="nav-login-link">Entrar</a>
+        <button class="nav-cta" onclick="openModal()" id="navCta">Começar grátis</button>
         <div class="nav-mob">
           <button class="hbg" id="hbg" aria-label="Menu"><span></span><span></span><span></span></button>
         </div>
@@ -452,7 +434,7 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
       <h1 class="hero-h1" id="heroH1" aria-label="Conectando quem constrói o Brasil.">Conectando quem constrói o Brasil.</h1>
       <p class="hero-sub fade-in" id="heroSub" style="transition-delay:800ms;">A plataforma B2B de leads para construção civil. Conecte sua empresa às construtoras e fornecedores certos — dados verificados, score inteligente e a assistente <strong style="color:#F97316;font-weight:600;">Wex</strong>.</p>
       <div class="hero-btns fade-in" id="heroBtns" style="transition-delay:1200ms;">
-        <button class="btn-white" onclick="openModal('signup')">Começar grátis</button>
+        <button class="btn-white" onclick="openModal()">Começar grátis</button>
         <button class="btn-glass lg" onclick="document.getElementById('problema').scrollIntoView({behavior:'smooth'})">Ver a plataforma</button>
       </div>
     </div>
@@ -663,7 +645,7 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
           <div class="cm usr">Médio porte, acima de R$2M faturamento</div>
           <div class="cm bot">Encontrei 347 construtoras em SP com score 70+. Quer aplicar o filtro "Decisor disponível"?</div>
         </div>
-        <div class="chat-inp"><div class="chat-fld">Pergunte à Wex...</div><button class="chat-btn" onclick="openModal('signup')">Testar grátis</button></div>
+        <div class="chat-inp"><div class="chat-fld">Pergunte à Wex...</div><button class="chat-btn" onclick="openModal()">Testar grátis</button></div>
       </div>
     </div>
   </div>
@@ -678,7 +660,7 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
     <h2 class="sec-title rv" style="max-width:none;">Preços simples e honestos.</h2>
     <p class="sec-sub rv d1" style="margin:0 auto 0;">Comece grátis. Cancele quando quiser.</p>
     <div class="pg">
-      <div class="plan rv"><div class="plan-n">Free</div><div class="plan-pr"><sup>R$</sup>0</div><div class="plan-pe">para sempre grátis</div><div class="plan-dv"></div><ul class="plan-fs"><li>10 consultas de leads/mês</li><li>Filtros básicos por estado e CNAE</li><li>Score parcial dos leads</li><li>Wex limitada</li><li>Sem cartão de crédito</li></ul><button class="plan-btn out" onclick="openModal('signup')">Começar grátis</button></div>
+      <div class="plan rv"><div class="plan-n">Free</div><div class="plan-pr"><sup>R$</sup>0</div><div class="plan-pe">para sempre grátis</div><div class="plan-dv"></div><ul class="plan-fs"><li>10 consultas de leads/mês</li><li>Filtros básicos por estado e CNAE</li><li>Score parcial dos leads</li><li>Wex limitada</li><li>Sem cartão de crédito</li></ul><button class="plan-btn out" onclick="openModal()">Começar grátis</button></div>
       <div class="plan rv d1"><div class="plan-n">Starter</div><div class="plan-pr"><sup>R$</sup>97<small>/mês</small></div><div class="plan-pe">cobrado mensalmente</div><div class="plan-dv"></div><ul class="plan-fs"><li>300 consultas/mês</li><li>Filtros completos por região, porte e CNAE</li><li>Score completo 0–100</li><li>Selo Lead Verificado</li><li>Exportação CSV</li><li>Perfil público no diretório</li><li>Wex completa com sugestões personalizadas</li></ul><button class="plan-btn out" onclick="goCheckout('starter')">Assinar Starter</button></div>
       <div class="plan feat rv d2"><div class="plan-b">Mais popular</div><div class="plan-n">Pro</div><div class="plan-pr"><sup>R$</sup>197<small>/mês</small></div><div class="plan-pe">cobrado mensalmente</div><div class="plan-dv"></div><ul class="plan-fs"><li>1.000 consultas/mês</li><li>Tudo do Starter</li><li>CRM leve integrado</li><li>Alertas de novos leads por e-mail</li><li>Radar de obras (em expansão)</li><li>Suporte prioritário por e-mail</li></ul><button class="plan-btn sol" onclick="goCheckout('pro')">Assinar Pro</button></div>
       <div class="plan rv d3"><div class="plan-n">Agency</div><div class="plan-pr"><sup>R$</sup>397<small>/mês</small></div><div class="plan-pe">cobrado mensalmente</div><div class="plan-dv"></div><ul class="plan-fs"><li>Consultas ilimitadas</li><li>Tudo do Pro</li><li>Múltiplos usuários na mesma conta</li><li>Gestão de equipe de vendas</li><li>Onboarding dedicado</li><li>Suporte via WhatsApp</li></ul><button class="plan-btn out" onclick="goCheckout('agency')">Assinar Agency</button></div>
@@ -708,8 +690,8 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
   <h2>Seus próximos 10 leads<br><span>são gratuitos.</span></h2>
   <p>Sem cartão de crédito. Sem configuração. A Wex te guia desde o primeiro acesso.</p>
   <div class="cta-btns">
-    <button class="btn-cw" onclick="openModal('signup')">Começar grátis agora →</button>
-    <button class="btn-cg2" onclick="openModal('login')">Já tenho conta</button>
+    <button class="btn-cw" onclick="openModal()">Começar grátis agora →</button>
+    <button class="btn-cg2" onclick="openModal()">Já tenho conta</button>
   </div>
 </div>
 
@@ -719,7 +701,7 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
 <footer>
   <div class="fg">
     <div><a href="/" style="text-decoration:none;"><div class="flogo">wexio<span>lead</span></div></a><p class="fdesc">A plataforma de leads B2B especializada em construção civil. Conectando fornecedores e construtoras em todo o Brasil.</p></div>
-    <div><div class="fct">Produto</div><ul class="fls"><li><a href="#problema">Para quem é</a></li><li><a href="#como">Como funciona</a></li><li><a href="#features">Funcionalidades</a></li><li><a href="#pricing">Preços</a></li><li><a href="#" onclick="openModal('signup');return false;" class="ac">Começar grátis →</a></li></ul></div>
+    <div><div class="fct">Produto</div><ul class="fls"><li><a href="#problema">Para quem é</a></li><li><a href="#como">Como funciona</a></li><li><a href="#features">Funcionalidades</a></li><li><a href="#pricing">Preços</a></li><li><a href="#" onclick="openModal();return false;" class="ac">Começar grátis →</a></li></ul></div>
     <div><div class="fct">Empresa</div><ul class="fls"><li><a href="https://docs.google.com/forms/d/e/1FAIpQLSd1LTDbsPZQyQXxiV62iMrsHdwSev1WYoWMSIi50WBP8kHUrA/viewform" target="_blank" rel="noopener">Trabalhe conosco</a></li><li><a href="#" onclick="event.preventDefault();showEmailCard(this);">Suporte</a></li><li><a href="#" onclick="event.preventDefault();showEmailCard(this);">Parcerias</a></li><li><a href="#" onclick="event.preventDefault();showEmailCard(this);">Contato</a></li></ul></div>
     <div><div class="fct">Legal</div><ul class="fls"><li><a href="#" onclick="openPolicy('privacidade');return false;">Política de Privacidade</a></li><li><a href="#" onclick="openPolicy('termos');return false;">Termos de Uso</a></li><li><a href="#" onclick="openPolicy('lgpd');return false;">LGPD</a></li><li><a href="#" onclick="openPolicy('dpo');return false;">DPO / Privacidade</a></li></ul></div>
   </div>
@@ -781,19 +763,12 @@ function navLoggedIn(u){
 })();
 
 // ── MODAL ──
-function openModal(mode='signup'){
+function openModal(){
   document.getElementById('authModal').classList.add('open');
   document.body.style.overflow='hidden';
-  const isL=mode==='login';
-  document.getElementById('mT').textContent=isL?'Entrar na conta':'Comece grátis';
-  document.getElementById('mSb').textContent=isL?'Acesse seu painel de leads.':'10 leads gratuitos. Sem cartão de crédito.';
-  document.querySelectorAll('.mtb').forEach(t=>t.classList.toggle('active',t.dataset.tab===mode));
-  document.getElementById('fSu').style.display=isL?'none':'block';
-  document.getElementById('fLg').style.display=isL?'block':'none';
 }
 document.getElementById('mCl').addEventListener('click',()=>{document.getElementById('authModal').classList.remove('open');document.body.style.overflow='';});
 document.getElementById('authModal').addEventListener('click',e=>{if(e.target===document.getElementById('authModal')){document.getElementById('authModal').classList.remove('open');document.body.style.overflow='';}});
-document.querySelectorAll('.mtb').forEach(t=>t.addEventListener('click',()=>openModal(t.dataset.tab)));
 
 // ── AUTH ──
 async function handleGoogleLogin(){
@@ -807,70 +782,16 @@ async function handleGoogleLogin(){
     b.innerHTML='<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Continuar com Google';
   }
 }
-async function handleSignup(){
-  const n=document.getElementById('sN').value.trim(),tp=document.getElementById('sTp').value,
-        e=document.getElementById('sE').value.trim(),p=document.getElementById('sP').value;
-  clearE();let ok=true;
-  if(!n){setE('eN','Nome obrigatório');ok=false;}
-  if(!e||!/\S+@\S+\.\S+/.test(e)){setE('eE','E-mail inválido');ok=false;}
-  if(p.length<8){setE('ePw','Mínimo 8 caracteres');ok=false;}
-  if(!ok) return;
-  document.getElementById('bSuT').textContent='Criando...';document.getElementById('bSu').disabled=true;
-  try{
-    const{data,error}=await sb.auth.signUp({email:e,password:p,options:{data:{full_name:n,tipo:tp}}});
-    if(error) throw error;
-    // Se sessão veio direto (confirmação de e-mail desativada no Supabase), redireciona imediatamente
-    if(data.session){
-      const pending=sessionStorage.getItem('pendingPlan');
-      if(pending){sessionStorage.removeItem('pendingPlan');location.href='checkout.html?plan='+pending;}
-      else location.href='dashboard.html';
-    } else if(data.user&&!data.session){
-      // Fallback: confirmação ainda ativa — orienta o usuário a fazer login
-      toast('Conta criada! Entre com seu e-mail e senha.');
-      document.getElementById('authModal').classList.remove('open');
-      document.body.style.overflow='';
-      setTimeout(()=>openModal('login'),1800);
-    }
-  }catch(err){setE('eE',err.message.includes('already')?'E-mail já cadastrado.':err.message);}
-  finally{document.getElementById('bSuT').textContent='Criar conta grátis →';document.getElementById('bSu').disabled=false;}
-}
-async function handleLogin(){
-  const e=document.getElementById('lE').value.trim(),p=document.getElementById('lP').value;
-  clearE();
-  if(!e){setE('eLE','E-mail obrigatório');return;}
-  if(!p){setE('eLP','Senha obrigatória');return;}
-  document.getElementById('bLgT').textContent='Entrando...';document.getElementById('bLg').disabled=true;
-  try{
-    const{error}=await sb.auth.signInWithPassword({email:e,password:p});
-    if(error) throw error;
-    const pending=sessionStorage.getItem('pendingPlan');
-    if(pending){sessionStorage.removeItem('pendingPlan');location.href='checkout.html?plan='+pending;}
-    else location.href='dashboard.html';
-  }catch(err){setE('eLE',err.message.includes('Invalid')?'E-mail ou senha incorretos.':err.message);}
-  finally{document.getElementById('bLgT').textContent='Entrar na conta →';document.getElementById('bLg').disabled=false;}
-}
-async function handleForgot(){
-  const e=document.getElementById('lE').value.trim();
-  if(!e){setE('eLE','Digite seu e-mail primeiro');return;}
-  await sb.auth.resetPasswordForEmail(e);
-  toast('Link de redefinição enviado para '+e);
-}
-function setE(id,msg){const el=document.getElementById(id);if(el)el.textContent=msg;}
-function clearE(){document.querySelectorAll('.fe').forEach(e=>e.textContent='');}
-
 // ── CHECKOUT REDIRECT ──
 async function goCheckout(plan) {
   const{data:{session}}=await sb.auth.getSession();
   if(session){
     location.href='checkout.html?plan='+plan;
   } else {
-    // Save intended plan and open auth modal
     sessionStorage.setItem('pendingPlan', plan);
-    openModal('login');
+    openModal();
   }
 }
-
-// After login/signup, check if there's a pending plan
 
 let tT;
 function toast(msg,err=false){

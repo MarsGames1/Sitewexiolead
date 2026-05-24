@@ -1369,6 +1369,27 @@ textarea.form-input { resize: vertical; min-height: 90px; }
       </div>
       <div id="ldmWexInsightText" style="font-size:13px;color:var(--text);line-height:1.6;"></div>
     </div>
+    <!-- Redes Sociais -->
+    <div id="ldmSocialSection" style="margin-bottom:16px;border-top:1px solid var(--border);padding-top:14px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <div style="width:26px;height:26px;background:#1e3a5f22;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:#4f8ef7;fill:none;stroke-width:2;"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </div>
+        <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:12px;">Redes Sociais & Ações</span>
+      </div>
+      <div id="ldmSocialGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:7px;"></div>
+    </div>
+    <!-- Export rápido -->
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <button class="btn btn-ghost" style="flex:1;font-size:12px;padding:8px;" onclick="exportSingleLead('csv')">
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar CSV
+      </button>
+      <button class="btn btn-ghost" style="flex:1;font-size:12px;padding:8px;" onclick="exportSingleLead('xlsx')">
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:#1d6f42;fill:none;stroke-width:2;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar Excel
+      </button>
+    </div>
     <!-- CRM inline -->
     <div style="border-top:1px solid var(--border);padding-top:16px;">
       <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
@@ -2189,11 +2210,6 @@ async function fetchLeadsFromServer(filters = {}) {
   renderLeadsTable();
   renderSuggestedLeads();
 
-  // Planos pagos: todos os leads já vêm desbloqueados
-  if (!isFree) {
-    allLeads.forEach(l => revealedLeads.add(l.id));
-  }
-
   // Avisa free que filtros avançados (tipo/estado/segmento) requerem upgrade
   if (isFree && (filters.tipo || filters.estado || filters.segmento)) {
     showToast('Filtros por tipo, estado e segmento disponíveis no plano Starter ou superior.', true);
@@ -2407,12 +2423,6 @@ function saveCrmToStorage() {
 }
 
 function openCrmModal(leadId) {
-  // Se ainda não desbloqueado, revela primeiro
-  if (!revealedLeads.has(leadId)) {
-    revealLead(leadId);
-    return;
-  }
-
   const lead = allLeads.find(l =>l.id === leadId);
   if (!lead) return;
   currentCrmLeadId = leadId;
@@ -3636,8 +3646,94 @@ function openLeadDetailModal(leadId) {
   document.getElementById('ldmCrmNotes').value = crm.notes || '';
   document.getElementById('ldmCrmFollowup').value = crm.followup || '';
   document.getElementById('leadDetailModal').dataset.leadId = leadId;
+  renderLdmSocial(lead);
   document.getElementById('leadDetailModal').classList.add('open');
 }
+
+function renderLdmSocial(lead) {
+  const el = document.getElementById('ldmSocialGrid');
+  if (!el) return;
+  const nome = encodeURIComponent(lead.nome_fantasia || lead.razao_social || '');
+  const cnpj = (lead.cnpj || '').replace(/\D/g, '');
+  const tel = (lead.telefone_1 || '').replace(/\D/g, '');
+
+  const links = [
+    tel ? {
+      label: 'WhatsApp', color: '#25d366',
+      url: 'https://wa.me/55' + tel,
+      icon: '<svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:#25d366;stroke:none;flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 2C6.477 2 2 6.477 2 12c0 1.936.536 3.741 1.464 5.283L2 22l4.837-1.428A9.955 9.955 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>'
+    } : null,
+    { label: 'LinkedIn', color: '#0a66c2',
+      url: 'https://www.linkedin.com/search/results/companies/?keywords=' + nome,
+      icon: '<svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:#0a66c2;stroke:none;flex-shrink:0;"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>'
+    },
+    { label: 'Instagram', color: '#e1306c',
+      url: 'https://www.google.com/search?q=instagram+' + nome,
+      icon: '<svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:#e1306c;stroke:none;flex-shrink:0;"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>'
+    },
+    { label: 'Facebook', color: '#1877f2',
+      url: 'https://www.facebook.com/search/pages/?q=' + nome,
+      icon: '<svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:#1877f2;stroke:none;flex-shrink:0;"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>'
+    },
+    { label: 'Google', color: 'var(--muted)',
+      url: 'https://www.google.com/search?q=' + nome + '+' + cnpj,
+      icon: '<svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:var(--muted);stroke-width:2;flex-shrink:0;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
+    },
+  ].filter(Boolean);
+
+  el.innerHTML = links.map(function(l) {
+    return '<a href="' + l.url + '" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:9px 11px;background:var(--surface2);border-radius:9px;text-decoration:none;border:1px solid var(--border);">' +
+      l.icon + '<span style="font-size:12px;font-weight:600;color:var(--text);">' + l.label + '</span></a>';
+  }).join('');
+}
+
+function exportSingleLead(format) {
+  const leadId = document.getElementById('leadDetailModal').dataset.leadId;
+  const lead = allLeads.find(function(l) { return l.id === leadId; });
+  if (!lead) return;
+
+  const plan = (currentProfile && currentProfile.plan ? currentProfile.plan : 'free').toLowerCase();
+  if (plan === 'free') {
+    showToast('Export disponível a partir do plano Starter.', true);
+    return;
+  }
+
+  const headers = ['Razão Social','Nome Fantasia','CNPJ','Segmento','Cidade','Estado','Telefone','Email','Score','WhatsApp Link'];
+  const row = [
+    lead.razao_social, lead.nome_fantasia, lead.cnpj, lead.segmento_simplificado,
+    lead.municipio, lead.estado, lead.telefone_1, lead.email_comercial, lead.score_lead,
+    lead.telefone_1 ? 'https://wa.me/55' + (lead.telefone_1||'').replace(/\D/g,'') : ''
+  ];
+
+  const nomeArq = (lead.nome_fantasia || lead.razao_social || 'export').replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'');
+
+  if (format === 'csv') {
+    const csv = [headers.join(','), row.map(function(v){ return '"' + (v||'').toString().replace(/"/g,'""') + '"'; }).join(',')].join('\n');
+    const blob = new Blob(['\ufeff'+csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'lead_' + nomeArq + '.csv';
+    a.click(); URL.revokeObjectURL(url);
+    showToast('CSV exportado com sucesso!');
+  } else {
+    if (typeof XLSX !== 'undefined') {
+      const ws = XLSX.utils.aoa_to_sheet([headers, row]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Lead');
+      XLSX.writeFile(wb, 'lead_' + nomeArq + '.xlsx');
+      showToast('Excel exportado com sucesso!');
+    } else {
+      const csv = [headers.join(','), row.map(function(v){ return '"' + (v||'').toString().replace(/"/g,'""') + '"'; }).join(',')].join('\n');
+      const blob = new Blob(['\ufeff'+csv], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'lead_' + nomeArq + '.xlsx';
+      a.click(); URL.revokeObjectURL(url);
+      showToast('Excel exportado com sucesso!');
+    }
+  }
+}
+
 
 function saveLeadDetailCrm() {
   const leadId = document.getElementById('leadDetailModal').dataset.leadId;

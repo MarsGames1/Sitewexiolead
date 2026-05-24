@@ -2430,13 +2430,13 @@ function leadsPageNav(dir) {
 // 
 function loadCrmFromStorage() {
   try {
-    const saved = sessionStorage.getItem(`wl_crm_${currentUser?.id}`);
+    const saved = localStorage.getItem(`wl_crm_${currentUser?.id}`);
     if (saved) crmData = JSON.parse(saved);
   } catch(e) {}
 }
 function saveCrmToStorage() {
   try {
-    sessionStorage.setItem(`wl_crm_${currentUser?.id}`, JSON.stringify(crmData));
+    localStorage.setItem(`wl_crm_${currentUser?.id}`, JSON.stringify(crmData));
   } catch(e) {}
 }
 

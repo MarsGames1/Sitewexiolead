@@ -2189,6 +2189,11 @@ async function fetchLeadsFromServer(filters = {}) {
   renderLeadsTable();
   renderSuggestedLeads();
 
+  // Planos pagos: todos os leads já vêm desbloqueados
+  if (!isFree) {
+    allLeads.forEach(l => revealedLeads.add(l.id));
+  }
+
   // Avisa free que filtros avançados (tipo/estado/segmento) requerem upgrade
   if (isFree && (filters.tipo || filters.estado || filters.segmento)) {
     showToast('Filtros por tipo, estado e segmento disponíveis no plano Starter ou superior.', true);
@@ -2402,6 +2407,12 @@ function saveCrmToStorage() {
 }
 
 function openCrmModal(leadId) {
+  // Se ainda não desbloqueado, revela primeiro
+  if (!revealedLeads.has(leadId)) {
+    revealLead(leadId);
+    return;
+  }
+
   const lead = allLeads.find(l =>l.id === leadId);
   if (!lead) return;
   currentCrmLeadId = leadId;

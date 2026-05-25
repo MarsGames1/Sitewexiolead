@@ -339,28 +339,8 @@ select.finput{cursor:pointer;-webkit-appearance:none;appearance:none;background-
             </div>
           </div>
         </div>
-        <div id="fb" style="display:none;">
-          <div class="ibox org"><strong>Boleto bancário</strong><br>Vencimento em 3 dias úteis. Acesso liberado em 1–2 dias úteis após o pagamento.</div>
-          <div style="display:flex;align-items:flex-start;gap:10px;background:#f5f4f0;border:1px solid #e8e6e0;border-radius:10px;padding:12px 14px;margin-bottom:16px;">
-            <div style="width:28px;height:28px;border-radius:8px;background:#fff;border:1px solid #e8e6e0;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6b6760" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            </div>
-            <div>
-              <div style="font-size:12px;font-weight:600;color:#1a1814;margin-bottom:2px;">Beneficiário do pagamento</div>
-              <div style="font-size:12px;color:#6b6760;line-height:1.5;">O boleto será emitido em nome de <strong style="color:#1a1814;">Ronie Gonçalves Santos</strong>. Não se preocupe — o pagamento é processado com segurança pela <strong style="color:#1a1814;">Asaas</strong>, plataforma regulamentada pelo Banco Central.</div>
-            </div>
-          </div>
-        </div>
+        <div id="fb" style="display:none;"><div class="ibox org"><strong>Boleto bancário</strong><br>Vencimento em 3 dias úteis. Acesso liberado em 1–2 dias úteis após o pagamento.</div></div>
         <div id="fc2" style="display:none;">
-          <div style="display:flex;align-items:flex-start;gap:10px;background:#f5f4f0;border:1px solid #e8e6e0;border-radius:10px;padding:12px 14px;margin-bottom:16px;">
-            <div style="width:28px;height:28px;border-radius:8px;background:#fff;border:1px solid #e8e6e0;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6b6760" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            </div>
-            <div>
-              <div style="font-size:12px;font-weight:600;color:#1a1814;margin-bottom:2px;">Beneficiário do pagamento</div>
-              <div style="font-size:12px;color:#6b6760;line-height:1.5;">A cobrança aparecerá em nome de <strong style="color:#1a1814;">Ronie Gonçalves Santos</strong>. Não se preocupe — o pagamento é processado com segurança pela <strong style="color:#1a1814;">Asaas</strong>, plataforma regulamentada pelo Banco Central.</div>
-            </div>
-          </div>
           <div class="brands"><span class="brand">Visa</span><span class="brand">Master</span><span class="brand">Elo</span><span class="brand">Amex</span></div>
           <div class="fg"><label class="flabel">Número do cartão</label><input class="finput" id="cn" placeholder="0000 0000 0000 0000" maxlength="19" oninput="mc(this)"></div>
           <div class="frow fg"><div class="fg"><label class="flabel">Validade</label><input class="finput" id="ce" placeholder="MM/AA" maxlength="5" oninput="mex(this)"></div><div class="fg"><label class="flabel">CVV</label><input class="finput" id="cv" placeholder="123" maxlength="4" type="password"></div></div>
@@ -639,50 +619,22 @@ async function dcard() {
   sr('card');
 }
 
-// ─── ATIVAR PLANO NO SUPABASE ─────────────────────────────────────────────────
-// Recebe o objeto de resposta confirmada da Asaas e só ativa se status ok
+// ─── ATIVAR PLANO — feito pelo servidor via Edge Function ─────────────────────
+// A Edge Function ativa o plano internamente no check_payment e create_card.
+// Esta função existe só para decidir qual feedback exibir ao usuário.
 async function activatePlan(confirmedStatus) {
   const CONFIRMED = ['CONFIRMED', 'RECEIVED', 'APPROVED'];
   if (!CONFIRMED.includes(confirmedStatus)) {
-    // Pagamento não confirmado — não ativa. Webhook fará isso quando confirmado.
-    console.warn('activatePlan ignorado: status não confirmado:', confirmedStatus);
+    console.warn('[WexioLead] activatePlan: status não confirmado:', confirmedStatus);
     return false;
   }
-
-  let user = null;
   try {
     const { data } = await sb.auth.getUser();
-    user = data?.user || null;
+    if (!data?.user) return null; // não autenticado — webhook cobre
   } catch(e) {
-    console.error('[WexioLead] activatePlan: erro ao obter sessão:', e.message || e);
-  }
-
-  if (!user) {
-    // Usuário não autenticado: webhook Asaas será responsável pela ativação.
-    // Retorna null (distinguível de false=erro de update) para exibir mensagem específica.
-    console.warn('activatePlan: usuário não autenticado, delegando ao webhook.');
     return null;
   }
-
-  const quota = PL[pl].quota;
-  try {
-    const { error } = await sb.from('profiles').update({
-      plan: pl,
-      leads_quota: quota,
-      leads_used: 0,
-      plan_activated_at: new Date().toISOString(),
-      plan_expires_at: new Date(Date.now() + 30*24*60*60*1000).toISOString()
-    }).eq('id', user.id);
-
-    if (error) {
-      console.error('[WexioLead] Erro ao ativar plano no Supabase:', error.message, '| Code:', error.code);
-      return false;
-    }
-    return true;
-  } catch(e) {
-    console.error('[WexioLead] activatePlan exception:', e.message || e);
-    return false;
-  }
+  return true; // plano já foi ativado pelo servidor
 }
 
 // ─── PIX POLLING — verifica confirmação a cada 5s por até 10min ───────────────

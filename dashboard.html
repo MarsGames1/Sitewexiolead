@@ -2904,8 +2904,26 @@ async function exportLeads() {
     user_id: currentUser.id, lead_count: count, format: 'csv',
     filters: { segmento: seg||null, estado: est||null }
   });
-  await sb.from('profiles').update({ leads_used: used + count }).eq('id', currentUser.id);
-  currentProfile.leads_used = used + count;
+  // Debita créditos do export via Edge Function (servidor valida quota)
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    const token = session?.access_token || '';
+    // Chama deduct_lead N vezes em sequência (uma por lead exportado)
+    let newUsed = used;
+    for (let i = 0; i < count; i++) {
+      const r = await fetch(CHECKOUT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ action: 'deduct_lead' })
+      });
+      const d = await r.json();
+      if (!r.ok) break; // parou na quota — ok, já exportou o que tinha
+      newUsed = d.used;
+    }
+    currentProfile.leads_used = newUsed;
+  } catch(e) {
+    console.error('[WexioLead] Erro ao debitar export:', e.message);
+  }
   updateQuotaUI();
   await loadExports();
   renderExports();
@@ -3694,24 +3712,32 @@ async function revealLead(leadId) {
         openCreditModal();
         return;
       }
-      // RPC falhou — usa fallback: debita crédito diretamente no Supabase
-      console.warn('revelar_lead RPC indisponível, usando fallback:', error.message);
-      const newUsed = used + 1;
-      const { error: updateErr } = await sb.from('profiles')
-        .update({ leads_used: newUsed })
-        .eq('id', currentUser.id);
-      if (updateErr) {
-        console.error('Erro ao debitar crédito:', updateErr.message);
+      // RPC falhou — fallback seguro: debita via Edge Function (servidor)
+      console.warn('revelar_lead RPC indisponível, usando fallback Edge:', error.message);
+      try {
+        const { data: { session } } = await sb.auth.getSession();
+        const token = session?.access_token || '';
+        const efRes = await fetch(CHECKOUT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ action: 'deduct_lead' })
+        });
+        const efData = await efRes.json();
+        if (!efRes.ok) {
+          if (efData.error?.includes('quota_exceeded')) { openCreditModal(); return; }
+          throw new Error(efData.error || 'Erro ao debitar crédito');
+        }
+        currentProfile.leads_used = efData.used;
+        revealedLeads.add(leadId);
+        updateQuotaUI();
+        renderLeadsTable();
+        renderSuggestedLeads();
+        openLeadDetailModal(leadId);
+        if (efData.used >= quota) setTimeout(() => openCreditModal(), 1200);
+      } catch(efErr) {
+        console.error('Erro no fallback Edge:', efErr.message);
         showToast('Não foi possível revelar este lead agora. Tente novamente.', true);
-        return;
       }
-      currentProfile.leads_used = newUsed;
-      revealedLeads.add(leadId);
-      updateQuotaUI();
-      renderLeadsTable();
-      renderSuggestedLeads();
-      openLeadDetailModal(leadId);
-      if (newUsed >= quota) setTimeout(() => openCreditModal(), 1200);
       return;
     }
 
@@ -4206,44 +4232,46 @@ function showTicketForm() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ATIVAÇÃO DE PLANO — só executa após pagamento CONFIRMADO pelo Asaas
+// ATIVAÇÃO DE PLANO — feita pelo servidor (Edge Function asaas-checkout)
+// O cliente apenas atualiza a UI após confirmar com o servidor.
 // ─────────────────────────────────────────────────────────────────────────────
 const CHECKOUT_URL = SUPABASE_URL + '/functions/v1/asaas-checkout';
-const PLAN_QUOTA   = { starter: 300, pro: 1000, agency: 5000 };
+const PLAN_QUOTA   = { starter: 300, pro: 1000, agency: 99999 };
 
 /**
- * Ativa o plano no banco SOMENTE quando o Asaas confirmar o pagamento.
- * Chamado tanto por PIX/cartão (confirmação imediata) quanto
- * pelo polling de boleto (confirmação assíncrona).
+ * Chamada após polling confirmar pagamento.
+ * Pede ao servidor para ativar o plano (que valida o pagamento na Asaas
+ * e só então escreve no banco com service role).
  */
-async function activatePlan(plan) {
-  const quota = PLAN_QUOTA[plan];
-  if (!quota) return;
+async function activatePlan(plan, paymentId) {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    const token = session?.access_token || '';
 
-  const { error } = await sb.from('profiles').update({
-    plan,
-    leads_quota: quota,
-    // NÃO zeramos leads_used — o usuário já usou X créditos este mês
-  }).eq('id', currentUser.id);
+    const r = await fetch(CHECKOUT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ action: 'activate_plan', plan, paymentId })
+    });
+    const res = await r.json();
+    if (!r.ok) throw new Error(res.error || 'Erro ao ativar plano');
 
-  if (error) {
-    console.error('Erro ao ativar plano:', error.message);
+    // Atualiza estado local com dados vindos do servidor
+    const quota = PLAN_QUOTA[plan] || res.quota;
+    currentProfile.plan        = plan;
+    currentProfile.leads_quota = quota;
+    updateQuotaUI();
+    updatePlanCards();
+    showToast(`Plano ${plan.charAt(0).toUpperCase() + plan.slice(1)} ativado com sucesso! 🎉`);
+
+    const pw = document.getElementById('paywallOverlay');
+    if (pw) { pw.classList.remove('active'); document.body.style.overflow = ''; }
+    return true;
+  } catch(e) {
+    console.error('[WexioLead] activatePlan error:', e.message);
     showToast('Erro ao ativar plano. Entre em contato com o suporte.', true);
-    return;
+    return false;
   }
-
-  // Atualiza memória local
-  currentProfile.plan      = plan;
-  currentProfile.leads_quota = quota;
-
-  // Atualiza UI
-  updateQuotaUI();
-  updatePlanCards();
-  showToast(`Plano ${plan.charAt(0).toUpperCase() + plan.slice(1)} ativado com sucesso! 🎉`);
-
-  // Remove paywall se estava ativo
-  const pw = document.getElementById('paywallOverlay');
-  if (pw) { pw.classList.remove('active'); document.body.style.overflow = ''; }
 }
 
 /**

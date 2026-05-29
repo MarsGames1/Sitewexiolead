@@ -2129,6 +2129,18 @@ async function loadProfile() {
     currentProfile.onboarding_done = true;
   }
 
+  // Pré-preencher campos do onboarding com dados do usuário logado (Google ou email)
+  setTimeout(() => {
+    const obEmailField = document.getElementById('obEmail');
+    if (obEmailField && !obEmailField.value) {
+      obEmailField.value = currentUser.email || '';
+    }
+    const obNomeField = document.getElementById('obNome');
+    if (obNomeField && !obNomeField.value && currentUser.user_metadata?.full_name) {
+      obNomeField.value = currentUser.user_metadata.full_name;
+    }
+  }, 300);
+
   // Chip do topo: mostra o email logado
   const email = currentProfile.email || currentUser.email || '';
   document.getElementById('userAvatar').textContent = email.charAt(0).toUpperCase() || '?';
@@ -2155,11 +2167,11 @@ async function saveProfile() {
   const tipo = document.getElementById('profileTipo').value;
   const estado = document.getElementById('profileEstado').value;
 
-  const { error } = await sb.from('profiles').update({ full_name, company, phone, tipo, estado })
+  const { error } = await sb.from('profiles').update({ full_name, company, phone, tipo_empresa: tipo, estado })
     .eq('id', currentUser.id);
 
   if (error) { showToast('Erro ao salvar: ' + error.message, true); return; }
-  currentProfile = { ...currentProfile, full_name, company, phone, tipo, estado };
+  currentProfile = { ...currentProfile, full_name, company, phone, tipo_empresa: tipo, estado };
   const name = full_name.split(' ')[0];
   document.getElementById('userName').textContent = name;
   document.getElementById('userAvatar').textContent = full_name.split(' ').slice(0,2).map(w=>w[0]?.toUpperCase()).join('');
@@ -2235,20 +2247,29 @@ async function fetchLeadsFromServer(filters = {}) {
 }
 
 function filterLeads() {
-  const q = document.getElementById('leadSearch').value.trim();
+  const q        = document.getElementById('leadSearch').value.trim();
   const segmento = document.getElementById('leadSegmento').value;
-  const est = document.getElementById('leadEstado').value;
-  const tipo = document.getElementById('leadTipo').value;
+  const est      = document.getElementById('leadEstado').value;
+  const tipo     = document.getElementById('leadTipo').value;
 
-  // If leads already loaded, use fast local filtering with relevance scoring
+  const hasServerFilters = q || segmento || est || tipo;
+
+  // Se há filtros ativos, sempre consulta o banco para garantir resultado completo
+  if (hasServerFilters) {
+    clearTimeout(_searchDebounce);
+    _searchDebounce = setTimeout(() => fetchLeadsFromServer({ q, segmento, estado: est, tipo }), 300);
+    return;
+  }
+
+  // Sem filtros: se já tem dados em memória usa local (mais rápido)
   if (allLeads.length > 0) {
     clearTimeout(_searchDebounce);
     _searchDebounce = setTimeout(applyLocalSearch, 300);
     return;
   }
 
-  // Initial load: fetch from server
-  fetchLeadsFromServer({ q, segmento, estado: est, tipo });
+  // Carga inicial sem filtros
+  fetchLeadsFromServer({});
 }
 
 // ── ENHANCED SEARCH HELPERS ──────────────────────────────────────────────
@@ -3089,9 +3110,11 @@ let obType = '';
 let obData = {};
 
 function checkOnboarding() {
-  // Verificar no perfil do banco — não em sessionStorage (que some ao fechar o navegador)
-  if (currentProfile?.onboarding_done === true) return;
-  if (currentProfile?.tipo_empresa) return; // já tem tipo definido = já passou pelo onboarding
+  // Só pula se onboarding foi explicitamente concluído (tipo salvo no banco)
+  if (currentProfile?.onboarding_done === true && currentProfile?.tipo_empresa) return;
+  // Se tem tipo mas onboarding_done false/null — já corrigimos no loadProfile, pula aqui
+  if (currentProfile?.tipo_empresa) return;
+  // Sem tipo = precisa completar onboarding
   document.getElementById('onboardingModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -3263,15 +3286,18 @@ async function finishOnboarding(wantsTutorial) {
   if (currentProfile) Object.assign(currentProfile, profileUpdate);
 
   // 2. Inserir empresa na base de leads para TODOS os tipos (fornecedor, construtora, empreiteiro)
-  if (empresa) {
+  // Usa email do usuário logado como fallback se o campo estiver vazio
+  const emailParaLead = email || currentUser?.email || null;
+  const empresaParaLead = empresa || currentProfile?.company || null;
+  if (empresaParaLead) {
     const { error: leadErr } = await sb.rpc('inserir_lead_onboarding', {
-      p_razao_social: empresa,
-      p_email: email || null,
+      p_razao_social: empresaParaLead,
+      p_email: emailParaLead,
       p_telefone: telefone || null,
       p_estado: estado || null,
       p_tipo_lead: obType || null,
       p_segmento: segmento || null,
-      p_nome_socio: nome || null,
+      p_nome_socio: nome || currentUser?.user_metadata?.full_name || null,
       p_cnpj: cnpj || null
     });
     if (leadErr) console.warn('Erro ao inserir lead:', leadErr.message);

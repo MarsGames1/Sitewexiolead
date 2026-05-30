@@ -3110,11 +3110,9 @@ let obType = '';
 let obData = {};
 
 function checkOnboarding() {
-  // Só pula se onboarding foi explicitamente concluído (tipo salvo no banco)
-  if (currentProfile?.onboarding_done === true && currentProfile?.tipo_empresa) return;
-  // Se tem tipo mas onboarding_done false/null — já corrigimos no loadProfile, pula aqui
+  // Se já tem tipo_empresa salvo no banco, onboarding já foi feito — nunca mostrar de novo
   if (currentProfile?.tipo_empresa) return;
-  // Sem tipo = precisa completar onboarding
+  // Sem tipo = primeiro acesso, mostra modal
   document.getElementById('onboardingModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -3304,8 +3302,14 @@ async function finishOnboarding(wantsTutorial) {
   }
 
   // 3. Marcar onboarding como feito no banco (persiste entre sessões)
-  await sb.from('profiles').update({ onboarding_done: true }).eq('id', currentUser.id);
-  currentProfile.onboarding_done = true;
+  // Aguarda confirmação do banco antes de fechar o modal para evitar reexibição no próximo reload
+  const { error: obDoneErr } = await sb.from('profiles')
+    .update({ onboarding_done: true, tipo_empresa: obType || currentProfile.tipo_empresa })
+    .eq('id', currentUser.id);
+  if (!obDoneErr) {
+    currentProfile.onboarding_done = true;
+    currentProfile.tipo_empresa = obType || currentProfile.tipo_empresa;
+  }
   document.getElementById('onboardingModal').classList.remove('open');
   document.body.style.overflow = '';
 

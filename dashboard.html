@@ -3165,14 +3165,36 @@ function obGo(step) {
   if (step === 4) personaliseWexMsg();
 }
 
+// Domínios de e-mail descartáveis/fictícios bloqueados
+const BLOCKED_EMAIL_DOMAINS = [
+  'mailinator.com','guerrillamail.com','tempmail.com','throwam.com','yopmail.com',
+  'trashmail.com','sharklasers.com','guerrillamailblock.com','grr.la','guerrillamail.info',
+  'spam4.me','dispostable.com','maildrop.cc','fakeinbox.com','tempinbox.com',
+  'getnada.com','discard.email','mailnull.com','spamgourmet.com','tempr.email',
+  'throwam.com','33mail.com','10minutemail.com','mailexpire.com','spamex.com',
+  'trashmail.me','trashmail.io','spambox.us','mailnesia.com','inboxbear.com',
+  'safetymail.info','spamfree24.org','spamhole.com','spamify.com'
+];
+
 function obGoStep2() {
   // Validate step 1 required fields
   const empresa = document.getElementById('obEmpresa').value.trim();
   const nome    = document.getElementById('obNome').value.trim();
   const email   = document.getElementById('obEmail').value.trim();
+  const cnpj    = document.getElementById('obCnpj').value.replace(/\D/g,'');
+
   if (!empresa) { showToast('Informe o nome da empresa.', true); return; }
   if (!nome)    { showToast('Informe seu nome.', true); return; }
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Informe um e-mail válido.', true); return; }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showToast('Informe um e-mail válido.', true); return;
+  }
+  const emailDomain = email.split('@')[1]?.toLowerCase();
+  if (BLOCKED_EMAIL_DOMAINS.includes(emailDomain)) {
+    showToast('Use um e-mail corporativo ou pessoal válido.', true); return;
+  }
+  if (!cnpj || cnpj.length !== 14) {
+    showToast('Informe e consulte o CNPJ antes de continuar.', true); return;
+  }
   obGo(2);
 }
 
@@ -3228,12 +3250,25 @@ function maskPhone(el) {
   el.value = v;
 }
 
+// Validação matemática de CNPJ
+function validarCnpj(cnpj) {
+  if (cnpj.length !== 14) return false;
+  if (/^(\d)\1+$/.test(cnpj)) return false; // todos dígitos iguais
+  const calc = (c, l) => {
+    let s = 0, p = l - 7;
+    for (let i = l; i >= 1; i--) { s += parseInt(c[l-i]) * p--; if (p < 2) p = 9; }
+    const r = s % 11;
+    return r < 2 ? 0 : 11 - r;
+  };
+  return calc(cnpj,12) === parseInt(cnpj[12]) && calc(cnpj,13) === parseInt(cnpj[13]);
+}
+
 // Busca CNPJ via API pública
 async function fetchCnpj() {
   const raw = document.getElementById('obCnpj').value.replace(/\D/g,'');
   const statusEl = document.getElementById('cnpjStatus');
   const btn = document.getElementById('btnFetchCnpj');
-  if (raw.length !== 14) { showToast('CNPJ inválido. Informe 14 dígitos.', true); return; }
+  if (raw.length !== 14 || !validarCnpj(raw)) { showToast('CNPJ inválido. Verifique os dígitos.', true); return; }
   btn.disabled = true;
   btn.textContent = '...';
   statusEl.style.color = 'var(--muted)';

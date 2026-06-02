@@ -2208,7 +2208,7 @@ async function fetchLeadsFromServer(filters = {}) {
 
   // Build query
   let query = sb.from('leads')
-    .select('id,razao_social,nome_fantasia,cnpj,segmento_simplificado,municipio,estado,telefone_1,email_comercial,score_lead,nome_socio_1,capital_social,estimativa_faturamento_anual,situacao_cadastral,tipo_empresa')
+    .select('id,razao_social,nome_fantasia,cnpj,segmento_simplificado,municipio,estado,telefone_1,telefone_2,email_comercial,email_2,site,score_lead,nome_socio_1,capital_social,estimativa_faturamento_anual,situacao_cadastral,tipo_empresa')
     .order('score_lead', { ascending: false });
 
   // Apply server-side filters based on plan
@@ -2371,7 +2371,8 @@ function renderLeadsTable() {
 
   tbody.innerHTML = slice.map(l =>{
     const name = l.nome_fantasia || l.razao_social || '—';
-    const verified = (l.email_comercial || l.telefone_1) ? `<span class="seal-verified"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Verificado</span>` : '';
+    const extraContato = (l.telefone_2 || l.email_2 || l.site) ? '<span style="font-size:10px;background:rgba(249,115,22,.15);color:var(--accent);border-radius:20px;padding:2px 7px;margin-left:4px;font-weight:600;">+dados</span>' : '';
+  const verified = (l.email_comercial || l.telefone_1) ? '<span class="seal-verified"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Verificado</span>' + extraContato : '';
     const score = l.score_lead ? `<span class="score-badge ${scoreClass(l.score_lead)}">${l.score_lead}</span>` : '<span class="score-badge score-low">—</span>';
     const crm = crmStatus(l.id);
     const isRevealed = revealedLeads.has(l.id);
@@ -2470,7 +2471,11 @@ function openCrmModal(leadId) {
 
   const fields = [
     ['CNPJ', lead.cnpj], ['Cidade/UF', `${lead.municipio||'—'} · ${lead.estado||''}`],
-    ['Telefone', lead.telefone_1 || '—'], ['E-mail', lead.email_comercial || '—'],
+    ['Telefone', lead.telefone_1 || '—'],
+    ...(lead.telefone_2 ? [['Telefone 2', lead.telefone_2]] : []),
+    ['E-mail', lead.email_comercial || '—'],
+    ...(lead.email_2 ? [['E-mail 2', lead.email_2]] : []),
+    ...(lead.site ? [['Site', '<a href="' + lead.site + '" target="_blank" style="color:var(--accent);">' + lead.site + '</a>']] : []),
     ['Sócio', lead.nome_socio_1 || '—'], ['Score', lead.score_lead || '—'],
     ['Segmento', lead.segmento_simplificado || '—'],
     ['Faturamento est.', lead.estimativa_faturamento_anual ? 'R$'+Number(lead.estimativa_faturamento_anual).toLocaleString('pt-BR',{maximumFractionDigits:0}) : '—'],
@@ -3845,7 +3850,10 @@ function openLeadDetailModal(leadId) {
     { icon: '🏢', label: 'CNPJ', value: lead.cnpj || '—' },
     { icon: '📍', label: 'Cidade / UF', value: (lead.municipio || '—') + (lead.estado ? ' · ' + lead.estado : '') },
     { icon: '📞', label: 'Telefone', value: lead.telefone_1 || '—' },
+    ...(lead.telefone_2 ? [{ icon: '📱', label: 'Telefone 2', value: lead.telefone_2 }] : []),
     { icon: '✉️', label: 'E-mail', value: lead.email_comercial || '—' },
+    ...(lead.email_2 ? [{ icon: '📧', label: 'E-mail 2', value: lead.email_2 }] : []),
+    ...(lead.site ? [{ icon: '🌐', label: 'Site', value: '<a href="' + lead.site + '" target="_blank" style="color:var(--accent);text-decoration:none;">' + lead.site + '</a>' }] : []),
     { icon: '👤', label: 'Sócio', value: lead.nome_socio_1 || '—' },
     { icon: '💰', label: 'Faturamento est.', value: lead.estimativa_faturamento_anual ? 'R$ ' + Number(lead.estimativa_faturamento_anual).toLocaleString('pt-BR', { maximumFractionDigits: 0 }) : '—' },
     { icon: '🏭', label: 'Tipo', value: lead.tipo_empresa || '—' },

@@ -2413,7 +2413,12 @@ function renderLeadsTable() {
 </td>
       <td><span class="badge b-orange" style="font-size:10px;">${l.segmento_simplificado||'—'}</span></td>
       <td style="color:var(--muted);font-size:13px;">${l.municipio||'—'}${l.estado?' · '+l.estado:''}</td>
-      <td style="color:var(--muted);font-size:13px;">${l.telefone_1||'—'}</td>
+      <td style="color:var(--muted);font-size:13px;">
+        <div>${l.telefone_1||'—'}</div>
+        ${l.telefone_2 ? `<div style="font-size:11px;color:var(--dim);">${l.telefone_2}</div>` : ''}
+        ${l.email_comercial ? `<div style="font-size:11px;color:var(--accent);margin-top:2px;overflow:hidden;text-overflow:ellipsis;max-width:160px;white-space:nowrap;" title="${l.email_comercial}">${l.email_comercial}</div>` : ''}
+        ${l.site ? `<a href="${l.site.startsWith('http')?l.site:'https://'+l.site}" target="_blank" rel="noopener" style="font-size:11px;color:var(--green);text-decoration:none;">🌐 site</a>` : ''}
+      </td>
       <td>${score}</td>
       <td>${crm || '<span style="color:var(--dim);font-size:12px;">—</span>'}</td>
       <td>
@@ -2848,13 +2853,15 @@ function exportCrmSelected() {
   if (checked.length > 10) { showToast('Máximo de 10 leads por exportação.', true); return; }
 
   const ids = Array.from(checked).map(cb => cb.dataset.leadId);
-  const headers = ['Razão Social','Nome Fantasia','CNPJ','Segmento','Cidade','Estado','Telefone','Email','Score','Status CRM','Notas','Follow-up'];
+  const headers = ['Razão Social','Nome Fantasia','CNPJ','Segmento','Cidade','Estado','Telefone 1','Telefone 2','Email','Email 2','Site','Sócio','Faturamento Est.','Score','WhatsApp Link','Status CRM','Notas','Follow-up'];
   const rows = ids.map(id => {
     const lead = allLeads.find(l => l.id === id) || {};
     const crm  = crmData[id] || {};
     return [
       lead.razao_social, lead.nome_fantasia, lead.cnpj, lead.segmento_simplificado,
-      lead.municipio, lead.estado, lead.telefone_1, lead.email_comercial, lead.score_lead,
+      lead.municipio, lead.estado, lead.telefone_1, lead.telefone_2, lead.email_comercial, lead.email_2,
+      lead.site, lead.nome_socio_1, lead.estimativa_faturamento_anual, lead.score_lead,
+      lead.telefone_1 ? 'https://wa.me/55' + (lead.telefone_1||'').replace(/\D/g,'') : '',
       crm.status || '', crm.notes || '', crm.followup || ''
     ].map(v => `"${(v||'').toString().replace(/"/g,'""')}"`);
   });
@@ -2909,10 +2916,11 @@ async function exportLeads() {
   if (remaining <= 0) { document.getElementById('paywallOverlay').classList.add('active'); document.body.style.overflow = 'hidden'; return; }
   if (!count) { showToast('Nenhum lead para exportar.', true); return; }
 
-  const headers = ['Razão Social','Nome Fantasia','CNPJ','Segmento','Cidade','Estado','Telefone','Email','Score','WhatsApp Link'];
+  const headers = ['Razão Social','Nome Fantasia','CNPJ','Segmento','Cidade','Estado','Telefone 1','Telefone 2','Email','Email 2','Site','Sócio','Faturamento Est.','Score','WhatsApp Link'];
   const rows = leads.slice(0, count).map(l =>[
     l.razao_social, l.nome_fantasia, l.cnpj, l.segmento_simplificado,
-    l.municipio, l.estado, l.telefone_1, l.email_comercial, l.score_lead,
+    l.municipio, l.estado, l.telefone_1, l.telefone_2, l.email_comercial, l.email_2,
+    l.site, l.nome_socio_1, l.estimativa_faturamento_anual, l.score_lead,
     l.telefone_1 ? `https://wa.me/55${(l.telefone_1||'').replace(/\D/g,'')}` : ''
   ].map(v =>`"${(v||'').toString().replace(/"/g,'""')}"`));
 
@@ -3835,6 +3843,14 @@ async function revealLead(leadId) {
   }
 }
 
+function copyToClipboard(ev, text) {
+  ev.preventDefault();
+  ev.stopPropagation();
+  navigator.clipboard.writeText(text).then(function() {
+    if (typeof showToast === 'function') showToast('Copiado: ' + text);
+  }).catch(function() {});
+}
+
 function openLeadDetailModal(leadId) {
   const lead = allLeads.find(l => l.id === leadId);
   if (!lead) return;
@@ -3846,21 +3862,51 @@ function openLeadDetailModal(leadId) {
 
   const scoreClass = s => s >= 80 ? 'score-high' : s >= 60 ? 'score-mid' : 'score-low';
 
+  // Helpers de contato clicável
+  const telLink = (t) => {
+    if (!t) return '—';
+    const raw = t.replace(/\D/g, '');
+    return '<a href="tel:+55' + raw + '" style="color:var(--text);text-decoration:none;">' + t + '</a>' +
+      ' <button onclick="copyToClipboard(event,\'' + t.replace(/'/g,'') + '\')" title="Copiar" style="background:none;border:none;cursor:pointer;padding:2px;vertical-align:middle;opacity:.5;">📋</button>' +
+      ' <a href="https://wa.me/55' + raw + '" target="_blank" rel="noopener" title="WhatsApp" style="text-decoration:none;vertical-align:middle;">💬</a>';
+  };
+  const emailLink = (e) => {
+    if (!e) return '—';
+    return '<a href="mailto:' + e + '" style="color:var(--text);text-decoration:none;word-break:break-all;">' + e + '</a>' +
+      ' <button onclick="copyToClipboard(event,\'' + e.replace(/'/g,'') + '\')" title="Copiar" style="background:none;border:none;cursor:pointer;padding:2px;vertical-align:middle;opacity:.5;">📋</button>';
+  };
+
   const fields = [
     { icon: '🏢', label: 'CNPJ', value: lead.cnpj || '—' },
     { icon: '📍', label: 'Cidade / UF', value: (lead.municipio || '—') + (lead.estado ? ' · ' + lead.estado : '') },
-    { icon: '📞', label: 'Telefone', value: lead.telefone_1 || '—' },
-    ...(lead.telefone_2 ? [{ icon: '📱', label: 'Telefone 2', value: lead.telefone_2 }] : []),
-    { icon: '✉️', label: 'E-mail', value: lead.email_comercial || '—' },
-    ...(lead.email_2 ? [{ icon: '📧', label: 'E-mail 2', value: lead.email_2 }] : []),
-    ...(lead.site ? [{ icon: '🌐', label: 'Site', value: '<a href="' + lead.site + '" target="_blank" style="color:var(--accent);text-decoration:none;">' + lead.site + '</a>' }] : []),
-    { icon: '👤', label: 'Sócio', value: lead.nome_socio_1 || '—' },
+    { icon: '📞', label: 'Telefone', value: telLink(lead.telefone_1) },
+    ...(lead.telefone_2 ? [{ icon: '📱', label: 'Telefone 2', value: telLink(lead.telefone_2) }] : []),
+    { icon: '✉️', label: 'E-mail', value: emailLink(lead.email_comercial) },
+    ...(lead.email_2 ? [{ icon: '📧', label: 'E-mail 2', value: emailLink(lead.email_2) }] : []),
+    ...(lead.site ? [{ icon: '🌐', label: 'Site', value: '<a href="' + (lead.site.startsWith('http') ? lead.site : 'https://' + lead.site) + '" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;word-break:break-all;">' + lead.site.replace(/^https?:\/\//,'') + '</a>' }] : []),
+    { icon: '👤', label: 'Sócio / Decisor', value: lead.nome_socio_1 || '—' },
     { icon: '💰', label: 'Faturamento est.', value: lead.estimativa_faturamento_anual ? 'R$ ' + Number(lead.estimativa_faturamento_anual).toLocaleString('pt-BR', { maximumFractionDigits: 0 }) : '—' },
     { icon: '🏭', label: 'Tipo', value: lead.tipo_empresa || '—' },
     { icon: '⭐', label: 'Score', value: lead.score_lead ? `<span class="score-badge ${scoreClass(lead.score_lead)}" style="width:auto;padding:2px 10px;">${lead.score_lead}</span>` : '—' },
   ];
 
-  document.getElementById('ldmBody').innerHTML = fields.map(f => `
+  // Barra de qualidade do lead — quantos canais de contato disponíveis
+  const canais = [lead.telefone_1, lead.telefone_2, lead.email_comercial, lead.email_2, lead.site].filter(Boolean).length;
+  const canaisMax = 5;
+  const qualPct = Math.round(canais / canaisMax * 100);
+  const qualCor = canais >= 4 ? 'var(--green)' : canais >= 2 ? 'var(--accent)' : 'var(--red)';
+  const qualLabel = canais >= 4 ? 'Excelente' : canais >= 2 ? 'Bom' : 'Limitado';
+  const qualHtml = `<div style="grid-column:1/-1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
+      <span style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">📊 Qualidade do Contato</span>
+      <span style="font-size:12px;font-weight:700;color:${qualCor};">${qualLabel} · ${canais}/${canaisMax} canais</span>
+    </div>
+    <div style="height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;">
+      <div style="height:100%;width:${qualPct}%;background:${qualCor};border-radius:3px;transition:width .4s;"></div>
+    </div>
+  </div>`;
+
+  document.getElementById('ldmBody').innerHTML = qualHtml + fields.map(f => `
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;">
       <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">${f.icon} ${f.label}</div>
       <div style="font-size:14px;font-weight:500;color:var(--text);">${f.value}</div>
@@ -3936,10 +3982,11 @@ function exportSingleLead(format) {
     return;
   }
 
-  const headers = ['Razão Social','Nome Fantasia','CNPJ','Segmento','Cidade','Estado','Telefone','Email','Score','WhatsApp Link'];
+  const headers = ['Razão Social','Nome Fantasia','CNPJ','Segmento','Cidade','Estado','Telefone 1','Telefone 2','Email','Email 2','Site','Sócio','Faturamento Est.','Score','WhatsApp Link'];
   const row = [
     lead.razao_social, lead.nome_fantasia, lead.cnpj, lead.segmento_simplificado,
-    lead.municipio, lead.estado, lead.telefone_1, lead.email_comercial, lead.score_lead,
+    lead.municipio, lead.estado, lead.telefone_1, lead.telefone_2, lead.email_comercial, lead.email_2,
+    lead.site, lead.nome_socio_1, lead.estimativa_faturamento_anual, lead.score_lead,
     lead.telefone_1 ? 'https://wa.me/55' + (lead.telefone_1||'').replace(/\D/g,'') : ''
   ];
 

@@ -1646,27 +1646,57 @@ textarea.form-input { resize: vertical; min-height: 90px; }
       <select id="leadTipo" onchange="onFiltroChange()"
         style="flex:1;min-width:150px;padding:8px 30px 8px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:var(--surface);outline:none;cursor:pointer;appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 10px center;box-shadow:var(--shadow);transition:border-color .15s;"
         onfocus="this.style.borderColor='rgba(249,115,22,0.4)'" onblur="this.style.borderColor='var(--border)'">
-        <option value="">Todos os tipos</option>
-        <option value="Construtora">Construtoras</option>
-        <option value="Fornecedor">Fornecedores</option>
-        <option value="Empreiteiro">Empreiteiros</option>
-        <option value="Prestador de Serviço">Prestadores de Serviço</option>
+<option value="">Todos os tipos</option>
+<optgroup label="── Construção Civil ──">
+  <option value="construtora">🏗️ Construtora</option>
+  <option value="empreiteiro">🔨 Empreiteiro</option>
+  <option value="fornecedor">🏭 Fornecedor de Materiais</option>
+  <option value="eletricista">⚡ Eletricista / Elétrica</option>
+  <option value="hidraulica">🔧 Hidráulica / Encanamento</option>
+  <option value="pintor">🎨 Pintor / Pintura</option>
+  <option value="revestimento">🪟 Piso / Revestimento</option>
+  <option value="reformas">🛠️ Reformas e Manutenção</option>
+</optgroup>
+<optgroup label="── Serviços Profissionais ──">
+  <option value="juridico">⚖️ Advocacia / Jurídico</option>
+  <option value="contabilidade">📊 Contabilidade</option>
+  <option value="consultoria">💼 Consultoria</option>
+  <option value="engenharia">📐 Engenharia / Arquitetura</option>
+  <option value="ti">💻 TI / Tecnologia</option>
+  <option value="marketing">📣 Marketing / Publicidade</option>
+</optgroup>
+<optgroup label="── Saúde ──">
+  <option value="clinica">🏥 Clínica / Consultório</option>
+  <option value="farmacia">💊 Farmácia / Drogaria</option>
+</optgroup>
+<optgroup label="── Outros ──">
+  <option value="imobiliaria">🏠 Imobiliária</option>
+  <option value="transportadora">🚚 Transportadora / Logística</option>
+  <option value="comercio">📦 Comércio Atacadista</option>
+  <option value="prestador">👷 Prestador de Serviço</option>
+</optgroup>
       </select>
 
       <select id="leadSegmento" onchange="onFiltroChange()"
         style="flex:1;min-width:170px;padding:8px 30px 8px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:var(--surface);outline:none;cursor:pointer;appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 10px center;box-shadow:var(--shadow);transition:border-color .15s;"
         onfocus="this.style.borderColor='rgba(249,115,22,0.4)'" onblur="this.style.borderColor='var(--border)'">
         <option value="">Todos os segmentos</option>
+        <option>Construção de Edifícios</option>
         <option>Construção Residencial</option>
         <option>Construção Comercial</option>
-        <option>Construção Industrial</option>
-        <option>Infraestrutura</option>
+        <option>Obras de Infraestrutura</option>
         <option>Reformas e Manutenção</option>
         <option>Materiais de Construção</option>
         <option>Instalações Elétricas</option>
         <option>Hidráulica e Encanamento</option>
-        <option>Construção</option>
-        <option>Tecnologia</option>
+        <option>Serviços Especializados</option>
+        <option>Engenharia Civil</option>
+        <option>Advocacia e Jurídico</option>
+        <option>Contabilidade</option>
+        <option>TI e Tecnologia</option>
+        <option>Saúde e Clínicas</option>
+        <option>Imobiliário</option>
+        <option>Transporte e Logística</option>
       </select>
 
       <select id="leadEstado" onchange="onFiltroChange()"
@@ -2498,6 +2528,22 @@ function renderLeadsTable() {
     const score = l.score_lead ? `<span class="score-badge ${scoreClass(l.score_lead)}">${l.score_lead}</span>` : '<span class="score-badge score-low">—</span>';
     const crm = crmStatus(l.id);
     const isRevealed = revealedLeads.has(l.id);
+    const TIPO_MAP = {
+      construtora:['b-orange','🏗️ Construtora'], empreiteiro:['b-orange','🔨 Empreiteiro'],
+      fornecedor:['b-orange','🏭 Fornecedor'], eletricista:['b-yellow','⚡ Eletricista'],
+      hidraulica:['b-blue','🔧 Hidráulica'], pintor:['b-purple','🎨 Pintor'],
+      revestimento:['b-gray','🪟 Revestimento'], reformas:['b-gray','🛠️ Reformas'],
+      juridico:['b-purple','⚖️ Jurídico'], contabilidade:['b-blue','📊 Contabilidade'],
+      consultoria:['b-blue','💼 Consultoria'], engenharia:['b-orange','📐 Engenharia'],
+      ti:['b-blue','💻 TI'], marketing:['b-purple','📣 Marketing'],
+      clinica:['b-green','🏥 Saúde'], farmacia:['b-green','💊 Farmácia'],
+      imobiliaria:['b-orange','🏠 Imobiliária'], transportadora:['b-gray','🚚 Logística'],
+      comercio:['b-gray','📦 Atacadista'], prestador:['b-gray','👷 Prestador'],
+    };
+    const tipoKey = (l.tipo_empresa||'').toLowerCase();
+    const tipoInfo = TIPO_MAP[tipoKey];
+    const tipoBadge = tipoInfo ? `<span class="badge ${tipoInfo[0]}" style="font-size:10px;">${tipoInfo[1]}</span>` : (l.tipo_empresa ? `<span class="badge b-gray" style="font-size:10px;">${l.tipo_empresa}</span>` : '');
+
 
     if (!isRevealed) {
       // Locked row — show company name but blur sensitive data
@@ -2507,7 +2553,7 @@ function renderLeadsTable() {
           <div style="font-size:11px;color:var(--muted);font-family:monospace;">${previaCnpj(l.cnpj)}</div>
           ${verified}
         </td>
-        <td><span class="badge b-orange" style="font-size:10px;">${l.segmento_simplificado||'—'}</span></td>
+        <td><span class="badge b-orange" style="font-size:10px;">${l.segmento_simplificado||'—'}</span> ${tipoBadge}</td>
         <td style="color:var(--muted);font-size:13px;">${l.municipio||'—'}${l.estado?' · '+l.estado:''}</td>
         <td>
           <span style="display:inline-flex;align-items:center;gap:5px;background:var(--surface3);border-radius:6px;padding:3px 9px;font-size:11px;color:var(--dim);">
@@ -2533,7 +2579,7 @@ function renderLeadsTable() {
         <div style="font-size:11px;color:var(--muted);">${l.cnpj||''}</div>
         ${verified}
 </td>
-      <td><span class="badge b-orange" style="font-size:10px;">${l.segmento_simplificado||'—'}</span></td>
+      <td><span class="badge b-orange" style="font-size:10px;">${l.segmento_simplificado||'—'}</span> ${tipoBadge}</td>
       <td style="color:var(--muted);font-size:13px;">${l.municipio||'—'}${l.estado?' · '+l.estado:''}</td>
       <td style="color:var(--muted);font-size:13px;">
         <div>${l.telefone_1||'—'}</div>

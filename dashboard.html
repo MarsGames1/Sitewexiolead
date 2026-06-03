@@ -127,51 +127,64 @@ body {
 .user-chip {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 5px 10px 5px 5px;
-  background: var(--surface2);
+  gap: 9px;
+  padding: 5px 12px 5px 5px;
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 30px;
-  cursor: pointer;
+  border-radius: 10px;
+  cursor: default;
   transition: border-color 0.2s;
 }
 .user-chip:hover { border-color: var(--border2); }
 .user-ava {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  background: var(--accent-bg2);
-  color: var(--accent);
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
   display: flex; align-items: center; justify-content: center;
   font-family: 'Syne', sans-serif;
   font-weight: 700;
-  font-size: 11px;
+  font-size: 12px;
   flex-shrink: 0;
 }
 .user-name { font-size: 13px; font-weight: 500; color: var(--text); }
 .plan-badge {
-  font-size: 10px;
+  font-size: 9.5px;
   padding: 2px 7px;
-  border-radius: 20px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  border-radius: 5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 .plan-free { background: var(--surface3); color: var(--muted); }
 .plan-starter { background: var(--blue-bg); color: var(--blue); }
 .plan-pro { background: var(--accent-bg); color: var(--accent); }
-.plan-agency { background: rgba(251,191,36,0.12); color: #D97706; }
+.plan-agency { background: #1A1A2E; color: #FBBF24; }
 .btn-logout {
   background: transparent;
   border: 1px solid var(--border);
   color: var(--muted);
-  padding: 6px 13px;
+  padding: 7px 14px;
   border-radius: 8px;
   font-family: 'DM Sans', sans-serif;
   font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
 }
 .btn-logout:hover { color: var(--red); border-color: rgba(239,68,68,0.3); }
+/* Pílula de créditos refinada */
+.credit-pill {
+  display: flex; align-items: center; gap: 7px;
+  padding: 6px 13px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.credit-pill:hover { border-color: var(--accent); background: var(--accent-bg); }
+.credit-pill .cp-divider { width:1px; height:16px; background:var(--border); }
 
 /*  LAYOUT  */
 .layout {
@@ -1472,11 +1485,13 @@ textarea.form-input { resize: vertical; min-height: 90px; }
     <a href="/" class="logo">Wexio<span>Lead</span></a>
 </div>
   <div class="nav-right">
-    <!-- Contador de créditos em tempo real -->
-    <div id="creditPill" onclick="showPage('leads')" title="Créditos restantes — clique para buscar leads" style="display:none;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;background:var(--accent-bg);border:1.5px solid rgba(249,115,22,0.25);cursor:pointer;transition:all .2s;">
-      <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:var(--accent);fill:none;stroke-width:2;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--accent);" id="creditPillCount">—</span>
+    <!-- Contador de créditos com data de renovação -->
+    <div id="creditPill" class="credit-pill" onclick="showPage('leads')" title="Créditos restantes — clique para buscar leads" style="display:none;">
+      <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--accent);fill:none;stroke-width:2;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--accent);" id="creditPillCount">—</span>
       <span style="font-size:11px;color:var(--muted);font-weight:500;" id="creditPillLabel">créditos</span>
+      <span class="cp-divider" id="creditRenewDivider" style="display:none;"></span>
+      <span style="font-size:10.5px;color:var(--dim);font-weight:500;" id="creditRenewInfo"></span>
     </div>
     <div class="user-chip">
       <div class="user-ava" id="userAvatar">?</div>
@@ -2226,6 +2241,14 @@ window.addEventListener('load', async () =>{
 // PROFILE
 // 
 async function loadProfile() {
+  // Antes de ler o perfil: verifica se o plano venceu (passou 30 dias sem pagar → vira free)
+  try {
+    const { data: validadeData } = await sb.rpc('verificar_validade_plano', { p_user_id: currentUser.id });
+    if (validadeData && validadeData.acao === 'rebaixado_free') {
+      console.log('Plano vencido — rebaixado para free.');
+    }
+  } catch(e) { /* silencioso — não bloqueia o login */ }
+
   const { data, error } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
 
   if (!data) {
@@ -3547,6 +3570,30 @@ function updateQuotaUI() {
       pill.style.borderColor = 'rgba(249,115,22,0.25)';
       pillCount.style.color = 'var(--accent)';
       pill.querySelector('svg').style.stroke = 'var(--accent)';
+    }
+    // Data de vencimento do plano — quando precisa pagar de novo (plan_expires_at)
+    const renewDivider = document.getElementById('creditRenewDivider');
+    const renewInfo = document.getElementById('creditRenewInfo');
+    if (renewInfo) {
+      const plan = currentProfile?.plan || 'free';
+      const expira = currentProfile?.plan_expires_at ? new Date(currentProfile.plan_expires_at) : null;
+      if (plan !== 'free' && expira && !isNaN(expira)) {
+        const diasRestantes = Math.ceil((expira - new Date()) / 86400000);
+        const dataFmt = expira.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+        if (diasRestantes <= 0) {
+          renewInfo.textContent = 'vence hoje';
+        } else {
+          renewInfo.textContent = 'vence ' + dataFmt;
+        }
+        renewInfo.title = 'Seu plano vence em ' + Math.max(0, diasRestantes) + ' dia' + (diasRestantes !== 1 ? 's' : '') + ' (' + expira.toLocaleDateString('pt-BR') + '). Renove para manter seus créditos.';
+        if (renewDivider) renewDivider.style.display = 'block';
+        renewInfo.style.display = 'inline';
+        // Destaque conforme urgência
+        renewInfo.style.color = diasRestantes <= 5 ? 'var(--red)' : (diasRestantes <= 10 ? '#D97706' : 'var(--dim)');
+      } else {
+        if (renewDivider) renewDivider.style.display = 'none';
+        renewInfo.style.display = 'none';
+      }
     }
     // Pulse animation on change
     pill.animate([{transform:'scale(1.12)'},{transform:'scale(1)'}], {duration:300, easing:'ease-out'});

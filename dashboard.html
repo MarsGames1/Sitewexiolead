@@ -1526,6 +1526,11 @@ textarea.form-input { resize: vertical; min-height: 90px; }
     <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
     <span>Meu CRM</span>
 </div>
+  <div class="sb-link" id="nav-radar" onclick="showPage('radar')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+    <span>Radar de Empresas</span>
+    <span style="margin-left:auto;font-size:9px;font-weight:700;background:#1A1A2E;color:#FBBF24;padding:2px 6px;border-radius:5px;letter-spacing:.04em;">AGENCY</span>
+</div>
   <div class="sb-link" id="nav-rede" onclick="showPage('rede')" style="position:relative;">
     <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     <span>Rede B2B</span>
@@ -1937,6 +1942,54 @@ textarea.form-input { resize: vertical; min-height: 90px; }
   <div id="crmContainer">
     <div class="empty-state"><div class="empty-icon"></div><p>Nenhum lead no CRM ainda.<br>Na busca, clique em "CRM" em qualquer lead.</p></div>
 </div>
+</div>
+
+<!--  RADAR DE EMPRESAS NOVAS ═-->
+<div class="page-section" id="page-radar">
+  <div style="margin-bottom:20px;">
+    <h1 style="font-family:'Syne',sans-serif;font-weight:800;font-size:26px;letter-spacing:-0.02em;display:flex;align-items:center;gap:10px;">
+      Radar de Empresas
+      <span style="font-size:10px;font-weight:700;background:#1A1A2E;color:#FBBF24;padding:3px 8px;border-radius:6px;letter-spacing:.04em;">AGENCY</span>
+    </h1>
+    <p style="font-size:13px;color:var(--muted);margin-top:2px;">Empresas recém-abertas na sua base. Negócio novo = oportunidade quente de prospecção.</p>
+  </div>
+
+  <!-- Cards de resumo -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px;" id="radarStats">
+    <div class="card" style="padding:16px;"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;">Últimos 30 dias</div><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:24px;margin-top:4px;color:var(--accent);" id="radar30">—</div></div>
+    <div class="card" style="padding:16px;"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;">Últimos 90 dias</div><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:24px;margin-top:4px;" id="radar90">—</div></div>
+    <div class="card" style="padding:16px;"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;">Este ano</div><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:24px;margin-top:4px;" id="radarAno">—</div></div>
+  </div>
+
+  <!-- Filtros -->
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center;">
+    <select id="radarPeriodo" onchange="carregarRadar()" style="min-width:150px;">
+      <option value="30">Abertas há 30 dias</option>
+      <option value="60">Abertas há 60 dias</option>
+      <option value="90" selected>Abertas há 90 dias</option>
+      <option value="180">Abertas há 6 meses</option>
+      <option value="365">Abertas no último ano</option>
+    </select>
+    <select id="radarTipo" onchange="carregarRadar()" style="min-width:150px;">
+      <option value="">Todos os tipos</option>
+      <option value="construtora">🏗️ Construtora</option>
+      <option value="empreiteiro">🔨 Empreiteiro</option>
+      <option value="fornecedor">🏭 Fornecedor</option>
+      <option value="juridico">⚖️ Jurídico</option>
+      <option value="contabilidade">📊 Contabilidade</option>
+      <option value="ti">💻 TI</option>
+      <option value="clinica">🏥 Saúde</option>
+      <option value="transportadora">🚚 Logística</option>
+    </select>
+    <select id="radarEstado" onchange="carregarRadar()" style="min-width:120px;">
+      <option value="">Todos estados</option>
+      <option>SP</option><option>RJ</option><option>MG</option><option>RS</option><option>PR</option>
+      <option>SC</option><option>BA</option><option>GO</option><option>PE</option><option>CE</option>
+      <option>DF</option><option>ES</option><option>PA</option><option>MT</option><option>MS</option>
+    </select>
+  </div>
+
+  <div id="radarLista"></div>
 </div>
 
 <!--  REDE B2B ═-->
@@ -4189,6 +4242,14 @@ function showPage(page) {
       return;
     }
   }
+  // Radar — exclusivo Agency
+  if (page === 'radar') {
+    const plan = currentProfile?.plan || 'free';
+    if (plan !== 'agency') {
+      showUpgradeModal('O Radar de Empresas Novas é exclusivo do plano Agency.', 'agency');
+      return;
+    }
+  }
   // Rede B2B — só planos pagos
   if (page === 'rede') {
     const plan = currentProfile?.plan || 'free';
@@ -4209,6 +4270,7 @@ function showPage(page) {
   if (page === 'crm') renderCrm();
   if (page === 'leads') { if (buscaJaFeita) filterLeads(); }
   if (page === 'rede') { setRedeTab('convites'); }
+  if (page === 'radar') { carregarRadar(); }
 
   // Close mobile sidebar after nav
   if (window.innerWidth <= 768) closeMobileSidebar();
@@ -5156,6 +5218,67 @@ async function _runBoletoPoll() {
     setTimeout(_runBoletoPoll, 3000); // pequeno delay para garantir que sb.auth foi inicializado
   });
 })();
+
+// ═══════════════════════════════════════════
+// RADAR DE EMPRESAS NOVAS (Agency)
+// ═══════════════════════════════════════════
+async function carregarRadar() {
+  const lista = document.getElementById('radarLista');
+  if (!lista) return;
+  lista.innerHTML = '<p style="color:var(--muted);font-size:13px;padding:20px;text-align:center;">Buscando empresas recém-abertas...</p>';
+
+  // Stats
+  try {
+    const { data: stats } = await sb.rpc('radar_stats');
+    if (stats && !stats.erro) {
+      document.getElementById('radar30').textContent = stats.ultimos_30 ?? 0;
+      document.getElementById('radar90').textContent = stats.ultimos_90 ?? 0;
+      document.getElementById('radarAno').textContent = stats.este_ano ?? 0;
+    }
+  } catch(e) {}
+
+  const dias = parseInt(document.getElementById('radarPeriodo').value) || 90;
+  const tipo = document.getElementById('radarTipo').value || null;
+  const estado = document.getElementById('radarEstado').value || null;
+
+  try {
+    const { data } = await sb.rpc('radar_empresas_novas', {
+      p_dias: dias, p_tipo: tipo, p_estado: estado, p_limit: 50
+    });
+    if (!data || data.erro) {
+      lista.innerHTML = '<div class="empty-state"><div class="empty-icon"></div><p>Radar disponível apenas no plano Agency.</p></div>';
+      return;
+    }
+    const rows = data.rows || [];
+    if (!rows.length) {
+      lista.innerHTML = '<div class="empty-state"><div class="empty-icon"></div><p>Nenhuma empresa nova encontrada nesse período/filtro.<br>Tente ampliar o período ou importar mais leads no admin.</p></div>';
+      return;
+    }
+
+    const TIPO_ICON = { construtora:'🏗️', empreiteiro:'🔨', fornecedor:'🏭', juridico:'⚖️', contabilidade:'📊', ti:'💻', clinica:'🏥', transportadora:'🚚', engenharia:'📐' };
+    lista.innerHTML =
+      '<div style="font-size:12px;color:var(--muted);margin-bottom:12px;">' + (data.total||rows.length) + ' empresas abertas no período</div>' +
+      rows.map(r => {
+        const dias = r.dias_aberta;
+        const dataFmt = r.data_abertura ? new Date(r.data_abertura+'T00:00').toLocaleDateString('pt-BR') : '';
+        const novidade = dias <= 30 ? '<span style="font-size:10px;font-weight:700;background:var(--accent);color:#fff;padding:2px 7px;border-radius:5px;margin-left:6px;">NOVA</span>' : '';
+        const icon = TIPO_ICON[r.tipo_empresa] || '🏢';
+        return '<div class="card" style="padding:14px 18px;margin-bottom:8px;display:flex;align-items:center;gap:14px;">' +
+          '<div style="width:40px;height:40px;border-radius:10px;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">' + icon + '</div>' +
+          '<div style="flex:1;min-width:0;">' +
+            '<div style="font-weight:600;font-size:14px;">' + escapeHtml(r.nome_fantasia || r.razao_social || '—') + novidade + '</div>' +
+            '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + (r.municipio||'') + (r.estado?' · '+r.estado:'') + (r.segmento_simplificado?' · '+r.segmento_simplificado:'') + '</div>' +
+          '</div>' +
+          '<div style="text-align:right;flex-shrink:0;">' +
+            '<div style="font-size:12px;font-weight:600;color:var(--accent);">Aberta há ' + dias + ' dia' + (dias!==1?'s':'') + '</div>' +
+            '<div style="font-size:11px;color:var(--dim);">' + dataFmt + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+  } catch(e) {
+    lista.innerHTML = '<div class="empty-state"><p>Erro ao carregar o radar.</p></div>';
+  }
+}
 
 // ═══════════════════════════════════════════
 // REDE B2B — conexões e chat entre empresas

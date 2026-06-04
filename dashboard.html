@@ -1434,12 +1434,18 @@ textarea.form-input { resize: vertical; min-height: 90px; }
         <label class="form-label">Anotações</label>
         <textarea class="form-input" id="ldmCrmNotes" placeholder="Ex: Falei com o sócio, interesse em fornecimento de cimento..." style="min-height:70px;"></textarea>
       </div>
-      <div style="display:flex;justify-content:flex-end;gap:10px;">
-        <button class="btn btn-ghost" onclick="document.getElementById('leadDetailModal').classList.remove('open')">Fechar</button>
-        <button class="btn btn-accent" onclick="saveLeadDetailCrm()">
-          <svg viewBox="0 0 24 24" style="width:13px;height:13px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-          Salvar no CRM
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;">
+        <button class="btn" id="ldmConnectBtn" onclick="solicitarConexaoLead()" style="background:linear-gradient(135deg,#7C3AED,#6D28D9);color:#fff;border:none;display:none;">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Solicitar conexão para fechar negócio
         </button>
+        <div style="display:flex;gap:10px;margin-left:auto;">
+          <button class="btn btn-ghost" onclick="document.getElementById('leadDetailModal').classList.remove('open')">Fechar</button>
+          <button class="btn btn-accent" onclick="saveLeadDetailCrm()">
+            <svg viewBox="0 0 24 24" style="width:13px;height:13px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Salvar no CRM
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -1519,6 +1525,11 @@ textarea.form-input { resize: vertical; min-height: 90px; }
   <div class="sb-link" id="nav-crm" onclick="showPage('crm')">
     <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
     <span>Meu CRM</span>
+</div>
+  <div class="sb-link" id="nav-rede" onclick="showPage('rede')" style="position:relative;">
+    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    <span>Rede B2B</span>
+    <span id="redeBadge" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:var(--red);color:#fff;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;align-items:center;justify-content:center;padding:0 5px;display:none;">0</span>
 </div>
   <div class="sb-link" id="nav-exports" onclick="showPage('exports')">
     <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -1928,6 +1939,38 @@ textarea.form-input { resize: vertical; min-height: 90px; }
 </div>
 </div>
 
+<!--  REDE B2B ═-->
+<div class="page-section" id="page-rede">
+  <div style="margin-bottom:20px;">
+    <h1 style="font-family:'Syne',sans-serif;font-weight:800;font-size:26px;letter-spacing:-0.02em;">Rede B2B</h1>
+    <p style="font-size:13px;color:var(--muted);margin-top:2px;">Conecte-se com outras empresas da plataforma e negocie diretamente.</p>
+  </div>
+
+  <!-- Sub-abas -->
+  <div style="display:flex;gap:4px;background:var(--surface3);border-radius:10px;padding:4px;margin-bottom:20px;width:fit-content;">
+    <button class="rede-tab active" id="redeTabConvites" onclick="setRedeTab('convites')">
+      Convites <span id="convitesCount" style="display:none;background:var(--red);color:#fff;font-size:10px;font-weight:700;border-radius:8px;padding:1px 6px;margin-left:4px;">0</span>
+    </button>
+    <button class="rede-tab" id="redeTabConexoes" onclick="setRedeTab('conexoes')">Minhas conexões</button>
+    <button class="rede-tab" id="redeTabChat" onclick="setRedeTab('chat')">Chat</button>
+  </div>
+
+  <div id="redeConvites" class="rede-panel"></div>
+  <div id="redeConexoes" class="rede-panel" style="display:none;"></div>
+  <div id="redeChat" class="rede-panel" style="display:none;"></div>
+
+  <style>
+    .rede-tab { padding:7px 16px;border:none;background:none;border-radius:7px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s; }
+    .rede-tab.active { background:var(--surface);color:var(--accent);box-shadow:var(--shadow); }
+    .conn-card { background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px; }
+    .conn-ava { width:42px;height:42px;border-radius:10px;background:var(--accent-bg);color:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;flex-shrink:0; }
+    .chat-msg { max-width:75%;padding:9px 13px;border-radius:12px;font-size:13px;line-height:1.5;margin-bottom:8px;word-break:break-word; }
+    .chat-msg.mine { background:var(--accent);color:#fff;margin-left:auto;border-bottom-right-radius:4px; }
+    .chat-msg.theirs { background:var(--surface2);color:var(--text);border:1px solid var(--border);border-bottom-left-radius:4px; }
+    .chat-msg.system { background:var(--accent-bg);color:var(--accent);text-align:center;max-width:100%;font-size:12px;border:1px solid rgba(249,115,22,0.2); }
+  </style>
+</div>
+
 <!--  EXPORTAÇÕES ═-->
 <div class="page-section" id="page-exports">
   <div class="page-header">
@@ -2227,6 +2270,8 @@ window.addEventListener('load', async () =>{
   await loadCrmFromStorage();
   renderDashboard();   // agora roda APÓS loadExports, então userExports.length é correto
   renderSugestoesPersonalizadas();  // estado vazio com sugestões — resultados só após buscar
+  atualizarBadgeRede();  // badge de convites pendentes
+  setInterval(atualizarBadgeRede, 60000);  // atualiza a cada 1 min
   renderCrm();
   renderExports();
   updatePlanCards();
@@ -3794,6 +3839,9 @@ function maskPhone(el) {
 // Validação matemática de CNPJ
 function validarCnpj(cnpj) {
   if (cnpj.length !== 14) return false;
+  // CNPJs de teste reservados (ambiente de homologação)
+  const cnpjsTeste = ['00000000000000','11111111111111'];
+  if (cnpjsTeste.includes(cnpj)) return true;
   if (/^(\d)\1+$/.test(cnpj)) return false; // todos dígitos iguais
   const calc = (c, l) => {
     let s = 0, p = l - 7;
@@ -3810,6 +3858,13 @@ async function fetchCnpj() {
   const statusEl = document.getElementById('cnpjStatus');
   const btn = document.getElementById('btnFetchCnpj');
   if (raw.length !== 14 || !validarCnpj(raw)) { showToast('CNPJ inválido. Verifique os dígitos.', true); return; }
+  // CNPJs de teste — não consulta a API, libera preenchimento manual
+  const cnpjsTeste = ['00000000000000','11111111111111'];
+  if (cnpjsTeste.includes(raw)) {
+    statusEl.style.color = 'var(--accent)';
+    statusEl.textContent = 'CNPJ de teste aceito. Preencha os dados manualmente.';
+    return;
+  }
   btn.disabled = true;
   btn.textContent = '...';
   statusEl.style.color = 'var(--muted)';
@@ -3823,6 +3878,7 @@ async function fetchCnpj() {
     const uf = data.estabelecimento?.estado?.sigla || '';
     document.getElementById('obEmpresa').value = empresa;
     if (uf) document.getElementById('obEstado').value = uf;
+    window._obCidade = municipio; // guarda para enviar ao lead
     statusEl.style.color = 'var(--green)';
     statusEl.textContent = `Empresa encontrada: ${empresa}${municipio ? ' — ' + municipio : ''}`;
   } catch(e) {
@@ -3855,13 +3911,17 @@ async function finishOnboarding(wantsTutorial) {
     segmento: segmento || null,
     porte: porte || null,
     objetivo: objetivo || null,
+    cnpj: cnpj || null,
   };
   await sb.from('profiles').update(profileUpdate).eq('id', currentUser.id);
   if (currentProfile) Object.assign(currentProfile, profileUpdate);
 
   // 2. Inserir empresa na base de leads para TODOS os tipos (fornecedor, construtora, empreiteiro)
-  // Usa email do usuário logado como fallback se o campo estiver vazio
+  // Todos os dados do onboarding são válidos (preenchidos pelo próprio dono) → vão para a base
   const emailParaLead = email || currentUser?.email || null;
+  const emailConta = currentUser?.email || null;
+  // Email secundário = email da conta, se diferente do comercial
+  const email2ParaLead = (emailConta && emailConta !== emailParaLead) ? emailConta : null;
   const empresaParaLead = empresa || currentProfile?.company || null;
   if (empresaParaLead) {
     const { error: leadErr } = await sb.rpc('inserir_lead_onboarding', {
@@ -3872,7 +3932,9 @@ async function finishOnboarding(wantsTutorial) {
       p_tipo_lead: obType || null,
       p_segmento: segmento || null,
       p_nome_socio: nome || currentUser?.user_metadata?.full_name || null,
-      p_cnpj: cnpj || null
+      p_cnpj: cnpj || null,
+      p_municipio: window._obCidade || null,
+      p_email_2: email2ParaLead
     });
     if (leadErr) console.warn('Erro ao inserir lead:', leadErr.message);
   }
@@ -4127,6 +4189,14 @@ function showPage(page) {
       return;
     }
   }
+  // Rede B2B — só planos pagos
+  if (page === 'rede') {
+    const plan = currentProfile?.plan || 'free';
+    if (plan === 'free') {
+      showUpgradeModal('A Rede B2B está disponível para planos pagos.', 'starter');
+      return;
+    }
+  }
 
   document.querySelectorAll('.page-section').forEach(p =>p.classList.remove('active'));
   document.querySelectorAll('.sb-link').forEach(l =>l.classList.remove('active'));
@@ -4138,6 +4208,7 @@ function showPage(page) {
   if (page === 'suporte') { loadTickets(); initSupportChat(); }
   if (page === 'crm') renderCrm();
   if (page === 'leads') { if (buscaJaFeita) filterLeads(); }
+  if (page === 'rede') { setRedeTab('convites'); }
 
   // Close mobile sidebar after nav
   if (window.innerWidth <= 768) closeMobileSidebar();
@@ -4521,6 +4592,7 @@ function openLeadDetailModal(leadId) {
   document.getElementById('ldmCrmFollowup').value = crm.followup || '';
   document.getElementById('leadDetailModal').dataset.leadId = leadId;
   renderLdmSocial(lead);
+  atualizarBotaoConexao(lead);
   document.getElementById('leadDetailModal').classList.add('open');
 }
 
@@ -5084,6 +5156,340 @@ async function _runBoletoPoll() {
     setTimeout(_runBoletoPoll, 3000); // pequeno delay para garantir que sb.auth foi inicializado
   });
 })();
+
+// ═══════════════════════════════════════════
+// REDE B2B — conexões e chat entre empresas
+// ═══════════════════════════════════════════
+let redeTab = 'convites';
+let conexoesCache = [];
+let chatAtivoConexaoId = null;
+let chatPollInterval = null;
+
+function setRedeTab(tab) {
+  redeTab = tab;
+  ['convites','conexoes','chat'].forEach(t => {
+    document.getElementById('redeTab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
+    document.getElementById('rede' + t.charAt(0).toUpperCase() + t.slice(1)).style.display = t === tab ? 'block' : 'none';
+  });
+  if (tab === 'convites') renderConvites();
+  else if (tab === 'conexoes') renderConexoes();
+  else if (tab === 'chat') renderChatList();
+}
+
+// Carrega todas as conexões do usuário
+async function carregarConexoes() {
+  try {
+    const { data, error } = await sb.from('conexoes')
+      .select('*')
+      .or('remetente_id.eq.' + currentUser.id + ',destinatario_id.eq.' + currentUser.id)
+      .order('criado_at', { ascending: false });
+    if (error) { console.error(error); return []; }
+    conexoesCache = data || [];
+    return conexoesCache;
+  } catch(e) { console.error(e); return []; }
+}
+
+// Busca nome da empresa de um perfil (cache simples)
+const _perfilNomeCache = {};
+async function nomeEmpresa(userId) {
+  if (_perfilNomeCache[userId]) return _perfilNomeCache[userId];
+  try {
+    const { data } = await sb.from('profiles').select('company,full_name,email').eq('id', userId).single();
+    const nome = (data && (data.company || data.full_name || (data.email||'').split('@')[0])) || 'Empresa';
+    _perfilNomeCache[userId] = nome;
+    return nome;
+  } catch(e) { return 'Empresa'; }
+}
+
+// Convites recebidos pendentes
+async function renderConvites() {
+  const el = document.getElementById('redeConvites');
+  el.innerHTML = '<p style="color:var(--muted);font-size:13px;">Carregando...</p>';
+  await carregarConexoes();
+  const pendentes = conexoesCache.filter(c => c.destinatario_id === currentUser.id && c.status === 'pendente');
+
+  if (!pendentes.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon"></div><p>Nenhum convite de conexão pendente.</p></div>';
+    return;
+  }
+
+  const cards = [];
+  for (const c of pendentes) {
+    const nome = await nomeEmpresa(c.remetente_id);
+    const inicial = nome.charAt(0).toUpperCase();
+    const data = new Date(c.criado_at).toLocaleDateString('pt-BR');
+    cards.push(
+      '<div class="conn-card">' +
+        '<div class="conn-ava">' + inicial + '</div>' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-weight:600;font-size:14px;">' + nome + '</div>' +
+          '<div style="font-size:12px;color:var(--muted);margin-top:2px;">quer se conectar · ' + data + '</div>' +
+          (c.mensagem_convite ? '<div style="margin-top:8px;font-size:12px;color:var(--muted);padding:8px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">' + escapeHtml(c.mensagem_convite) + '</div>' : '') +
+        '</div>' +
+        '<div style="display:flex;gap:8px;flex-shrink:0;">' +
+          '<button class="btn btn-accent" style="padding:7px 14px;font-size:13px;" onclick="aceitarConvite(\'' + c.id + '\')">Aceitar</button>' +
+          '<button class="btn btn-ghost" style="padding:7px 14px;font-size:13px;color:var(--red);border-color:rgba(220,38,38,0.25);" onclick="recusarConvite(\'' + c.id + '\')">Recusar</button>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+  el.innerHTML = cards.join('');
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+async function aceitarConvite(conexaoId) {
+  try {
+    const { data } = await sb.rpc('aceitar_conexao', { p_conexao_id: conexaoId });
+    if (data && data.ok) {
+      showToast('Conexão aceita! Chat liberado. 🤝');
+      await atualizarBadgeRede();
+      renderConvites();
+    } else {
+      showToast('Não foi possível aceitar.', true);
+    }
+  } catch(e) { showToast('Erro ao aceitar.', true); }
+}
+
+async function recusarConvite(conexaoId) {
+  if (!confirm('Recusar este convite de conexão?')) return;
+  try {
+    const { data } = await sb.rpc('recusar_conexao', { p_conexao_id: conexaoId });
+    if (data && data.ok) {
+      showToast('Convite recusado.');
+      await atualizarBadgeRede();
+      renderConvites();
+    }
+  } catch(e) { showToast('Erro.', true); }
+}
+
+// Minhas conexões (aceitas)
+async function renderConexoes() {
+  const el = document.getElementById('redeConexoes');
+  el.innerHTML = '<p style="color:var(--muted);font-size:13px;">Carregando...</p>';
+  await carregarConexoes();
+  const aceitas = conexoesCache.filter(c => c.status === 'aceita');
+
+  if (!aceitas.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon"></div><p>Nenhuma conexão ativa ainda.<br>Solicite conexões ao abrir um lead.</p></div>';
+    return;
+  }
+
+  const cards = [];
+  for (const c of aceitas) {
+    const outroId = c.remetente_id === currentUser.id ? c.destinatario_id : c.remetente_id;
+    const nome = await nomeEmpresa(outroId);
+    const inicial = nome.charAt(0).toUpperCase();
+    cards.push(
+      '<div class="conn-card">' +
+        '<div class="conn-ava">' + inicial + '</div>' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-weight:600;font-size:14px;">' + nome + '</div>' +
+          '<div style="font-size:12px;color:var(--green);margin-top:2px;">● Conectado</div>' +
+        '</div>' +
+        '<button class="btn btn-accent" style="padding:7px 16px;font-size:13px;" onclick="abrirChat(\'' + c.id + '\',\'' + escapeHtml(nome).replace(/'/g,"") + '\')">Abrir chat</button>' +
+      '</div>'
+    );
+  }
+  el.innerHTML = cards.join('');
+}
+
+// Lista de chats (mesma lista de conexões aceitas, mas abre o chat)
+async function renderChatList() {
+  const el = document.getElementById('redeChat');
+  if (chatAtivoConexaoId) return; // já está num chat aberto
+  el.innerHTML = '<p style="color:var(--muted);font-size:13px;">Carregando conversas...</p>';
+  await carregarConexoes();
+  const aceitas = conexoesCache.filter(c => c.status === 'aceita');
+  if (!aceitas.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon"></div><p>Nenhuma conversa disponível.<br>Aceite ou faça conexões primeiro.</p></div>';
+    return;
+  }
+  const cards = [];
+  for (const c of aceitas) {
+    const outroId = c.remetente_id === currentUser.id ? c.destinatario_id : c.remetente_id;
+    const nome = await nomeEmpresa(outroId);
+    const inicial = nome.charAt(0).toUpperCase();
+    cards.push(
+      '<div class="conn-card" style="cursor:pointer;" onclick="abrirChat(\'' + c.id + '\',\'' + escapeHtml(nome).replace(/'/g,"") + '\')">' +
+        '<div class="conn-ava">' + inicial + '</div>' +
+        '<div style="flex:1;"><div style="font-weight:600;font-size:14px;">' + nome + '</div>' +
+        '<div style="font-size:12px;color:var(--muted);">Toque para conversar</div></div>' +
+        '<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2;"><polyline points="9 18 15 12 9 6"/></svg>' +
+      '</div>'
+    );
+  }
+  el.innerHTML = cards.join('');
+}
+
+// Abre uma conversa específica
+async function abrirChat(conexaoId, nomeEmp) {
+  chatAtivoConexaoId = conexaoId;
+  setRedeTab('chat');
+  const el = document.getElementById('redeChat');
+  el.innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);">' +
+      '<button class="btn btn-ghost" style="padding:6px 10px;" onclick="fecharChat()">← Voltar</button>' +
+      '<div class="conn-ava" style="width:34px;height:34px;font-size:13px;">' + (nomeEmp||'E').charAt(0).toUpperCase() + '</div>' +
+      '<div style="font-weight:600;font-size:14px;">' + (nomeEmp||'Empresa') + '</div>' +
+    '</div>' +
+    '<div id="chatMsgs" style="height:380px;overflow-y:auto;padding:8px;background:var(--surface2);border-radius:10px;margin-bottom:12px;display:flex;flex-direction:column;"></div>' +
+    '<div style="display:flex;gap:8px;">' +
+      '<input type="text" id="chatInput" placeholder="Digite sua mensagem..." style="flex:1;" onkeydown="if(event.key===\'Enter\')enviarMensagem()">' +
+      '<button class="btn btn-accent" onclick="enviarMensagem()">Enviar</button>' +
+    '</div>' +
+    '<p style="font-size:11px;color:var(--dim);margin-top:8px;text-align:center;">⚠️ Chats inativos há 30 dias são apagados automaticamente. Salve contatos importantes.</p>';
+  await carregarMensagens();
+  // Poll a cada 5s para novas mensagens
+  if (chatPollInterval) clearInterval(chatPollInterval);
+  chatPollInterval = setInterval(carregarMensagens, 5000);
+}
+
+function fecharChat() {
+  chatAtivoConexaoId = null;
+  if (chatPollInterval) { clearInterval(chatPollInterval); chatPollInterval = null; }
+  renderChatList();
+}
+
+async function carregarMensagens() {
+  if (!chatAtivoConexaoId) return;
+  try {
+    const { data, error } = await sb.from('mensagens')
+      .select('*').eq('conexao_id', chatAtivoConexaoId)
+      .order('criado_at', { ascending: true });
+    if (error) { console.error(error); return; }
+    const cont = document.getElementById('chatMsgs');
+    if (!cont) return;
+    const estavaNoFim = cont.scrollHeight - cont.scrollTop - cont.clientHeight < 50;
+    cont.innerHTML = (data||[]).map(m => {
+      const isSystem = m.conteudo.startsWith('🤝') || m.conteudo.startsWith('⚠️');
+      if (isSystem) return '<div class="chat-msg system">' + escapeHtml(m.conteudo) + '</div>';
+      const mine = m.remetente_id === currentUser.id;
+      return '<div class="chat-msg ' + (mine?'mine':'theirs') + '">' + escapeHtml(m.conteudo) + '</div>';
+    }).join('');
+    if (estavaNoFim) cont.scrollTop = cont.scrollHeight;
+  } catch(e) { console.error(e); }
+}
+
+async function enviarMensagem() {
+  const input = document.getElementById('chatInput');
+  const texto = input.value.trim();
+  if (!texto || !chatAtivoConexaoId) return;
+  input.value = '';
+  try {
+    const { error } = await sb.from('mensagens').insert({
+      conexao_id: chatAtivoConexaoId,
+      remetente_id: currentUser.id,
+      conteudo: texto
+    });
+    if (error) { showToast('Erro ao enviar: ' + error.message, true); input.value = texto; return; }
+    await carregarMensagens();
+  } catch(e) { showToast('Erro de conexão.', true); input.value = texto; }
+}
+
+// Solicitar conexão a partir do modal de lead
+async function solicitarConexaoLead() {
+  const leadId = document.getElementById('leadDetailModal').dataset.leadId;
+  const lead = allLeads.find(l => l.id === leadId);
+  if (!lead) return;
+
+  // O lead precisa ser cliente da plataforma (verificado via CNPJ)
+  if (!_leadClienteId) {
+    // Lead não é cliente — recomenda contato direto de forma amigável
+    const temTel = lead.telefone_1 || lead.telefone_2;
+    const temEmail = lead.email_comercial || lead.email_2;
+    let msg = 'Esta empresa ainda não faz parte da rede Wexiolead, então não dá para conectar pelo chat por aqui. ';
+    if (temTel || temEmail) {
+      msg += 'Mas você já tem os contatos dela! Recomendamos falar direto:\n\n';
+      if (temTel) msg += '📞 ' + (lead.telefone_1 || lead.telefone_2) + '\n';
+      if (temEmail) msg += '✉️ ' + (lead.email_comercial || lead.email_2) + '\n';
+      msg += '\nDica: empresas fora da plataforma podem demorar a responder — um contato direto e simpático costuma funcionar melhor. 😊';
+    } else {
+      msg += 'Tente buscar os contatos dela ou aguarde — em breve mais empresas entram na rede.';
+    }
+    alert(msg);
+    return;
+  }
+
+  const msg = prompt('Mensagem de apresentação (opcional):\n\nEx: "Olá! Somos uma construtora e temos interesse nos seus materiais."');
+  if (msg === null) return; // cancelou
+
+  try {
+    const { data } = await sb.rpc('solicitar_conexao', {
+      p_destinatario_id: _leadClienteId,
+      p_mensagem: msg || null
+    });
+    if (data && data.ok) {
+      showToast('Convite de conexão enviado! 🤝');
+      // Salva no CRM automaticamente
+      crmData[leadId] = crmData[leadId] || { leadId, status: 'negociando', notes: 'Conexão solicitada', followup: '', updatedAt: new Date().toISOString() };
+      await sb.from('crm_entries').upsert({
+        user_id: currentUser.id, lead_id: leadId,
+        status: crmData[leadId].status, notes: crmData[leadId].notes, followup: crmData[leadId].followup || null
+      }, { onConflict: 'user_id,lead_id' });
+      updateQuotaUI();
+    } else {
+      const erros = {
+        plano_free: 'Conexões B2B são exclusivas para planos pagos.',
+        sem_creditos: 'Créditos insuficientes para conectar.',
+        ja_existe: 'Você já tem uma conexão ou convite com esta empresa.',
+        destinatario_nao_cliente: 'Esta empresa ainda não faz parte da rede.'
+      };
+      showToast(erros[data?.erro] || data?.msg || 'Não foi possível conectar.', true);
+    }
+  } catch(e) { showToast('Erro ao solicitar conexão.', true); }
+}
+
+// Badge de convites pendentes
+async function atualizarBadgeRede() {
+  try {
+    const { data } = await sb.from('conexoes')
+      .select('id', { count: 'exact' })
+      .eq('destinatario_id', currentUser.id)
+      .eq('status', 'pendente');
+    const n = (data || []).length;
+    const badge = document.getElementById('redeBadge');
+    const tabCount = document.getElementById('convitesCount');
+    if (badge) {
+      badge.textContent = n;
+      badge.style.display = n > 0 ? 'flex' : 'none';
+    }
+    if (tabCount) {
+      tabCount.textContent = n;
+      tabCount.style.display = n > 0 ? 'inline' : 'none';
+    }
+  } catch(e) {}
+}
+
+// Controla visibilidade do botão de conexão no modal de lead
+let _leadClienteId = null; // cache do user_id do lead-cliente atual
+async function atualizarBotaoConexao(lead) {
+  const btn = document.getElementById('ldmConnectBtn');
+  if (!btn) return;
+  btn.style.display = 'none';
+  _leadClienteId = null;
+  const plan = currentProfile?.plan || 'free';
+  const isRevealed = revealedLeads.has(lead.id);
+  // Mostra para planos pagos + lead revelado (cliente ou não)
+  if (plan === 'free' || !isRevealed) return;
+  btn.style.display = 'inline-flex';
+  // Verifica se é cliente da plataforma (muda o comportamento do clique)
+  if (lead.cnpj) {
+    try {
+      const { data } = await sb.rpc('lead_eh_cliente', { p_cnpj: lead.cnpj });
+      if (data && data !== currentUser.id) {
+        _leadClienteId = data;
+        btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg> Solicitar conexão para fechar negócio';
+      } else {
+        btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9z"/></svg> Enviar proposta de negócio';
+      }
+    } catch(e) {
+      btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9z"/></svg> Enviar proposta de negócio';
+    }
+  }
+}
 
 </script>
 <script>

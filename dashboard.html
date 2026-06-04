@@ -5329,22 +5329,61 @@ async function abrirChat(conexaoId, nomeEmp) {
   chatAtivoConexaoId = conexaoId;
   setRedeTab('chat');
   const el = document.getElementById('redeChat');
+  el.innerHTML = '<p style="color:var(--muted);font-size:13px;padding:20px;text-align:center;">Carregando conversa...</p>';
+
+  // Busca dados completos do parceiro
+  let info = { empresa: nomeEmp || 'Empresa', cnpj: null, estado: null, tipo: null, finalizada: false };
+  try {
+    const { data } = await sb.rpc('dados_parceiro_conexao', { p_conexao_id: conexaoId });
+    if (data && !data.erro) info = data;
+  } catch(e) {}
+
+  const inicial = (info.empresa || 'E').charAt(0).toUpperCase();
+  const cnpjFmt = info.cnpj ? info.cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5') : '';
+  const subInfo = [info.estado, cnpjFmt].filter(Boolean).join(' · ');
+
+  const avisoFinalizada = info.finalizada
+    ? '<div style="background:var(--red-bg,#FEF2F2);border:1px solid rgba(220,38,38,0.2);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--red);text-align:center;">🔒 Conversa finalizada — será apagada em 24h.</div>'
+    : '';
+
   el.innerHTML =
-    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);">' +
-      '<button class="btn btn-ghost" style="padding:6px 10px;" onclick="fecharChat()">← Voltar</button>' +
-      '<div class="conn-ava" style="width:34px;height:34px;font-size:13px;">' + (nomeEmp||'E').charAt(0).toUpperCase() + '</div>' +
-      '<div style="font-weight:600;font-size:14px;">' + (nomeEmp||'Empresa') + '</div>' +
+    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);">' +
+      '<button class="btn btn-ghost" style="padding:6px 10px;" onclick="fecharChat()">←</button>' +
+      '<div class="conn-ava" style="width:42px;height:42px;font-size:16px;">' + inicial + '</div>' +
+      '<div style="flex:1;min-width:0;">' +
+        '<div style="font-weight:700;font-size:15px;">' + escapeHtml(info.empresa) + '</div>' +
+        (subInfo ? '<div style="font-size:11.5px;color:var(--muted);margin-top:1px;">' + escapeHtml(subInfo) + '</div>' : '') +
+      '</div>' +
+      (info.finalizada ? '' : '<button class="btn btn-ghost" style="padding:6px 12px;font-size:12px;color:var(--red);border-color:rgba(220,38,38,0.25);" onclick="finalizarConversa()">Finalizar</button>') +
     '</div>' +
-    '<div id="chatMsgs" style="height:380px;overflow-y:auto;padding:8px;background:var(--surface2);border-radius:10px;margin-bottom:12px;display:flex;flex-direction:column;"></div>' +
+    avisoFinalizada +
+    '<div id="chatMsgs" style="height:360px;overflow-y:auto;padding:8px;background:var(--surface2);border-radius:10px;margin-bottom:12px;display:flex;flex-direction:column;"></div>' +
+    (info.finalizada ? '<p style="font-size:12px;color:var(--muted);text-align:center;padding:8px;">Esta conversa foi finalizada.</p>' :
     '<div style="display:flex;gap:8px;">' +
       '<input type="text" id="chatInput" placeholder="Digite sua mensagem..." style="flex:1;" onkeydown="if(event.key===\'Enter\')enviarMensagem()">' +
       '<button class="btn btn-accent" onclick="enviarMensagem()">Enviar</button>' +
-    '</div>' +
-    '<p style="font-size:11px;color:var(--dim);margin-top:8px;text-align:center;">⚠️ Chats inativos há 30 dias são apagados automaticamente. Salve contatos importantes.</p>';
+    '</div>') +
+    '<p style="font-size:11px;color:var(--dim);margin-top:8px;text-align:center;">⚠️ Chats inativos há 30 dias são apagados. Você pode finalizar a conversa a qualquer momento.</p>';
+
   await carregarMensagens();
-  // Poll a cada 5s para novas mensagens
+  // Marca mensagens como lidas
+  try { await sb.rpc('marcar_lidas', { p_conexao_id: conexaoId }); atualizarBadgeRede(); } catch(e) {}
   if (chatPollInterval) clearInterval(chatPollInterval);
   chatPollInterval = setInterval(carregarMensagens, 5000);
+}
+
+async function finalizarConversa() {
+  if (!chatAtivoConexaoId) return;
+  if (!confirm('Finalizar esta conversa?\n\nO chat será apagado automaticamente em 24h. Ambas as empresas serão avisadas. Salve o que precisar antes.')) return;
+  try {
+    const { data } = await sb.rpc('finalizar_conversa', { p_conexao_id: chatAtivoConexaoId });
+    if (data && data.ok) {
+      showToast('Conversa finalizada. Será apagada em 24h.');
+      const id = chatAtivoConexaoId;
+      const nome = document.querySelector('#redeChat .conn-ava')?.parentElement?.querySelector('div > div')?.textContent || '';
+      abrirChat(id, nome); // recarrega mostrando estado finalizado
+    }
+  } catch(e) { showToast('Erro ao finalizar.', true); }
 }
 
 function fecharChat() {
@@ -5363,12 +5402,33 @@ async function carregarMensagens() {
     const cont = document.getElementById('chatMsgs');
     if (!cont) return;
     const estavaNoFim = cont.scrollHeight - cont.scrollTop - cont.clientHeight < 50;
-    cont.innerHTML = (data||[]).map(m => {
-      const isSystem = m.conteudo.startsWith('🤝') || m.conteudo.startsWith('⚠️');
-      if (isSystem) return '<div class="chat-msg system">' + escapeHtml(m.conteudo) + '</div>';
-      const mine = m.remetente_id === currentUser.id;
-      return '<div class="chat-msg ' + (mine?'mine':'theirs') + '">' + escapeHtml(m.conteudo) + '</div>';
-    }).join('');
+    let ultimaData = '';
+    const html = [];
+    (data||[]).forEach(m => {
+      const dt = new Date(m.criado_at);
+      const dataMsg = dt.toLocaleDateString('pt-BR');
+      const hora = dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      // Separador de data quando muda o dia
+      if (dataMsg !== ultimaData) {
+        const hoje = new Date().toLocaleDateString('pt-BR');
+        const label = dataMsg === hoje ? 'Hoje' : dataMsg;
+        html.push('<div style="text-align:center;margin:8px 0;"><span style="font-size:10.5px;color:var(--dim);background:var(--surface3);padding:2px 10px;border-radius:10px;">' + label + '</span></div>');
+        ultimaData = dataMsg;
+      }
+      const isSystem = m.conteudo.startsWith('🤝') || m.conteudo.startsWith('⚠️') || m.conteudo.startsWith('🔒');
+      if (isSystem) {
+        html.push('<div class="chat-msg system">' + escapeHtml(m.conteudo) + '</div>');
+      } else {
+        const mine = m.remetente_id === currentUser.id;
+        html.push(
+          '<div class="chat-msg ' + (mine?'mine':'theirs') + '">' +
+            escapeHtml(m.conteudo) +
+            '<span style="display:block;font-size:9.5px;opacity:.65;margin-top:3px;text-align:right;">' + hora + '</span>' +
+          '</div>'
+        );
+      }
+    });
+    cont.innerHTML = html.join('');
     if (estavaNoFim) cont.scrollTop = cont.scrollHeight;
   } catch(e) { console.error(e); }
 }
@@ -5445,20 +5505,19 @@ async function solicitarConexaoLead() {
 // Badge de convites pendentes
 async function atualizarBadgeRede() {
   try {
-    const { data } = await sb.from('conexoes')
-      .select('id', { count: 'exact' })
-      .eq('destinatario_id', currentUser.id)
-      .eq('status', 'pendente');
-    const n = (data || []).length;
+    const { data } = await sb.rpc('contar_notificacoes');
+    if (!data) return;
+    const total = data.total || 0;
+    const convites = data.convites || 0;
     const badge = document.getElementById('redeBadge');
     const tabCount = document.getElementById('convitesCount');
     if (badge) {
-      badge.textContent = n;
-      badge.style.display = n > 0 ? 'flex' : 'none';
+      badge.textContent = total;
+      badge.style.display = total > 0 ? 'flex' : 'none';
     }
     if (tabCount) {
-      tabCount.textContent = n;
-      tabCount.style.display = n > 0 ? 'inline' : 'none';
+      tabCount.textContent = convites;
+      tabCount.style.display = convites > 0 ? 'inline' : 'none';
     }
   } catch(e) {}
 }

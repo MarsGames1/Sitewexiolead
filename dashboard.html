@@ -3144,6 +3144,14 @@ function closeCrm() {
 let crmView = 'lista'; // 'lista' | 'kanban'
 
 function setCrmView(v) {
+  // Kanban é recurso do CRM completo (Pro+). Starter usa lista.
+  if (v === 'kanban') {
+    const plan = currentProfile?.plan || 'free';
+    if (!['pro','agency'].includes(plan)) {
+      showUpgradeModal('A visão Kanban faz parte do CRM completo, disponível no plano Pro.', 'pro');
+      return;
+    }
+  }
   crmView = v;
   document.getElementById('crmViewLista').classList.toggle('active', v === 'lista');
   document.getElementById('crmViewKanban').classList.toggle('active', v === 'kanban');
@@ -4140,6 +4148,22 @@ async function sendWexMessage() {
   const text = input.value.trim();
   if (!text) return;
 
+  // Wex essencial (Free/Starter): limite diário de mensagens. Pro/Agency: ilimitado.
+  const plan = currentProfile?.plan || 'free';
+  if (plan === 'free' || plan === 'starter') {
+    const limite = plan === 'free' ? 5 : 20;
+    const hoje = new Date().toISOString().slice(0,10);
+    let uso = {};
+    try { uso = JSON.parse(localStorage.getItem('wexUso') || '{}'); } catch(e) {}
+    if (uso.dia !== hoje) uso = { dia: hoje, count: 0 };
+    if (uso.count >= limite) {
+      addWexMessage('Você atingiu o limite diário de ' + limite + ' mensagens da Wex no plano ' + (plan==='free'?'Free':'Starter') + '. No plano Pro, a Wex é ilimitada. 🚀', 'wex');
+      return;
+    }
+    uso.count++;
+    localStorage.setItem('wexUso', JSON.stringify(uso));
+  }
+
   input.value = '';
   input.style.height = 'auto';
   addWexMessage(text, 'user');
@@ -4234,11 +4258,11 @@ async function loadTickets() {
 // NAVIGATION
 // 
 function showPage(page) {
-  // CRM gating — only Pro and Agency
+  // CRM gating — Starter (leve), Pro e Agency (completo). Free não tem.
   if (page === 'crm') {
     const plan = currentProfile?.plan || 'free';
-    if (!['pro','agency'].includes(plan)) {
-      showUpgradeModal('O CRM está disponível a partir do plano Pro.', 'pro');
+    if (!['starter','pro','agency'].includes(plan)) {
+      showUpgradeModal('O CRM está disponível a partir do plano Starter.', 'starter');
       return;
     }
   }

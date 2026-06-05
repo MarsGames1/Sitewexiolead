@@ -368,7 +368,7 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
 <!-- ═══ AUTH MODAL ═══ -->
 <div class="mo" id="authModal" role="dialog" aria-modal="true" aria-labelledby="mT">
   <div class="modal">
-    <button class="mcl" id="mCl" aria-label="Fechar">✕</button>
+    <button class="mcl" id="mCl" aria-label="Fechar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     <h2 id="mT">Entrar na wexiolead</h2>
     <p class="msub" id="mSb">10 leads gratuitos. Sem cartão de crédito.</p>
     <button class="btn-g" id="btnGoogle" onclick="handleGoogleLogin()">
@@ -382,7 +382,7 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
 <!-- ═══ POLICY MODAL ═══ -->
 <div class="mo" id="polMo" role="dialog" aria-modal="true" style="align-items:flex-start;padding:40px 20px;overflow-y:auto;">
   <div class="pmb">
-    <button class="mcl" onclick="document.getElementById('polMo').classList.remove('open');document.body.style.overflow='';" aria-label="Fechar">✕</button>
+    <button class="mcl" onclick="document.getElementById('polMo').classList.remove('open');document.body.style.overflow='';" aria-label="Fechar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     <h2 id="polT" style="font-size:22px;font-weight:600;color:#fff;margin-bottom:20px;letter-spacing:-.02em;"></h2>
     <div id="polC" style="font-size:14px;color:#9ca3af;line-height:1.8;"></div>
   </div>
@@ -390,7 +390,7 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
 
 <!-- ═══ MOBILE MENU ═══ -->
 <div class="mm" id="mMenu" role="dialog" aria-modal="true">
-  <button class="mm-cl" id="mMCl">✕</button>
+  <button class="mm-cl" id="mMCl"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
   <a href="#problema" onclick="closeMM()">Para quem é</a>
   <a href="#como" onclick="closeMM()">Como funciona</a>
   <a href="#features" onclick="closeMM()">Funcionalidades</a>
@@ -878,7 +878,7 @@ let tT;
 function toast(msg,err=false){
   const t=document.getElementById('toast');
   document.getElementById('tM').textContent=msg;
-  const i=document.getElementById('tI');i.className=err?'ti-err':'ti-ok';i.textContent=err?'✕':'✓';
+  const i=document.getElementById('tI');i.className=err?'ti-err':'ti-ok';i.textContent=err?'!':'OK';
   t.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('show'),4000);
 }
 
@@ -933,7 +933,7 @@ function showEmailCard(el) {
 function copyEmail() {
   const btn = document.getElementById('copyBtn');
   navigator.clipboard.writeText('wexiolead@yahoo.com').then(() => {
-    btn.textContent = '✓ Copiado!';
+    btn.textContent = 'Copiado!';
     setTimeout(() => {
       btn.textContent = 'Copiar e-mail';
       document.getElementById('emailCard').style.display = 'none';

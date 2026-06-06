@@ -897,6 +897,43 @@ textarea.form-input { resize: vertical; min-height: 90px; }
   /* ob-type-grid mobile handled in extra CSS */
 }
 
+/* ── MOBILE: refinamentos de usabilidade ── */
+@media (max-width: 768px) {
+  /* Tabela de leads: scroll horizontal suave em vez de quebrar layout */
+  .tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tbl-wrap table { min-width: 640px; }
+  /* Cabeçalhos de ordenação com toque maior */
+  thead th[data-sort] { padding: 12px 10px; }
+  /* Busca: campo e tags maiores para o dedo */
+  #leadSearch { font-size: 16px; } /* 16px evita zoom automático no iOS */
+  .search-tag { padding: 9px 13px; font-size: 13px; }
+  /* Filtros viram coluna com largura total */
+  #leadFilters, .filter-bar { flex-direction: column; align-items: stretch; gap: 8px; }
+  #leadFilters select, .filter-bar select { width: 100%; }
+  /* Rede B2B: sub-abas roláveis, chat ocupa largura */
+  .rede-tab { padding: 8px 12px; font-size: 13px; }
+  #chatMsgs { height: 50vh !important; }
+  .chat-msg { max-width: 85% !important; }
+  /* Radar: filtros empilhados */
+  #page-radar select { width: 100%; }
+  /* Modais de lead: largura total com margem */
+  .modal-card, .lead-detail-card { width: calc(100vw - 24px) !important; max-width: none !important; }
+  /* Botões de ação no modal empilham */
+  #ldmConnectBtn { width: 100%; justify-content: center; }
+  /* Cards de conexão: evita aperto */
+  .conn-card { flex-wrap: wrap; }
+}
+@media (max-width: 480px) {
+  /* Botões grandes para toque confortável */
+  .btn { min-height: 40px; }
+  /* Pílula de créditos no header não corta */
+  .credit-pill { font-size: 11px; }
+  /* Cabeçalho da tabela: esconde colunas menos críticas no celular */
+  thead th[data-sort="segmento"], tbody td:nth-child(2),
+  thead th[data-sort="telefone"], tbody td:nth-child(4) { display: none; }
+  .tbl-wrap table { min-width: 480px; }
+}
+
 /* ── WEX TOUR OVERLAY ── */
 #wexTourOverlay {
   display: none;
@@ -1662,7 +1699,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
     <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;">
       <div style="flex:1;position:relative;">
         <svg viewBox="0 0 24 24" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:2;pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="leadSearch" placeholder="Ex: empresas de cimento, contratar pedreiro, construtoras em SP..."
+        <input type="text" id="leadSearch" placeholder="Ex: clínicas em SP, fornecedor de cimento, advogados, padarias, transportadoras..."
           style="width:100%;padding:12px 16px 12px 42px;border:1.5px solid var(--border);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);background:var(--surface);outline:none;box-shadow:var(--shadow-md);transition:border-color .2s,box-shadow .2s;"
           onfocus="this.style.borderColor='rgba(249,115,22,0.5)';this.style.boxShadow='0 0 0 3px rgba(249,115,22,0.08),var(--shadow-md)'"
           onblur="this.style.borderColor='var(--border)';this.style.boxShadow='var(--shadow-md)'"
@@ -1822,9 +1859,17 @@ textarea.form-input { resize: vertical; min-height: 90px; }
           <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Empreiteiros
         </button>
-        <button class="search-tag" onclick="buscarRapido('obras de infraestrutura')">
-          <svg viewBox="0 0 24 24"><path d="M2 20h20M4 20V10l8-6 8 6v10"/></svg>
-          Infraestrutura
+        <button class="search-tag" onclick="buscarRapido('clínicas e saúde')">
+          <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          Saúde
+        </button>
+        <button class="search-tag" onclick="buscarRapido('tecnologia e software')">
+          <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          Tecnologia
+        </button>
+        <button class="search-tag" onclick="buscarRapido('transportadoras')">
+          <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          Logística
         </button>
       </div>
 
@@ -2497,19 +2542,22 @@ async function fetchLeadsFromServer(filters = {}) {
   }
   // Busca por texto disponível para TODOS os planos
   if (filters.q) {
-    // Expansão semântica: "cimento" também busca no segmento, etc.
+    // Expansão semântica: "cimento" também busca no segmento, "pão" → padaria, etc.
     const sem = resolverBuscaSemantica(filters.q);
     let orParts = [
       `razao_social.ilike.%${filters.q}%`,
       `nome_fantasia.ilike.%${filters.q}%`,
       `municipio.ilike.%${filters.q}%`,
       `cnpj.ilike.%${filters.q}%`,
-      `segmento_simplificado.ilike.%${filters.q}%`
+      `segmento_simplificado.ilike.%${filters.q}%`,
+      `tipo_empresa.ilike.%${filters.q}%`,
+      `nome_socio_1.ilike.%${filters.q}%`
     ];
     if (sem) {
       for (const exp of sem.expandir) {
         orParts.push(`segmento_simplificado.ilike.%${exp}%`);
         orParts.push(`razao_social.ilike.%${exp}%`);
+        orParts.push(`nome_fantasia.ilike.%${exp}%`);
       }
     }
     query = query.or(orParts.join(','));
@@ -2544,27 +2592,82 @@ async function fetchLeadsFromServer(filters = {}) {
 // Ajuda quem não sabe expressar exatamente o que procura
 // ─────────────────────────────────────────────────────────
 const SEMANTIC_MAP = [
-  // Materiais e insumos
-  { termos: ['cimento','concreto','argamassa','usina de concreto','cimenteira'], expandir: ['cimento','concreto','argamassa'], tipo: 'Fornecedor', dica: 'fornecedores de cimento e concreto' },
-  { termos: ['tijolo','bloco','ceramica','telha','olaria'], expandir: ['cerâmica','bloco','tijolo','telha'], tipo: 'Fornecedor', dica: 'fornecedores de cerâmica e blocos' },
-  { termos: ['aco','ferro','vergalhao','metalurgica','estrutura metalica'], expandir: ['aço','metalúrgica','estrutura metálica','ferro'], tipo: 'Fornecedor', dica: 'fornecedores de aço e estruturas metálicas' },
-  { termos: ['madeira','madeireira','compensado','mdf'], expandir: ['madeira','madeireira'], tipo: 'Fornecedor', dica: 'fornecedores de madeira' },
-  { termos: ['tinta','pintura','verniz'], expandir: ['tinta','pintura'], dica: 'tintas e serviços de pintura' },
-  { termos: ['eletrico','eletrica','fiacao','cabos','instalacao eletrica'], expandir: ['elétrica','elétrico','instalações elétricas'], dica: 'instalações elétricas' },
-  { termos: ['hidraulica','encanamento','tubo','tubulacao','agua'], expandir: ['hidráulica','encanamento','tubulação'], dica: 'hidráulica e encanamento' },
-  { termos: ['material de construcao','loja de material','deposito'], expandir: ['materiais de construção','comércio'], tipo: 'Fornecedor', dica: 'lojas de materiais de construção' },
-  // Serviços e mão de obra
+  // ── CONSTRUÇÃO: Materiais e insumos ──
+  { termos: ['cimento','concreto','argamassa','usina de concreto','cimenteira','concreteira'], expandir: ['cimento','concreto','argamassa'], tipo: 'Fornecedor', dica: 'fornecedores de cimento e concreto' },
+  { termos: ['tijolo','bloco','ceramica','telha','olaria','ceramico'], expandir: ['cerâmica','bloco','tijolo','telha'], tipo: 'Fornecedor', dica: 'fornecedores de cerâmica e blocos' },
+  { termos: ['aco','ferro','vergalhao','metalurgica','estrutura metalica','serralheria','metalurgia'], expandir: ['aço','metalúrgica','estrutura metálica','ferro','serralheria'], tipo: 'Fornecedor', dica: 'fornecedores de aço e estruturas metálicas' },
+  { termos: ['madeira','madeireira','compensado','mdf','marcenaria'], expandir: ['madeira','madeireira','marcenaria'], tipo: 'Fornecedor', dica: 'fornecedores de madeira' },
+  { termos: ['tinta','pintura','verniz','pintor'], expandir: ['tinta','pintura'], dica: 'tintas e serviços de pintura' },
+  { termos: ['eletrico','eletrica','fiacao','cabos','instalacao eletrica','eletricista'], expandir: ['elétrica','elétrico','instalações elétricas','eletricista'], dica: 'instalações elétricas' },
+  { termos: ['hidraulica','encanamento','tubo','tubulacao','agua','encanador','bombeiro hidraulico'], expandir: ['hidráulica','encanamento','tubulação'], dica: 'hidráulica e encanamento' },
+  { termos: ['material de construcao','loja de material','deposito','home center'], expandir: ['materiais de construção','comércio'], tipo: 'Fornecedor', dica: 'lojas de materiais de construção' },
+  { termos: ['vidro','vidracaria','vidraceiro','esquadria'], expandir: ['vidro','vidraçaria','esquadria'], dica: 'vidraçarias e esquadrias' },
+  { termos: ['piso','revestimento','porcelanato','azulejo','ladrilho'], expandir: ['piso','revestimento','porcelanato'], tipo: 'Fornecedor', dica: 'pisos e revestimentos' },
+  // ── CONSTRUÇÃO: Serviços e mão de obra ──
   { termos: ['contratar servico','prestador','mao de obra','servico','terceirizar'], expandir: ['serviço','prestador'], tipo: 'Prestador de Serviço', dica: 'prestadores de serviço' },
-  { termos: ['pedreiro','empreiteiro','obra','reforma','construir','empreitada'], expandir: ['empreiteiro','reformas','obra'], tipo: 'Empreiteiro', dica: 'empreiteiros e mão de obra' },
+  { termos: ['pedreiro','empreiteiro','obra','reforma','construir','empreitada','mestre de obras'], expandir: ['empreiteiro','reformas','obra'], tipo: 'Empreiteiro', dica: 'empreiteiros e mão de obra' },
   { termos: ['demolicao','demolir'], expandir: ['demolição'], dica: 'serviços de demolição' },
-  { termos: ['terraplenagem','terraplanagem','escavacao','fundacao','sondagem'], expandir: ['fundação','terraplenagem','escavação'], dica: 'fundação e terraplenagem' },
-  { termos: ['andaime','escoramento','locacao de equipamento','aluguel de equipamento'], expandir: ['andaimes','locação','equipamentos'], dica: 'locação de equipamentos e andaimes' },
-  { termos: ['ar condicionado','climatizacao','ventilacao','refrigeracao'], expandir: ['ar-condicionado','climatização','ventilação'], dica: 'climatização e ventilação' },
+  { termos: ['terraplenagem','terraplanagem','escavacao','fundacao','sondagem','estaca'], expandir: ['fundação','terraplenagem','escavação'], dica: 'fundação e terraplenagem' },
+  { termos: ['andaime','escoramento','locacao de equipamento','aluguel de equipamento','locadora'], expandir: ['andaimes','locação','equipamentos'], dica: 'locação de equipamentos e andaimes' },
+  { termos: ['ar condicionado','climatizacao','ventilacao','refrigeracao','hvac'], expandir: ['ar-condicionado','climatização','ventilação'], dica: 'climatização e ventilação' },
   { termos: ['impermeabilizacao','impermeabilizar','manta'], expandir: ['impermeabilização'], dica: 'impermeabilização' },
-  { termos: ['gesso','drywall','forro','acabamento'], expandir: ['gesso','acabamento','drywall'], dica: 'gesso e acabamentos' },
-  // Tipos de cliente
-  { termos: ['construtora','incorporadora','quem constroi','grandes obras'], expandir: ['construção'], tipo: 'Construtora', dica: 'construtoras e incorporadoras' },
-  { termos: ['infraestrutura','rodovia','estrada','ponte','saneamento','pavimentacao'], expandir: ['infraestrutura','pavimentação','rodovias'], dica: 'obras de infraestrutura' },
+  { termos: ['gesso','drywall','forro','acabamento','gesseiro'], expandir: ['gesso','acabamento','drywall'], dica: 'gesso e acabamentos' },
+  { termos: ['arquiteto','arquitetura','projeto','design de interiores','paisagismo'], expandir: ['arquitetura','projetos','engenharia'], tipo: 'Engenharia', dica: 'arquitetura e projetos' },
+  { termos: ['engenheiro','engenharia','calculo estrutural','laudo','projeto estrutural'], expandir: ['engenharia','projetos'], tipo: 'Engenharia', dica: 'engenharia e projetos' },
+  // ── CONSTRUÇÃO: Tipos de cliente ──
+  { termos: ['construtora','incorporadora','quem constroi','grandes obras','edificadora'], expandir: ['construção'], tipo: 'Construtora', dica: 'construtoras e incorporadoras' },
+  { termos: ['infraestrutura','rodovia','estrada','ponte','saneamento','pavimentacao','asfalto'], expandir: ['infraestrutura','pavimentação','rodovias'], dica: 'obras de infraestrutura' },
+
+  // ── SAÚDE ──
+  { termos: ['clinica','medico','consultorio','saude','hospital','posto de saude','ambulatorio'], expandir: ['clínica','médica','saúde','hospital'], tipo: 'Clínica', dica: 'clínicas e serviços de saúde' },
+  { termos: ['dentista','odontologia','dental','consultorio odontologico'], expandir: ['odontologia','dental','dentista'], tipo: 'Clínica', dica: 'clínicas odontológicas' },
+  { termos: ['laboratorio','exame','analise clinica','diagnostico','imagem'], expandir: ['laboratório','análises','diagnóstico'], tipo: 'Clínica', dica: 'laboratórios e diagnósticos' },
+  { termos: ['farmacia','drogaria','remedio','medicamento','manipulacao'], expandir: ['farmácia','drogaria'], tipo: 'Farmácia', dica: 'farmácias e drogarias' },
+  { termos: ['fisioterapia','fisioterapeuta','reabilitacao','pilates'], expandir: ['fisioterapia','reabilitação'], tipo: 'Clínica', dica: 'fisioterapia e reabilitação' },
+  { termos: ['veterinario','veterinaria','pet','clinica veterinaria','animal'], expandir: ['veterinária','pet'], tipo: 'Clínica', dica: 'clínicas veterinárias' },
+  { termos: ['psicologo','psicologia','terapia','psiquiatra','saude mental'], expandir: ['psicologia','terapia'], tipo: 'Clínica', dica: 'psicologia e terapia' },
+
+  // ── JURÍDICO / CONTÁBIL / ADMIN ──
+  { termos: ['advogado','advocacia','juridico','escritorio de advocacia','direito','causa'], expandir: ['advocacia','jurídico','direito'], tipo: 'Jurídico', dica: 'escritórios de advocacia' },
+  { termos: ['contador','contabilidade','contabil','escritorio contabil','fiscal','imposto'], expandir: ['contabilidade','contábil','fiscal'], tipo: 'Contabilidade', dica: 'escritórios de contabilidade' },
+  { termos: ['consultoria','consultor','assessoria','gestao empresarial'], expandir: ['consultoria','assessoria'], tipo: 'Consultoria', dica: 'consultorias e assessorias' },
+  { termos: ['despachante','cartorio','documentacao','regularizacao'], expandir: ['despachante','documentação'], dica: 'despachantes e documentação' },
+
+  // ── TECNOLOGIA ──
+  { termos: ['tecnologia','ti','software','sistema','desenvolvimento','programacao','app','aplicativo','startup'], expandir: ['tecnologia','software','sistemas','desenvolvimento'], tipo: 'TI', dica: 'empresas de tecnologia e software' },
+  { termos: ['site','website','web','agencia digital','marketing digital','ecommerce','loja virtual'], expandir: ['web','digital','marketing'], tipo: 'TI', dica: 'agências digitais e web' },
+  { termos: ['suporte tecnico','informatica','redes','infraestrutura de ti','assistencia tecnica'], expandir: ['informática','suporte','TI'], tipo: 'TI', dica: 'suporte técnico e informática' },
+  { termos: ['marketing','publicidade','propaganda','agencia','midia','social media'], expandir: ['marketing','publicidade','propaganda'], tipo: 'Marketing', dica: 'agências de marketing e publicidade' },
+
+  // ── LOGÍSTICA / TRANSPORTE ──
+  { termos: ['transporte','transportadora','frete','logistica','entrega','carga','caminhao','mudanca'], expandir: ['transporte','transportadora','logística','frete'], tipo: 'Transportadora', dica: 'transportadoras e logística' },
+  { termos: ['armazem','estoque','distribuicao','centro de distribuicao','galpao'], expandir: ['armazém','distribuição','logística'], tipo: 'Transportadora', dica: 'armazenagem e distribuição' },
+
+  // ── IMOBILIÁRIO ──
+  { termos: ['imobiliaria','imovel','aluguel','venda de imovel','corretor','loteamento','administradora de imoveis'], expandir: ['imobiliária','imóveis','corretagem'], tipo: 'Imobiliária', dica: 'imobiliárias e corretagem' },
+
+  // ── COMÉRCIO / ATACADO / VAREJO ──
+  { termos: ['atacado','atacadista','distribuidor','revenda','fornecimento'], expandir: ['atacado','distribuidor'], tipo: 'Comércio', dica: 'atacadistas e distribuidores' },
+  { termos: ['loja','comercio','varejo','mercado','supermercado'], expandir: ['comércio','varejo','loja'], tipo: 'Comércio', dica: 'comércio e varejo' },
+
+  // ── ALIMENTAÇÃO (ex: "pão" → padaria) ──
+  { termos: ['pao','padaria','panificadora','confeitaria','bolo','doceria'], expandir: ['padaria','panificadora','confeitaria','alimentos'], tipo: 'Comércio', dica: 'padarias e confeitarias' },
+  { termos: ['restaurante','lanchonete','bar','comida','alimentacao','food','gastronomia','pizzaria','cozinha'], expandir: ['restaurante','alimentação','lanchonete'], tipo: 'Comércio', dica: 'restaurantes e alimentação' },
+  { termos: ['acougue','carne','frigorifico','peixaria','hortifruti','mercearia'], expandir: ['açougue','frigorífico','alimentos'], tipo: 'Comércio', dica: 'açougues e alimentos' },
+  { termos: ['bebida','distribuidora de bebida','adega','cerveja'], expandir: ['bebidas','distribuidora'], tipo: 'Comércio', dica: 'distribuidoras de bebidas' },
+
+  // ── BELEZA / SERVIÇOS PESSOAIS ──
+  { termos: ['salao','cabeleireiro','barbearia','beleza','estetica','manicure','spa'], expandir: ['salão','beleza','estética'], dica: 'salões e estética' },
+  { termos: ['academia','personal','fitness','crossfit','musculacao'], expandir: ['academia','fitness'], dica: 'academias e fitness' },
+
+  // ── EDUCAÇÃO ──
+  { termos: ['escola','curso','educacao','faculdade','ensino','creche','treinamento','aula'], expandir: ['educação','escola','curso'], dica: 'escolas e cursos' },
+
+  // ── INDÚSTRIA / SERVIÇOS GERAIS ──
+  { termos: ['industria','fabrica','fabricante','producao','manufatura'], expandir: ['indústria','fabricação','fábrica'], tipo: 'Fornecedor', dica: 'indústrias e fabricantes' },
+  { termos: ['limpeza','faxina','conservacao','higienizacao','dedetizacao'], expandir: ['limpeza','conservação'], dica: 'serviços de limpeza' },
+  { termos: ['seguranca','vigilancia','monitoramento','portaria','alarme','cftv'], expandir: ['segurança','vigilância','monitoramento'], dica: 'segurança e vigilância' },
+  { termos: ['evento','festa','buffet','cerimonial','locacao de espaco'], expandir: ['eventos','buffet'], dica: 'eventos e buffets' },
 ];
 
 // Resolve uma query livre em termos/filtros estruturados

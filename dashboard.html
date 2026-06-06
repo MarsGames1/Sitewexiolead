@@ -416,6 +416,8 @@ thead th {
   font-weight: 600;
   background: var(--surface2);
 }
+thead th[data-sort]:hover { color: var(--accent); background: var(--surface3); }
+.sort-ind { display:inline-flex; align-items:center; }
 tbody tr { border-bottom: 1px solid var(--border); transition: background 0.12s; }
 tbody tr:last-child { border-bottom: none; }
 tbody tr:hover { background: var(--surface2); }
@@ -1851,7 +1853,13 @@ textarea.form-input { resize: vertical; min-height: 90px; }
     <div class="tbl-wrap">
       <table>
         <thead><tr>
-          <th>Empresa</th><th>Segmento</th><th>Cidade/UF</th><th>Telefone</th><th>Score</th><th>Status</th><th>Ações</th>
+          <th data-sort="empresa" onclick="sortLeadsBy('empresa')" title="Clique para ordenar por empresa" style="cursor:pointer;user-select:none;"><span style="display:inline-flex;align-items:center;gap:4px;">Empresa <span class="sort-ind"></span></span></th>
+          <th data-sort="segmento" onclick="sortLeadsBy('segmento')" title="Clique para ordenar por segmento" style="cursor:pointer;user-select:none;"><span style="display:inline-flex;align-items:center;gap:4px;">Segmento <span class="sort-ind"></span></span></th>
+          <th data-sort="cidade" onclick="sortLeadsBy('cidade')" title="Clique para ordenar por cidade" style="cursor:pointer;user-select:none;"><span style="display:inline-flex;align-items:center;gap:4px;">Cidade/UF <span class="sort-ind"></span></span></th>
+          <th data-sort="telefone" onclick="sortLeadsBy('telefone')" title="Ordenar: com contato primeiro" style="cursor:pointer;user-select:none;"><span style="display:inline-flex;align-items:center;gap:4px;">Telefone <span class="sort-ind"></span></span></th>
+          <th data-sort="score" onclick="sortLeadsBy('score')" title="Clique para ordenar por score" style="cursor:pointer;user-select:none;"><span style="display:inline-flex;align-items:center;gap:4px;">Score <span class="sort-ind"></span></span></th>
+          <th data-sort="status" onclick="sortLeadsBy('status')" title="Clique para ordenar por status do CRM" style="cursor:pointer;user-select:none;"><span style="display:inline-flex;align-items:center;gap:4px;">Status <span class="sort-ind"></span></span></th>
+          <th>Ações</th>
 </tr></thead>
         <tbody id="leadsTbody">
           <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted);">Carregando leads...</td></tr>
@@ -2296,6 +2304,12 @@ let crmData = {}; // leadId ->{status, notes, followup}
 let leadsPage = 1;
 const LEADS_PER_PAGE = 15;
 let filteredLeads = [];
+let leadSortCol = null;   // 'empresa' | 'segmento' | 'cidade' | 'telefone' | 'score' | 'status'
+let leadSortDir = 'desc'; // 'asc' | 'desc'
+try {
+  const _ls = JSON.parse(localStorage.getItem('wl_leadsort') || 'null');
+  if (_ls && _ls.c) { leadSortCol = _ls.c; leadSortDir = _ls.d || 'desc'; }
+} catch(e) {}
 let currentCrmLeadId = null;
 let crmPage = 1;
 const CRM_PER_PAGE = 8;
@@ -2510,7 +2524,13 @@ async function fetchLeadsFromServer(filters = {}) {
   allLeads = data || [];
   filteredLeads = [...allLeads];
   leadsPage = 1;
-  renderLeadsTable();
+  // Se o usuário escolheu uma ordenação, mantém a preferência após a nova busca
+  if (leadSortCol) {
+    reapplySort();
+    renderLeadsTable();
+  } else {
+    renderLeadsTable();
+  }
   renderSuggestedLeads();
 
   // Avisa free que filtros avançados (tipo/estado/segmento) requerem upgrade
@@ -2659,8 +2679,63 @@ function applyLocalSearch() {
   renderLeadsTable();
 }
 
+// Ordena os leads ao clicar no cabeçalho da coluna.
+// 1º clique: ascendente (A→Z) para texto, decrescente para score. 2º clique inverte.
+function sortLeadsBy(col) {
+  if (leadSortCol === col) {
+    leadSortDir = (leadSortDir === 'desc') ? 'asc' : 'desc';
+  } else {
+    leadSortCol = col;
+    leadSortDir = (col === 'score') ? 'desc' : 'asc';
+  }
+  try { localStorage.setItem('wl_leadsort', JSON.stringify({ c: leadSortCol, d: leadSortDir })); } catch(e) {}
+  reapplySort();
+  leadsPage = 1;
+  updateSortIndicators();
+  renderLeadsTable();
+}
+
+// Aplica a ordenação atual (leadSortCol/leadSortDir) sem alterar a direção
+function reapplySort() {
+  if (!leadSortCol) return;
+  const dir = leadSortDir === 'asc' ? 1 : -1;
+  const statusOrder = { novo: 1, contatado: 2, negociando: 3, fechado: 4 };
+  const valor = (l) => {
+    switch (leadSortCol) {
+      case 'empresa':  return normalize(l.nome_fantasia || l.razao_social || '');
+      case 'segmento': return normalize(l.segmento_simplificado || '');
+      case 'cidade':   return normalize((l.municipio || '') + (l.estado || ''));
+      case 'telefone': return (l.telefone_1 || l.telefone_2) ? 1 : 0;
+      case 'score':    return Number(l.score_lead || l.score || 0);
+      case 'status':   return statusOrder[(crmData[l.id]?.status) || ''] || 0;
+      default:         return 0;
+    }
+  };
+  filteredLeads.sort((a, b) => {
+    const va = valor(a), vb = valor(b);
+    if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * dir;
+    return String(va).localeCompare(String(vb), 'pt-BR') * dir;
+  });
+}
+
+// Atualiza as setinhas de ordenação nos cabeçalhos
+function updateSortIndicators() {
+  document.querySelectorAll('th[data-sort]').forEach(th => {
+    const ind = th.querySelector('.sort-ind');
+    if (!ind) return;
+    if (th.getAttribute('data-sort') === leadSortCol) {
+      ind.innerHTML = leadSortDir === 'asc'
+        ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>'
+        : '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+    } else {
+      ind.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:.35;"><polyline points="8 9 12 5 16 9"/><polyline points="8 15 12 19 16 15"/></svg>';
+    }
+  });
+}
+
 function renderLeadsTable() {
   // filteredLeads is always set by fetchLeadsFromServer; don't override with allLeads on empty results
+  updateSortIndicators();
 
   const plan = currentProfile?.plan || 'free';
   const used = currentProfile?.leads_used || 0;
@@ -2670,7 +2745,13 @@ function renderLeadsTable() {
   if (leadsPage >pages) leadsPage = 1;
   const slice = filteredLeads.slice((leadsPage-1)*LEADS_PER_PAGE, leadsPage*LEADS_PER_PAGE);
 
-  document.getElementById('leadsCountLabel').textContent = `${total} lead${total!==1?'s':''} encontrado${total!==1?'s':''}`;
+  const sortLabels = { empresa:'empresa', segmento:'segmento', cidade:'cidade', telefone:'contato', score:'score', status:'status' };
+  let sortTxt = '';
+  if (leadSortCol && sortLabels[leadSortCol]) {
+    const seta = leadSortDir === 'asc' ? '↑' : '↓';
+    sortTxt = ` · ordenado por ${sortLabels[leadSortCol]} ${seta}`;
+  }
+  document.getElementById('leadsCountLabel').textContent = `${total} lead${total!==1?'s':''} encontrado${total!==1?'s':''}${sortTxt}`;
   document.getElementById('leadsPageInfo').textContent = `Página ${leadsPage} de ${pages} · ${total} resultado${total!==1?'s':''}`;
 
   if (plan === 'free') document.getElementById('leadsFreeNote').style.display = 'flex';

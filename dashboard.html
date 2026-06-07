@@ -2058,7 +2058,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
       Convites <span id="convitesCount" style="display:none;background:var(--red);color:#fff;font-size:10px;font-weight:700;border-radius:8px;padding:1px 6px;margin-left:4px;">0</span>
     </button>
     <button class="rede-tab" id="redeTabConexoes" onclick="setRedeTab('conexoes')">Minhas conexões</button>
-    <button class="rede-tab" id="redeTabChat" onclick="setRedeTab('chat')">Chat</button>
+    <button class="rede-tab" id="redeTabChat" onclick="setRedeTab('chat')">Chat <span id="chatCount" style="display:none;background:var(--red);color:#fff;font-size:10px;font-weight:700;border-radius:8px;padding:1px 6px;margin-left:4px;">0</span></button>
   </div>
 
   <div id="redeConvites" class="rede-panel"></div>
@@ -2068,8 +2068,9 @@ textarea.form-input { resize: vertical; min-height: 90px; }
   <style>
     .rede-tab { padding:7px 16px;border:none;background:none;border-radius:7px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s; }
     .rede-tab.active { background:var(--surface);color:var(--accent);box-shadow:var(--shadow); }
-    .conn-card { background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px; }
-    .conn-ava { width:42px;height:42px;border-radius:10px;background:var(--accent-bg);color:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;flex-shrink:0; }
+    .conn-card { background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;transition:border-color .18s,box-shadow .18s,transform .18s; }
+    .conn-card:hover { border-color:rgba(249,115,22,0.3); box-shadow:var(--shadow-md); transform:translateY(-1px); }
+    .conn-ava { width:44px;height:44px;border-radius:12px;background:var(--accent-bg);color:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;flex-shrink:0;overflow:hidden; }
     .chat-msg { max-width:75%;padding:9px 13px;border-radius:12px;font-size:13px;line-height:1.5;margin-bottom:8px;word-break:break-word; }
     .chat-msg.mine { background:var(--accent);color:#fff;margin-left:auto;border-bottom-right-radius:4px; }
     .chat-msg.theirs { background:var(--surface2);color:var(--text);border:1px solid var(--border);border-bottom-left-radius:4px; }
@@ -2984,7 +2985,7 @@ function leadsPageNav(dir) {
 // CRM
 // 
 async function loadCrmFromStorage() {
-  // Migração: carrega CRM do Supabase (persiste entre dispositivos)
+  // Carrega CRM do Supabase (persiste entre dispositivos)
   try {
     if (!currentUser?.id) return;
     const { data, error } = await sb
@@ -3019,7 +3020,31 @@ async function loadCrmFromStorage() {
         localStorage.removeItem(`wl_crm_${currentUser.id}`); // limpa após migrar
       }
     } catch(e) {}
+    // Carrega os dados completos dos leads do CRM (independente da última busca)
+    await carregarLeadsDoCrm();
   } catch(e) { console.error(e); }
+}
+
+// Mantém em cache os leads que estão no CRM, buscando do banco por ID.
+// Sem isso, o CRM só mostraria leads da última busca (causava "sumiço" dos cards).
+let crmLeadsCache = {};
+async function carregarLeadsDoCrm() {
+  try {
+    const ids = Object.keys(crmData);
+    if (!ids.length) { crmLeadsCache = {}; return; }
+    const { data, error } = await sb
+      .from('leads')
+      .select('*')
+      .in('id', ids);
+    if (error) { console.error('Erro ao carregar leads do CRM:', error.message); return; }
+    crmLeadsCache = {};
+    (data || []).forEach(l => { crmLeadsCache[l.id] = l; });
+  } catch(e) { console.error(e); }
+}
+
+// Retorna os dados de um lead procurando primeiro na busca atual, depois no cache do CRM
+function getLeadCrm(leadId) {
+  return allLeads.find(l => l.id === leadId) || crmLeadsCache[leadId] || null;
 }
 
 async function saveCrmToStorage() {
@@ -3251,6 +3276,12 @@ async function saveCrm() {
   };
   crmData[currentCrmLeadId] = entry;
 
+  // Garante que o lead salvo esteja no cache do CRM (caso venha de uma busca antiga)
+  if (!crmLeadsCache[currentCrmLeadId]) {
+    const jaCarregado = allLeads.find(l => l.id === currentCrmLeadId);
+    if (jaCarregado) crmLeadsCache[currentCrmLeadId] = jaCarregado;
+  }
+
   // Persiste no Supabase (sobrevive a troca de dispositivo / limpeza de cache)
   try {
     const { error } = await sb.from('crm_entries').upsert({
@@ -3361,14 +3392,14 @@ function renderCrm() {
   if (bulkBar) bulkBar.style.display = (isPro && crmView === 'lista') ? 'flex' : 'none';
 
   // Todas as entradas (para o funil contar tudo, independente de filtro)
-  const todas = Object.values(crmData).filter(c => allLeads.find(l => l.id === c.leadId));
+  const todas = Object.values(crmData).filter(c => getLeadCrm(c.leadId));
 
   // Renderiza funil
   renderCrmFunnel(todas, statusF);
 
   // Entradas filtradas
   let entries = todas.filter(c => {
-    const lead = allLeads.find(l => l.id === c.leadId);
+    const lead = getLeadCrm(c.leadId);
     const matchQ = !q || (lead.nome_fantasia||lead.razao_social||'').toLowerCase().includes(q);
     const matchStatus = !statusF || c.status === statusF;
     return matchQ && matchStatus;
@@ -3456,7 +3487,7 @@ function renderCrmLista(entries, isPro) {
   const statusLabel = {novo:'Novo',contatado:'Contatado',negociando:'Negociando',fechado:'Fechado'};
 
   container.innerHTML = slice.map(c => {
-    const lead = allLeads.find(l => l.id === c.leadId) || {};
+    const lead = getLeadCrm(c.leadId) || {};
     const name = lead.nome_fantasia || lead.razao_social || c.leadId;
     const date = c.updatedAt ? new Date(c.updatedAt).toLocaleDateString('pt-BR') : '';
     // Follow-up com destaque de urgência
@@ -3539,7 +3570,7 @@ function renderCrmKanban(entries, isPro) {
           <span style="font-size:12px;font-weight:700;color:var(--muted);background:var(--surface3);border-radius:20px;padding:1px 9px;">${cards.length}</span>
         </div>
         ${cards.map(c => {
-          const lead = allLeads.find(l => l.id === c.leadId) || {};
+          const lead = getLeadCrm(c.leadId) || {};
           const name = lead.nome_fantasia || lead.razao_social || c.leadId;
           let fuBadge = '';
           if (c.followup) {
@@ -3590,7 +3621,7 @@ function renderCrmDashboardPreview(entries) {
     return;
   }
   recentCrmList.innerHTML = entries.slice(0,3).map(c => {
-    const lead = allLeads.find(l => l.id === c.leadId) || {};
+    const lead = getLeadCrm(c.leadId) || {};
     const name = lead.nome_fantasia || lead.razao_social || '—';
     const cls = {novo:'crm-novo',contatado:'crm-contatado',negociando:'crm-negociando',fechado:'crm-fechado'};
     const lbl = {novo:'Novo',contatado:'Contatado',negociando:'Negociando',fechado:'Fechado'};
@@ -4225,22 +4256,51 @@ async function finishOnboarding(wantsTutorial) {
 // 
 // WEX — CHAT IA
 // 
-const WEX_SYSTEM = `Você é a Wex, assistente virtual feminina do WexioLead — plataforma SaaS de leads para construção civil brasileira.
+const WEX_SYSTEM = `Você é a Wex, assistente virtual do WexioLead — plataforma SaaS brasileira de geração de leads B2B. Nascida na construção civil, hoje atende múltiplos setores.
 
-Personalidade: profissional, direta, simpática, como uma consultora experiente em construção civil. Tom acessível, quer ver o cliente fechar negócio.
+PERSONALIDADE: profissional, direta, simpática e prática, como uma consultora de vendas experiente. Foco em ajudar o cliente a encontrar bons leads e fechar negócio. Linguagem acessível e objetiva. Nunca use emojis.
 
-Você sabe:
-- Sugerir filtros de busca personalizados para construção civil
-- Explicar segmentos e CNAEs da construção (CNAE 41, 42, 43, etc.)
-- Ajudar a escrever e-mails de prospecção para construtoras e fornecedores
-- Dar dicas de abordagem por perfil de lead
-- Informar sobre planos: Free (10 leads), Starter R$97 (300 leads), Pro R$197 (1.000 leads), Agency R$397 (ilimitado)
-- Explicar funcionalidades: score de lead (0-100), selo verificado, CRM leve, exportação CSV
-- Responder dúvidas sobre o mercado de construção civil brasileiro
+SOBRE A PLATAFORMA:
+O WexioLead reúne empresas brasileiras com dados da Receita Federal (razão social, nome fantasia, CNPJ, telefone, e-mail, sócio, município/UF, segmento) e enriquece com score de qualificação (0-100), selo de lead verificado e classificação por tipo. O cliente busca, filtra, salva no CRM e pode se conectar com outras empresas da rede.
 
-Apresentação padrão: "Olá! Sou a Wex, sua assistente no WexioLead. Pode me perguntar sobre leads, estratégia de prospecção ou o mercado de construção civil."
+SETORES COBERTOS (não apenas construção):
+- Construção civil: construtoras, incorporadoras, empreiteiros, fornecedores de materiais (cimento, aço, madeira, cerâmica, tintas), serviços (elétrica, hidráulica, pintura, gesso, terraplenagem, climatização), engenharia e arquitetura
+- Saúde: clínicas, consultórios, odontologia, laboratórios, farmácias, fisioterapia, veterinária, psicologia
+- Jurídico e contábil: advocacia, contabilidade, consultoria, assessoria
+- Tecnologia: software, TI, agências digitais, marketing, suporte técnico
+- Logística e transporte: transportadoras, frete, armazenagem, distribuição
+- Imobiliário: imobiliárias, corretagem, administração de imóveis
+- Comércio: atacado, varejo, distribuidores, lojas
+- Alimentação: padarias, restaurantes, açougues, distribuidoras de bebidas
+- Serviços: beleza, academias, educação, limpeza, segurança, eventos
+- Indústria: fábricas, fabricantes, manufatura
 
-Responda sempre em português brasileiro. Seja concisa (máximo 3 parágrafos). Use emojis com moderação.`;
+FUNCIONALIDADES QUE VOCÊ CONHECE E PODE EXPLICAR:
+- Busca inteligente: o cliente pode buscar por termos livres (ex: "padarias em SP", "clínicas", "fornecedor de cimento") e o sistema entende sinônimos e expande a busca
+- Filtros: por tipo de empresa, estado e segmento (planos pagos)
+- Ordenação por clique: clicar no cabeçalho da tabela ordena por empresa, segmento, cidade, score ou status; clicar de novo inverte
+- Score de lead (0-100): quanto maior, mais qualificado e completo o cadastro
+- CRM: organiza leads em etapas (novo, contatado, negociando, fechado). Versão lista no Starter; funil e Kanban completo no Pro e Agency
+- Rede B2B: conecta o cliente com outras empresas da plataforma via chat interno para fechar negócios. Starter gasta 1 crédito por conexão; Pro e Agency têm incluído
+- Radar de Empresas Novas: lista empresas recém-abertas (negócio novo = oportunidade quente). Exclusivo do plano Agency
+- Exportação: CSV/Excel dos leads e do CRM
+
+PLANOS (cobrança mensal avulsa, o cliente pode trocar a qualquer momento):
+- Free: gratuito, 10 consultas/mês, filtros básicos, score parcial, Wex limitada. Sem CRM, sem rede, sem radar
+- Starter R$97/mês: 300 consultas, filtros completos, score 0-100, selo verificado, CSV, CRM leve (lista), Rede B2B (1 crédito por conexão), Wex essencial
+- Pro R$197/mês: 1.000 consultas, tudo do Starter, CRM completo (funil e Kanban), Rede B2B incluída, Wex completa, suporte prioritário
+- Agency R$397/mês: consultas ilimitadas, tudo do Pro, Radar de Empresas Novas exclusivo, multi-usuário e gestão de equipe, onboarding dedicado, suporte WhatsApp
+
+O QUE VOCÊ FAZ:
+- Sugere termos e filtros de busca para o que o cliente procura
+- Ajuda a escrever mensagens e e-mails de prospecção
+- Dá dicas de abordagem por perfil de lead e por setor
+- Explica funcionalidades e planos, recomendando o ideal para o perfil
+- Orienta sobre como usar CRM, Rede B2B e Radar
+
+REGRAS: responda sempre em português brasileiro, de forma concisa (máximo 3 parágrafos). Seja honesta — se algo não existe na plataforma, diga. Nunca prometa recursos que não listei acima. Nunca use emojis.
+
+Apresentação padrão: "Olá! Sou a Wex, sua assistente no WexioLead. Posso ajudar com busca de leads, estratégia de prospecção, uso da plataforma ou recomendação de plano. O que você procura hoje?"`;
 
 let wexHistory = [];
 const revealedLeads = new Set();
@@ -5560,13 +5620,13 @@ async function carregarConexoes() {
   } catch(e) { console.error(e); return []; }
 }
 
-// Busca nome da empresa de um perfil (cache simples)
+// Busca nome da empresa de um parceiro de conexão (via RPC segura, contorna RLS)
 const _perfilNomeCache = {};
 async function nomeEmpresa(userId) {
   if (_perfilNomeCache[userId]) return _perfilNomeCache[userId];
   try {
-    const { data } = await sb.from('profiles').select('company,full_name,email').eq('id', userId).single();
-    const nome = (data && (data.company || data.full_name || (data.email||'').split('@')[0])) || 'Empresa';
+    const { data } = await sb.rpc('nome_empresa_parceiro', { p_outro_id: userId });
+    const nome = data || 'Empresa';
     _perfilNomeCache[userId] = nome;
     return nome;
   } catch(e) { return 'Empresa'; }
@@ -5580,7 +5640,7 @@ async function renderConvites() {
   const pendentes = conexoesCache.filter(c => c.destinatario_id === currentUser.id && c.status === 'pendente');
 
   if (!pendentes.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon"></div><p>Nenhum convite de conexão pendente.</p></div>';
+    el.innerHTML = '<div class="empty-state" style="padding:48px 20px;text-align:center;"><div style="width:52px;height:52px;margin:0 auto 14px;border-radius:14px;background:var(--surface2);display:flex;align-items:center;justify-content:center;color:var(--muted);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><p style="color:var(--muted);font-size:13.5px;">Nenhum convite de conexão pendente.</p></div>';
     return;
   }
 
@@ -5593,7 +5653,7 @@ async function renderConvites() {
       '<div class="conn-card">' +
         avaHtml(nome) +
         '<div style="flex:1;min-width:0;">' +
-          '<div style="font-weight:600;font-size:14px;">' + nome + '</div>' +
+          '<div style="font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(nome) + '</div>' +
           '<div style="font-size:12px;color:var(--muted);margin-top:2px;">quer se conectar · ' + data + '</div>' +
           (c.mensagem_convite ? '<div style="margin-top:8px;font-size:12px;color:var(--muted);padding:8px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">' + escapeHtml(c.mensagem_convite) + '</div>' : '') +
         '</div>' +
@@ -5644,7 +5704,7 @@ async function renderConexoes() {
   const aceitas = conexoesCache.filter(c => c.status === 'aceita');
 
   if (!aceitas.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon"></div><p>Nenhuma conexão ativa ainda.<br>Solicite conexões ao abrir um lead.</p></div>';
+    el.innerHTML = '<div class="empty-state" style="padding:48px 20px;text-align:center;"><div style="width:52px;height:52px;margin:0 auto 14px;border-radius:14px;background:var(--surface2);display:flex;align-items:center;justify-content:center;color:var(--muted);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><p style="color:var(--muted);font-size:13.5px;">Nenhuma conexão ativa ainda.<br>Abra um lead e solicite uma conexão para começar.</p></div>';
     return;
   }
 
@@ -5657,10 +5717,10 @@ async function renderConexoes() {
       '<div class="conn-card">' +
         avaHtml(nome) +
         '<div style="flex:1;min-width:0;">' +
-          '<div style="font-weight:600;font-size:14px;">' + nome + '</div>' +
-          '<div style="font-size:12px;color:var(--green);margin-top:2px;">● Conectado</div>' +
+          '<div style="font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(nome) + '</div>' +
+          '<div style="font-size:12px;color:var(--green);margin-top:3px;display:inline-flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;"></span>Conectado</div>' +
         '</div>' +
-        '<button class="btn btn-accent" style="padding:7px 16px;font-size:13px;" onclick="abrirChat(\'' + c.id + '\',\'' + escapeHtml(nome).replace(/'/g,"") + '\')">Abrir chat</button>' +
+        '<button class="btn btn-accent" style="padding:8px 16px;font-size:13px;flex-shrink:0;" onclick="abrirChat(\'' + c.id + '\',\'' + escapeHtml(nome).replace(/'/g,"") + '\')">Abrir chat</button>' +
       '</div>'
     );
   }
@@ -5675,20 +5735,19 @@ async function renderChatList() {
   await carregarConexoes();
   const aceitas = conexoesCache.filter(c => c.status === 'aceita');
   if (!aceitas.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon"></div><p>Nenhuma conversa disponível.<br>Aceite ou faça conexões primeiro.</p></div>';
+    el.innerHTML = '<div class="empty-state" style="padding:48px 20px;text-align:center;"><div style="width:52px;height:52px;margin:0 auto 14px;border-radius:14px;background:var(--surface2);display:flex;align-items:center;justify-content:center;color:var(--muted);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><p style="color:var(--muted);font-size:13.5px;">Nenhuma conversa disponível.<br>Aceite ou faça conexões primeiro.</p></div>';
     return;
   }
   const cards = [];
   for (const c of aceitas) {
     const outroId = c.remetente_id === currentUser.id ? c.destinatario_id : c.remetente_id;
     const nome = await nomeEmpresa(outroId);
-    const inicial = nome.charAt(0).toUpperCase();
     cards.push(
       '<div class="conn-card" style="cursor:pointer;" onclick="abrirChat(\'' + c.id + '\',\'' + escapeHtml(nome).replace(/'/g,"") + '\')">' +
         avaHtml(nome) +
-        '<div style="flex:1;"><div style="font-weight:600;font-size:14px;">' + nome + '</div>' +
+        '<div style="flex:1;min-width:0;"><div style="font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(nome) + '</div>' +
         '<div style="font-size:12px;color:var(--muted);">Toque para conversar</div></div>' +
-        '<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2;"><polyline points="9 18 15 12 9 6"/></svg>' +
+        '<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2;flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>' +
       '</div>'
     );
   }
@@ -5880,8 +5939,10 @@ async function atualizarBadgeRede() {
     if (!data) return;
     const total = data.total || 0;
     const convites = data.convites || 0;
+    const naolidas = data.naolidas || 0;
     const badge = document.getElementById('redeBadge');
     const tabCount = document.getElementById('convitesCount');
+    const chatCount = document.getElementById('chatCount');
     if (badge) {
       badge.textContent = total;
       badge.style.display = total > 0 ? 'flex' : 'none';
@@ -5889,6 +5950,10 @@ async function atualizarBadgeRede() {
     if (tabCount) {
       tabCount.textContent = convites;
       tabCount.style.display = convites > 0 ? 'inline' : 'none';
+    }
+    if (chatCount) {
+      chatCount.textContent = naolidas;
+      chatCount.style.display = naolidas > 0 ? 'inline' : 'none';
     }
   } catch(e) {}
 }

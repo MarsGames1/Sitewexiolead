@@ -2043,6 +2043,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
   </div>
 
   <div id="radarLista"></div>
+  <div id="radarPaginacao" style="display:none;padding:16px 0;display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid var(--border);margin-top:8px;"></div>
 </div>
 
 <!--  REDE B2B ═-->
@@ -2199,13 +2200,9 @@ textarea.form-input { resize: vertical; min-height: 90px; }
   <div class="card">
     <div class="card-head"><div class="card-title">Segurança</div></div>
     <div class="card-body">
-      <div style="max-width:400px;">
-        <div class="form-group"><label class="form-label">Nova senha</label><input type="password" class="form-input" id="newPassword" placeholder="Mínimo 8 caracteres"></div>
-        <div class="form-group"><label class="form-label">Confirmar nova senha</label><input type="password" class="form-input" id="confirmPassword" placeholder="Repita a nova senha"></div>
-        <button class="btn btn-ghost" onclick="changePassword()">Alterar senha</button>
-</div>
-</div>
-</div>
+      <p style="font-size:13px;color:var(--muted);">Para redefinir sua senha, acesse o link de recuperação enviado por e-mail ou entre em contato com o suporte.</p>
+    </div>
+  </div>
 </div>
 
 <!--  SUPORTE ═-->
@@ -5498,62 +5495,111 @@ async function _runBoletoPoll() {
 // ═══════════════════════════════════════════
 // RADAR DE EMPRESAS NOVAS (Agency)
 // ═══════════════════════════════════════════
+// ── Radar: estado de paginação ──
+let radarTodos = [];
+let radarPagina = 1;
+const RADAR_POR_PAGINA = 10;
+
 async function carregarRadar() {
+  radarPagina = 1;
+  radarTodos  = [];
   const lista = document.getElementById('radarLista');
   if (!lista) return;
   lista.innerHTML = '<p style="color:var(--muted);font-size:13px;padding:20px;text-align:center;">Buscando empresas recém-abertas...</p>';
+  document.getElementById('radarPaginacao').style.display = 'none';
 
   // Stats
   try {
     const { data: stats } = await sb.rpc('radar_stats');
     if (stats && !stats.erro) {
-      document.getElementById('radar30').textContent = stats.ultimos_30 ?? 0;
-      document.getElementById('radar90').textContent = stats.ultimos_90 ?? 0;
-      document.getElementById('radarAno').textContent = stats.este_ano ?? 0;
+      document.getElementById('radar30').textContent  = stats.ultimos_30 ?? 0;
+      document.getElementById('radar90').textContent  = stats.ultimos_90 ?? 0;
+      document.getElementById('radarAno').textContent = stats.este_ano  ?? 0;
     }
   } catch(e) {}
 
-  const dias = parseInt(document.getElementById('radarPeriodo').value) || 90;
-  const tipo = document.getElementById('radarTipo').value || null;
+  const dias   = parseInt(document.getElementById('radarPeriodo').value) || 90;
+  const tipo   = document.getElementById('radarTipo').value   || null;
   const estado = document.getElementById('radarEstado').value || null;
 
   try {
     const { data } = await sb.rpc('radar_empresas_novas', {
-      p_dias: dias, p_tipo: tipo, p_estado: estado, p_limit: 50
+      p_dias: dias, p_tipo: tipo, p_estado: estado, p_limit: 200
     });
     if (!data || data.erro) {
-      lista.innerHTML = '<div class="empty-state"><div class="empty-icon"></div><p>Radar disponível apenas no plano Agency.</p></div>';
+      lista.innerHTML = '<div class="empty-state"><div class="empty-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><p>Radar disponível apenas no plano Agency.</p></div>';
       return;
     }
-    const rows = data.rows || [];
-    if (!rows.length) {
-      lista.innerHTML = '<div class="empty-state"><div class="empty-icon"></div><p>Nenhuma empresa nova encontrada nesse período/filtro.<br>Tente ampliar o período ou importar mais leads no admin.</p></div>';
+    radarTodos = data.rows || [];
+    if (!radarTodos.length) {
+      lista.innerHTML = '<div class="empty-state" style="padding:48px 20px;text-align:center;"><div style="width:52px;height:52px;margin:0 auto 14px;border-radius:14px;background:var(--surface2);display:flex;align-items:center;justify-content:center;color:var(--muted);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><p style="color:var(--muted);font-size:13.5px;">Nenhuma empresa nova nesse período/filtro.<br>Tente ampliar o período ou importar mais leads no admin.</p></div>';
       return;
     }
-
-    // tipos usam ícone SVG único (UI_ICON)
-    lista.innerHTML =
-      '<div style="font-size:12px;color:var(--muted);margin-bottom:12px;">' + (data.total||rows.length) + ' empresas abertas no período</div>' +
-      rows.map(r => {
-        const dias = r.dias_aberta;
-        const dataFmt = r.data_abertura ? new Date(r.data_abertura+'T00:00').toLocaleDateString('pt-BR') : '';
-        const novidade = dias <= 30 ? '<span style="font-size:10px;font-weight:700;background:var(--accent);color:#fff;padding:2px 7px;border-radius:5px;margin-left:6px;">NOVA</span>' : '';
-        const icon = UI_ICON('building','18');
-        return '<div class="card" style="padding:14px 18px;margin-bottom:8px;display:flex;align-items:center;gap:14px;">' +
-          '<div style="width:40px;height:40px;border-radius:10px;background:var(--accent-bg);color:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;">' + icon + '</div>' +
-          '<div style="flex:1;min-width:0;">' +
-            '<div style="font-weight:600;font-size:14px;">' + escapeHtml(r.nome_fantasia || r.razao_social || '—') + novidade + '</div>' +
-            '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + (r.municipio||'') + (r.estado?' · '+r.estado:'') + (r.segmento_simplificado?' · '+r.segmento_simplificado:'') + '</div>' +
-          '</div>' +
-          '<div style="text-align:right;flex-shrink:0;">' +
-            '<div style="font-size:12px;font-weight:600;color:var(--accent);">Aberta há ' + dias + ' dia' + (dias!==1?'s':'') + '</div>' +
-            '<div style="font-size:11px;color:var(--dim);">' + dataFmt + '</div>' +
-          '</div>' +
-        '</div>';
-      }).join('');
+    renderRadarPagina();
   } catch(e) {
     lista.innerHTML = '<div class="empty-state"><p>Erro ao carregar o radar.</p></div>';
   }
+}
+
+function renderRadarPagina() {
+  const lista = document.getElementById('radarLista');
+  const pag   = document.getElementById('radarPaginacao');
+  if (!lista) return;
+
+  const total  = radarTodos.length;
+  const pages  = Math.ceil(total / RADAR_POR_PAGINA);
+  radarPagina  = Math.max(1, Math.min(radarPagina, pages));
+  const start  = (radarPagina - 1) * RADAR_POR_PAGINA;
+  const slice  = radarTodos.slice(start, start + RADAR_POR_PAGINA);
+
+  lista.innerHTML =
+    '<div style="font-size:12px;color:var(--muted);margin-bottom:12px;">' +
+      total + ' empresa' + (total!==1?'s':'') + ' abertas no período' +
+      ' — mostrando ' + (start+1) + '–' + Math.min(start+RADAR_POR_PAGINA, total) +
+    '</div>' +
+    slice.map(r => {
+      const diasAberta = r.dias_aberta;
+      const dataFmt    = r.data_abertura ? new Date(r.data_abertura+'T00:00').toLocaleDateString('pt-BR') : '';
+      const novidade   = diasAberta <= 30
+        ? '<span style="font-size:10px;font-weight:700;background:var(--accent);color:#fff;padding:2px 7px;border-radius:5px;margin-left:6px;">NOVA</span>'
+        : '';
+      return '<div class="card" style="padding:14px 18px;margin-bottom:8px;display:flex;align-items:center;gap:14px;transition:border-color .15s,box-shadow .15s;" onmouseover="this.style.borderColor=\'rgba(249,115,22,0.3)\';this.style.boxShadow=\'var(--shadow-md)\'" onmouseout="this.style.borderColor=\'\';this.style.boxShadow=\'\'">' +
+        '<div style="width:40px;height:40px;border-radius:10px;background:var(--accent-bg);color:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;">' + UI_ICON('building','18') + '</div>' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(r.nome_fantasia || r.razao_social || '—') + novidade + '</div>' +
+          '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + [r.municipio, r.estado, r.segmento_simplificado].filter(Boolean).join(' · ') + '</div>' +
+        '</div>' +
+        '<div style="text-align:right;flex-shrink:0;">' +
+          '<div style="font-size:12px;font-weight:600;color:var(--accent);">Aberta há ' + diasAberta + ' dia' + (diasAberta!==1?'s':'') + '</div>' +
+          '<div style="font-size:11px;color:var(--dim);">' + dataFmt + '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+  // Paginação
+  if (pages <= 1) { pag.style.display = 'none'; return; }
+  pag.style.display = 'flex';
+
+  const btnStyle = (active) =>
+    `style="min-width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:${active?'var(--accent)':'var(--surface)'};color:${active?'#fff':'var(--text)'};font-size:13px;font-weight:${active?'700':'400'};cursor:${active?'default':'pointer'};display:flex;align-items:center;justify-content:center;"`;
+
+  let nums = '';
+  for (let p = 1; p <= pages; p++) {
+    if (p === 1 || p === pages || Math.abs(p - radarPagina) <= 1) {
+      nums += `<button ${btnStyle(p===radarPagina)} onclick="radarPagina=${p};renderRadarPagina()">${p}</button>`;
+    } else if (Math.abs(p - radarPagina) === 2) {
+      nums += `<span style="color:var(--dim);line-height:34px;">…</span>`;
+    }
+  }
+
+  const prevBtn = `<button onclick="radarPagina--;renderRadarPagina()" style="padding:0 12px;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;" ${radarPagina===1?'disabled style="opacity:.4;cursor:default;"':''}>&larr; Anterior</button>`;
+  const nextBtn = `<button onclick="radarPagina++;renderRadarPagina()" style="padding:0 12px;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;" ${radarPagina===pages?'disabled style="opacity:.4;cursor:default;"':''}>Próxima &rarr;</button>`;
+  const info    = `<span style="font-size:12px;color:var(--muted);">Página ${radarPagina} de ${pages}</span>`;
+
+  pag.innerHTML = `<div style="display:flex;gap:6px;align-items:center;">${prevBtn}${nums}${nextBtn}</div>${info}`;
+
+  // Volta ao topo da lista ao trocar de página
+  lista.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 // ═══════════════════════════════════════════

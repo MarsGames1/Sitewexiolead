@@ -3100,113 +3100,78 @@ async function fetchPncp(cnpj) {
     Consultando bases públicas...
   </div>`;
 
-  // Helper para montar card de item
+  const fmtValor = v => v ? 'R$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) : '';
+  const fmtData  = d => d ? new Date(d).toLocaleDateString('pt-BR') : '';
+
   const card = (obj, valor, dt, badge, cor) => `
     <div style="padding:10px 12px;background:var(--surface2);border-radius:10px;margin-bottom:8px;border-left:3px solid ${cor};">
       <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.4;">${(obj||'—').length > 100 ? (obj||'—').slice(0,100)+'…' : (obj||'—')}</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px;">
-        ${valor ? `<span style="font-size:11px;color:var(--muted);display:inline-flex;align-items:center;gap:3px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>${valor}</span>` : ''}
-        ${dt ? `<span style="font-size:11px;color:var(--muted);display:inline-flex;align-items:center;gap:3px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${dt}</span>` : ''}
+        ${valor ? `<span style="font-size:11px;color:var(--muted);">${valor}</span>` : ''}
+        ${dt ? `<span style="font-size:11px;color:var(--muted);">${dt}</span>` : ''}
         ${badge ? `<span style="font-size:10px;padding:2px 7px;border-radius:5px;background:${cor}18;color:${cor};font-weight:600;">${badge}</span>` : ''}
       </div>
     </div>`;
 
-  const fmtValor = v => v ? 'R$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) : '';
-  const fmtData  = d => d ? new Date(d).toLocaleDateString('pt-BR') : '';
-
   try {
-    // ── 1. PNCP: contratos onde o CNPJ é FORNECEDOR (empresa contratada) ──────
-    const [rPncpForn, rPncpOrgao, rTransp] = await Promise.all([
-      fetch(`https://pncp.gov.br/api/consulta/v1/contratos?cnpjFornecedor=${cnpjLimpo}&pagina=1&tamanhoPagina=5`).catch(() => null),
-      fetch(`https://pncp.gov.br/api/consulta/v1/contratos?cnpjOrgao=${cnpjLimpo}&pagina=1&tamanhoPagina=5`).catch(() => null),
-      fetch(`https://api.portaldatransparencia.gov.br/api-de-dados/contratos?cnpjFornecedor=${cnpjLimpo}&pagina=1&tamanhoPagina=5`, {
-        headers: { 'Accept': 'application/json', 'chave-api-dados': '86db9d4d5eb46779b8f588d90ee22fd6' }
-      }).catch(() => null),
-    ]);
+    const { data: { session: _ps } } = await sb.auth.getSession();
+    const resp = await fetch(SUPABASE_URL + '/functions/v1/consulta-publica', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (_ps?.access_token || SUPABASE_KEY) },
+      body: JSON.stringify({ cnpj: cnpjLimpo }),
+      signal: AbortSignal.timeout(20000)
+    });
 
-    // Parse PNCP fornecedor
-    const jsonForn  = rPncpForn?.ok  ? await rPncpForn.json().catch(() => null)  : null;
-    const jsonOrgao = rPncpOrgao?.ok ? await rPncpOrgao.json().catch(() => null) : null;
-    const jsonTransp = rTransp?.ok && rTransp.status !== 403 ? await rTransp.json().catch(() => null) : null;
+    if (!resp.ok) throw new Error('falha na consulta');
+    const r = await resp.json();
 
-    const listaForn  = jsonForn?.data  || jsonForn?.content  || (Array.isArray(jsonForn)  ? jsonForn  : []);
-    const listaOrgao = jsonOrgao?.data || jsonOrgao?.content || (Array.isArray(jsonOrgao) ? jsonOrgao : []);
-    const listaTransp = Array.isArray(jsonTransp) ? jsonTransp : (jsonTransp?.data || jsonTransp?.content || []);
-
-    // ── 2. BrasilAPI: situação cadastral e atividade ────────────────────────
-    const rCnpj = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjLimpo}`).catch(() => null);
-    const cnpjData = rCnpj?.ok ? await rCnpj.json().catch(() => null) : null;
-
-    const totalRegistros = listaForn.length + listaOrgao.length + listaTransp.length;
-
-    // ── Monta HTML ─────────────────────────────────────────────────────────
     let html = '';
 
-    // Bloco de situação cadastral (BrasilAPI)
-    if (cnpjData && cnpjData.descricao_situacao_cadastral) {
-      const ativa = cnpjData.descricao_situacao_cadastral === 'ATIVA';
+    // Situação cadastral (sempre que disponível)
+    if (r.cadastro && r.cadastro.situacao) {
+      const ativa = r.cadastro.situacao === 'ATIVA';
       const corSit = ativa ? 'var(--green)' : 'var(--red)';
       const bgSit  = ativa ? 'var(--green-bg)' : 'var(--red-bg)';
-      const porte  = cnpjData.porte || '';
-      const cnae   = cnpjData.cnae_fiscal_descricao || '';
-      const abertura = cnpjData.data_inicio_atividade ? new Date(cnpjData.data_inicio_atividade).toLocaleDateString('pt-BR') : '';
+      const abertura = r.cadastro.abertura ? new Date(r.cadastro.abertura).toLocaleDateString('pt-BR') : '';
       html += `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
-        <span style="font-size:11px;padding:3px 9px;border-radius:6px;background:${bgSit};color:${corSit};font-weight:700;"><svg width="8" height="8" viewBox="0 0 8 8" style="vertical-align:middle;"><circle cx="4" cy="4" r="4" fill="currentColor"/></svg> ${cnpjData.descricao_situacao_cadastral}</span>
-        ${porte   ? `<span style="font-size:11px;padding:3px 9px;border-radius:6px;background:var(--surface3);color:var(--muted);font-weight:600;">${porte}</span>` : ''}
-        ${abertura? `<span style="font-size:11px;padding:3px 9px;border-radius:6px;background:var(--surface3);color:var(--muted);">Desde ${abertura}</span>` : ''}
-        ${cnae    ? `<span style="font-size:11px;padding:3px 9px;border-radius:6px;background:var(--blue-bg);color:var(--blue);max-width:100%;">${cnae.length>60?cnae.slice(0,60)+'…':cnae}</span>` : ''}
+        <span style="font-size:11px;padding:3px 9px;border-radius:6px;background:${bgSit};color:${corSit};font-weight:700;">${r.cadastro.situacao}</span>
+        ${r.cadastro.porte    ? `<span style="font-size:11px;padding:3px 9px;border-radius:6px;background:var(--surface3);color:var(--muted);font-weight:600;">${r.cadastro.porte}</span>` : ''}
+        ${abertura            ? `<span style="font-size:11px;padding:3px 9px;border-radius:6px;background:var(--surface3);color:var(--muted);">Desde ${abertura}</span>` : ''}
+        ${r.cadastro.capital  ? `<span style="font-size:11px;padding:3px 9px;border-radius:6px;background:var(--surface3);color:var(--muted);">Capital ${fmtValor(r.cadastro.capital)}</span>` : ''}
+        ${r.cadastro.cnae     ? `<span style="font-size:11px;padding:3px 9px;border-radius:6px;background:var(--blue-bg);color:var(--blue);max-width:100%;">${r.cadastro.cnae.length>60?r.cadastro.cnae.slice(0,60)+'…':r.cadastro.cnae}</span>` : ''}
       </div>`;
     }
 
-    if (totalRegistros === 0) {
-      html += `<div style="padding:12px 14px;background:var(--surface2);border-radius:10px;font-size:12px;color:var(--dim);display:flex;align-items:center;gap:8px;">
-        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--dim);fill:none;stroke-width:2;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        Nenhum contrato ou licitação pública encontrada. Esta empresa pode atuar apenas no setor privado.
+    // Contratos públicos (se houver)
+    if (r.contratos && r.contratos.length) {
+      html += `<div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Contratos públicos encontrados (${r.contratos.length})</div>`;
+      html += r.contratos.map(c => card(
+        c.objeto,
+        fmtValor(c.valor),
+        fmtData(c.data),
+        c.fonte || '',
+        c.tipo === 'orgao' ? 'var(--blue)' : 'var(--green)'
+      )).join('');
+    } else if (r.cadastro) {
+      // Tem cadastro mas sem contratos públicos — mensagem útil
+      html += `<div style="padding:10px 12px;background:var(--surface2);border-radius:10px;font-size:12px;color:var(--dim);">
+        Sem contratos públicos registrados. Empresa atua provavelmente no setor privado — bom alvo para prospecção B2B direta.
       </div>`;
-      el.innerHTML = html;
-      return;
     }
 
-    // Contratos PNCP onde a empresa é FORNECEDORA
-    if (listaForn.length) {
-      html += `<div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Contratos como Fornecedor — PNCP (${listaForn.length})</div>`;
-      html += listaForn.map(c => card(
-        c.objetoContrato || c.objeto,
-        fmtValor(c.valorInicial || c.valorGlobal),
-        fmtData(c.dataVigenciaInicio || c.dataAssinatura),
-        c.situacaoContrato?.nome || c.situacao || '',
-        'var(--green)'
-      )).join('');
+    // Fontes consultadas
+    if (r.fonte && r.fonte.length) {
+      html += `<div style="font-size:10px;color:var(--dim);margin-top:8px;">Fontes: ${r.fonte.join(' · ')}</div>`;
     }
 
-    // Contratos PNCP onde a empresa é ÓRGÃO contratante
-    if (listaOrgao.length) {
-      html += `<div style="font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:0.06em;margin:${listaForn.length?'12px':0} 0 8px;">Contratações como Órgão — PNCP (${listaOrgao.length})</div>`;
-      html += listaOrgao.map(c => card(
-        c.objetoContrato || c.objeto,
-        fmtValor(c.valorInicial || c.valorGlobal),
-        fmtData(c.dataVigenciaInicio || c.dataAssinatura),
-        c.situacaoContrato?.nome || c.situacao || '',
-        'var(--blue)'
-      )).join('');
-    }
-
-    // Contratos Portal da Transparência
-    if (listaTransp.length) {
-      html += `<div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.06em;margin:${(listaForn.length||listaOrgao.length)?'12px':0} 0 8px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Contratos Federais — Transparência (${listaTransp.length})</div>`;
-      html += listaTransp.map(c => card(
-        c.objeto || c.objetoContrato,
-        fmtValor(c.valorInicial || c.valor),
-        fmtData(c.dataInicioVigencia || c.dataAssinatura),
-        c.situacao || '',
-        'var(--accent)'
-      )).join('');
+    if (!html) {
+      html = `<div style="padding:10px 12px;background:var(--surface2);border-radius:10px;font-size:12px;color:var(--dim);">Não foi possível obter dados públicos para este CNPJ no momento.</div>`;
     }
 
     el.innerHTML = html;
 
   } catch(err) {
-    el.innerHTML = `<div style="padding:10px 12px;background:var(--red-bg);border-radius:10px;font-size:12px;color:var(--red);">Erro ao consultar bases públicas. Verifique sua conexão.</div>`;
+    el.innerHTML = `<div style="padding:10px 12px;background:var(--surface2);border-radius:10px;font-size:12px;color:var(--dim);">Consulta pública indisponível no momento. Tente novamente em instantes.</div>`;
     console.warn('fetchPncp error:', err);
   }
 }
@@ -3849,22 +3814,25 @@ function renderDashboard() {
 function updateQuotaUI() {
   const quota = currentProfile?.leads_quota || 10;
   const used = currentProfile?.leads_used || 0;
-  const pct = Math.min(100, Math.round(used / quota * 100));
+  const isUnlimited = (currentProfile?.plan === 'agency') || quota >= 999999;
+  const pct = isUnlimited ? 0 : Math.min(100, Math.round(used / quota * 100));
   const remaining = Math.max(0, quota - used);
 
   // Dashboard quota card
-  document.getElementById('quotaTotal').textContent = quota;
+  document.getElementById('quotaTotal').textContent = isUnlimited ? '∞' : quota;
   const remEl = document.getElementById('quotaRemaining');
   if (remEl) {
-    remEl.textContent = remaining;
+    remEl.textContent = isUnlimited ? 'Ilimitado' : remaining;
     remEl.style.color = pct >= 100 ? 'var(--red)' : pct >= 80 ? '#D97706' : 'var(--accent)';
   }
   const fill = document.getElementById('quotaFill');
   fill.style.width = pct + '%';
   fill.style.background = pct >= 90 ? 'var(--red)' : pct >= 70 ? '#D97706' : 'var(--accent)';
-  document.getElementById('quotaHint').textContent = pct >= 100
-    ? 'Limite atingido! Faça upgrade para continuar.'
-    : `Renova no dia 1º do próximo mês.`;
+  document.getElementById('quotaHint').textContent = isUnlimited
+    ? 'Plano Agency: consultas ilimitadas.'
+    : pct >= 100
+      ? 'Limite atingido! Faça upgrade para continuar.'
+      : `Renova no dia 1º do próximo mês.`;
 
   // Topnav real-time pill
   const pill = document.getElementById('creditPill');
@@ -3872,8 +3840,8 @@ function updateQuotaUI() {
   const pillLabel = document.getElementById('creditPillLabel');
   if (pill && pillCount) {
     pill.style.display = 'flex';
-    pillCount.textContent = remaining;
-    pillLabel.textContent = remaining === 1 ? 'crédito' : 'créditos';
+    pillCount.textContent = isUnlimited ? '∞' : remaining;
+    pillLabel.textContent = isUnlimited ? 'ilimitado' : (remaining === 1 ? 'crédito' : 'créditos');
     // Color feedback
     if (pct >= 100) {
       pill.style.background = 'var(--red-bg)';

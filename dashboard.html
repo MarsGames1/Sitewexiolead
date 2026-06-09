@@ -1086,12 +1086,12 @@ textarea.form-input { resize: vertical; min-height: 90px; }
       <div class="pw-plan sel" onclick="selectPaywallPlan('starter',this)">
         <div class="pw-plan-name">Starter</div>
         <div class="pw-plan-price">R$97<small>/mês</small></div>
-        <div class="pw-plan-feat">300 leads · CSV · Wex completa</div>
+        <div class="pw-plan-feat">100 leads · CSV · Wex essencial</div>
 </div>
       <div class="pw-plan" onclick="selectPaywallPlan('pro',this)">
         <div class="pw-plan-name">Pro</div>
         <div class="pw-plan-price">R$197<small>/mês</small></div>
-        <div class="pw-plan-feat">1.000 leads · CRM · Alertas</div>
+        <div class="pw-plan-feat">300 leads · CRM completo</div>
 </div>
       <div class="pw-plan" onclick="selectPaywallPlan('agency',this)">
         <div class="pw-plan-name">Agency</div>
@@ -1503,12 +1503,12 @@ textarea.form-input { resize: vertical; min-height: 90px; }
       <div class="pw-plan" onclick="selectCreditPlan('starter',this)">
         <div class="pw-plan-name">Starter</div>
         <div class="pw-plan-price">R$97<small>/mês</small></div>
-        <div class="pw-plan-feat">300 leads · CSV · Wex completa</div>
+        <div class="pw-plan-feat">100 leads · CSV · Wex essencial</div>
       </div>
       <div class="pw-plan sel" onclick="selectCreditPlan('pro',this)">
         <div class="pw-plan-name">Pro</div>
         <div class="pw-plan-price">R$197<small>/mês</small></div>
-        <div class="pw-plan-feat">1.000 leads · CRM · Alertas</div>
+        <div class="pw-plan-feat">300 leads · CRM completo</div>
       </div>
       <div class="pw-plan" onclick="selectCreditPlan('agency',this)">
         <div class="pw-plan-name">Agency</div>
@@ -2109,7 +2109,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
       <div class="plan-price"><sup>R$</sup>97<small>/mês</small></div>
       <p class="plan-desc">Para quem está começando a prospectar fornecedores e construtoras</p>
       <ul class="plan-features">
-        <li>300 consultas/mês</li><li>Filtros completos por região, porte e CNAE</li>
+        <li>100 consultas/mês</li><li>Filtros completos por região, porte e CNAE</li>
         <li>Score completo 0–100</li><li>Selo Lead Verificado</li>
         <li>Exportação CSV</li><li>Perfil público no diretório</li>
         <li>Wex completa com sugestões personalizadas</li>
@@ -2562,7 +2562,7 @@ async function fetchLeadsFromServer(filters = {}) {
   }
 
   // Limit by plan
-  const limitMap = { free: 10, starter: 300, pro: 1000, agency: 99999 };
+  const limitMap = { free: 10, starter: 100, pro: 300, agency: 99999 };
   query = query.limit(limitMap[plan] || 10);
 
   const { data, error } = await query;
@@ -3785,7 +3785,7 @@ function renderDashboard() {
   document.getElementById('dashLeadsLeft').textContent = remaining;
   document.getElementById('dashExports').textContent = userExports.length;
   document.getElementById('dashPlan').textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
-  const planSubs = { free:'10 leads grátis', starter:'300 leads/mês', pro:'1.000 leads/mês', agency:'Ilimitado' };
+  const planSubs = { free:'10 leads grátis', starter:'100 leads/mês', pro:'300 leads/mês', agency:'Ilimitado' };
   document.getElementById('dashPlanSub').textContent = planSubs[plan] || '';
 
   if (plan === 'free') document.getElementById('upgradeBanner').style.display = 'flex';
@@ -4252,8 +4252,8 @@ FUNCIONALIDADES QUE VOCÊ CONHECE E PODE EXPLICAR:
 
 PLANOS (cobrança mensal avulsa, o cliente pode trocar a qualquer momento):
 - Free: gratuito, 10 consultas/mês, filtros básicos, score parcial, Wex limitada. Sem CRM, sem rede, sem radar
-- Starter R$97/mês: 300 consultas, filtros completos, score 0-100, selo verificado, CSV, CRM leve (lista), Rede B2B (1 crédito por conexão), Wex essencial
-- Pro R$197/mês: 1.000 consultas, tudo do Starter, CRM completo (funil e Kanban), Rede B2B incluída, Wex completa, suporte prioritário
+- Starter R$97/mês: 100 consultas, filtros completos, score 0-100, selo verificado, CSV, CRM leve (lista), Rede B2B (1 crédito por conexão), Wex essencial
+- Pro R$197/mês: 300 consultas, tudo do Starter, CRM completo (funil e Kanban), Rede B2B incluída, Wex completa, suporte prioritário
 - Agency R$397/mês: consultas ilimitadas, tudo do Pro, Radar de Empresas Novas exclusivo, multi-usuário e gestão de equipe, onboarding dedicado, suporte WhatsApp
 
 O QUE VOCÊ FAZ:
@@ -5209,8 +5209,8 @@ const SUPPORT_FAQ = [
     keys: ['limite', 'aumentar', 'mais leads', 'quota', 'credito', 'acabou'],
     answer: `Seu limite de leads depende do plano:<br><br>
       <strong>Free</strong> — 10 leads<br>
-      <strong>Starter R$97/mês</strong> — 300 leads<br>
-      <strong>Pro R$197/mês</strong> — 1.000 leads<br>
+      <strong>Starter R$97/mês</strong> — 100 leads<br>
+      <strong>Pro R$197/mês</strong> — 300 leads<br>
       <strong>Agency R$397/mês</strong> — Ilimitado<br><br>
       Para fazer upgrade acesse <strong>Planos</strong> no menu ou envie e-mail para <a href="mailto:wexiolead@yahoo.com" style="color:var(--accent)">wexiolead@yahoo.com</a>.`
   },
@@ -5241,8 +5241,8 @@ const SUPPORT_FAQ = [
   {
     keys: ['plano', 'preco', 'valor', 'assinar', 'assinatura', 'starter', 'pro', 'agency'],
     answer: `Planos disponíveis:<br><br>
-      <strong>Starter — R$97/mês</strong> — 300 leads · CSV · Wex completa<br>
-      <strong>Pro — R$197/mês</strong> — 1.000 leads · CRM · Alertas · Radar de obras<br>
+      <strong>Starter — R$97/mês</strong> — 100 leads · CSV · Wex completa<br>
+      <strong>Pro — R$197/mês</strong> — 300 leads · CRM completo · Radar de obras<br>
       <strong>Agency — R$397/mês</strong> — Ilimitado · Multi-usuário · WhatsApp<br><br>
       Contato: <a href="mailto:wexiolead@yahoo.com" style="color:var(--accent)">wexiolead@yahoo.com</a>`
   },
@@ -5376,7 +5376,7 @@ function showTicketForm() {
 // O cliente apenas atualiza a UI após confirmar com o servidor.
 // ─────────────────────────────────────────────────────────────────────────────
 const CHECKOUT_URL = SUPABASE_URL + '/functions/v1/asaas-checkout';
-const PLAN_QUOTA   = { starter: 300, pro: 1000, agency: 99999 };
+const PLAN_QUOTA   = { starter: 100, pro: 300, agency: 99999 };
 
 /**
  * Chamada após polling confirmar pagamento.

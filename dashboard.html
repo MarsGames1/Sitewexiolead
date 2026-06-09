@@ -407,6 +407,18 @@ body {
 .filter-bar input:focus, .filter-bar select:focus { border-color: rgba(249,115,22,0.4); }
 .filter-bar select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
 
+.radar-select {
+  flex: 1; min-width: 150px;
+  padding: 9px 32px 9px 13px;
+  border: 1.5px solid var(--border); border-radius: 10px;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text);
+  background: var(--surface); outline: none; cursor: pointer; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 11px center;
+  box-shadow: var(--shadow); transition: border-color .15s;
+}
+.radar-select:focus { border-color: rgba(249,115,22,0.4); }
+
 /*  TABLE  */
 .tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 table { width: 100%; border-collapse: collapse; min-width: 600px; }
@@ -2027,14 +2039,14 @@ textarea.form-input { resize: vertical; min-height: 90px; }
 
   <!-- Filtros -->
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center;">
-    <select id="radarPeriodo" onchange="carregarRadar()" style="min-width:150px;">
+    <select id="radarPeriodo" class="radar-select" onchange="carregarRadar()">
       <option value="30">Abertas há 30 dias</option>
       <option value="60">Abertas há 60 dias</option>
       <option value="90" selected>Abertas há 90 dias</option>
       <option value="180">Abertas há 6 meses</option>
       <option value="365">Abertas no último ano</option>
     </select>
-    <select id="radarTipo" onchange="carregarRadar()" style="min-width:150px;">
+    <select id="radarTipo" class="radar-select" onchange="carregarRadar()">
       <option value="">Todos os tipos</option>
       <option value="construtora">Construtora</option>
       <option value="empreiteiro">Empreiteiro</option>
@@ -2045,7 +2057,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
       <option value="clinica">Saúde</option>
       <option value="transportadora">Logística</option>
     </select>
-    <select id="radarEstado" onchange="carregarRadar()" style="min-width:120px;">
+    <select id="radarEstado" class="radar-select" onchange="carregarRadar()" style="min-width:120px;">
       <option value="">Todos estados</option>
       <option>SP</option><option>RJ</option><option>MG</option><option>RS</option><option>PR</option>
       <option>SC</option><option>BA</option><option>GO</option><option>PE</option><option>CE</option>
@@ -2988,8 +3000,9 @@ function renderLeadsTable() {
   document.getElementById('leadsCountLabel').textContent = `${total} lead${total!==1?'s':''} encontrado${total!==1?'s':''}${sortTxt}`;
   document.getElementById('leadsPageInfo').textContent = `Página ${leadsPage} de ${pages} · ${total} resultado${total!==1?'s':''}`;
 
-  if (plan === 'free') document.getElementById('leadsFreeNote').style.display = 'flex';
-  else document.getElementById('leadsFreeNote').style.display = 'none';
+  const _planNote = (currentProfile?.plan || 'free');
+  const _note = document.getElementById('leadsFreeNote');
+  if (_note) _note.style.display = (_planNote === 'free') ? 'flex' : 'none';
 
   const scoreClass = s =>s >= 80 ? 'score-high' : s >= 60 ? 'score-mid' : 'score-low';
   const crmStatus = (id) =>{
@@ -3954,6 +3967,9 @@ function renderDashboard() {
 
   // Banner contextual por plano — reconhece o cliente
   const banner = document.getElementById('upgradeBanner');
+  // Sincroniza também o aviso da área de busca
+  const _lfn = document.getElementById('leadsFreeNote');
+  if (_lfn) _lfn.style.display = (plan === 'free') ? 'flex' : 'none';
   if (banner) {
     const h3 = banner.querySelector('h3');
     const p  = banner.querySelector('p');

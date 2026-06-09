@@ -1574,6 +1574,11 @@ textarea.form-input { resize: vertical; min-height: 90px; }
     <span>Rede B2B</span>
     <span id="redeBadge" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:var(--red);color:#fff;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;align-items:center;justify-content:center;padding:0 5px;display:none;">0</span>
 </div>
+  <div class="sb-link" id="nav-equipe" onclick="showPage('equipe')" style="position:relative;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+    <span>Gestão de Equipe</span>
+    <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:8px;font-weight:700;padding:2px 5px;border-radius:4px;background:var(--accent);color:#fff;letter-spacing:0.04em;">AGENCY</span>
+</div>
   <div class="sb-link" id="nav-exports" onclick="showPage('exports')">
     <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
     <span>Exportações</span>
@@ -2076,6 +2081,116 @@ textarea.form-input { resize: vertical; min-height: 90px; }
     .chat-msg.theirs { background:var(--surface2);color:var(--text);border:1px solid var(--border);border-bottom-left-radius:4px; }
     .chat-msg.system { background:var(--accent-bg);color:var(--accent);text-align:center;max-width:100%;font-size:12px;border:1px solid rgba(249,115,22,0.2); }
   </style>
+</div>
+
+<!--  GESTÃO DE EQUIPE ═ (Agency exclusivo) -->
+<div class="page-section" id="page-equipe">
+
+  <!-- ── UPSELL: planos non-Agency ── -->
+  <div id="equipe-locked" style="display:none;">
+    <div style="position:relative;min-height:82vh;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+      <!-- Kanban fantasma no fundo -->
+      <div style="position:absolute;inset:0;display:flex;gap:14px;padding:24px;filter:blur(4px);opacity:.25;pointer-events:none;overflow:hidden;">
+        <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;">
+          <div style="height:14px;width:60%;background:var(--border);border-radius:4px;margin-bottom:12px;"></div>
+          <div style="height:70px;background:var(--surface2);border-radius:8px;margin-bottom:8px;"></div>
+          <div style="height:70px;background:var(--surface2);border-radius:8px;margin-bottom:8px;"></div>
+          <div style="height:70px;background:var(--surface2);border-radius:8px;"></div>
+        </div>
+        <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;">
+          <div style="height:14px;width:50%;background:var(--border);border-radius:4px;margin-bottom:12px;"></div>
+          <div style="height:70px;background:var(--surface2);border-radius:8px;margin-bottom:8px;"></div>
+          <div style="height:70px;background:var(--accent-bg);border-radius:8px;margin-bottom:8px;border:1px solid rgba(249,115,22,.2);"></div>
+        </div>
+        <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;">
+          <div style="height:14px;width:55%;background:var(--border);border-radius:4px;margin-bottom:12px;"></div>
+          <div style="height:70px;background:var(--surface2);border-radius:8px;margin-bottom:8px;"></div>
+        </div>
+        <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;">
+          <div style="height:14px;width:45%;background:var(--border);border-radius:4px;margin-bottom:12px;"></div>
+        </div>
+      </div>
+      <!-- Card de upsell -->
+      <div style="position:relative;z-index:2;max-width:480px;text-align:center;padding:20px;">
+        <div style="width:64px;height:64px;margin:0 auto 20px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(249,115,22,.35);">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Exclusivo Agency</div>
+        <h2 style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-0.02em;color:var(--text);margin-bottom:12px;line-height:1.2;">Sua equipe está<br>do lado de fora.</h2>
+        <p style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:24px;">Enquanto você trabalha sozinho, agências concorrentes já operam com equipes inteiras prospectando em paralelo — e um Kanban central para ver tudo em tempo real.</p>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:28px;text-align:left;">
+          <div style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--text);">
+            <span style="width:20px;height:20px;border-radius:6px;background:var(--accent-bg);color:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+            Kanban de pipeline com visão de toda a equipe
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--text);">
+            <span style="width:20px;height:20px;border-radius:6px;background:var(--accent-bg);color:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+            Convide membros com acessos individuais
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--text);">
+            <span style="width:20px;height:20px;border-radius:6px;background:var(--accent-bg);color:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+            Consultas ilimitadas para toda a conta
+          </div>
+        </div>
+        <button onclick="showPage('plans')" style="width:100%;padding:14px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 4px 16px rgba(249,115,22,.35);transition:opacity .2s;" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
+          Ver plano Agency — R$397/mês
+        </button>
+        <div style="margin-top:12px;font-size:12px;color:var(--dim);">Cancele quando quiser · Sem burocracia</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CONTEÚDO AGENCY ── -->
+  <div id="equipe-content" style="display:none;">
+    <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div>
+        <div class="page-title">Gestão de Equipe</div>
+        <div class="page-sub" id="equipe-sub">Pipeline da sua equipe de vendas</div>
+      </div>
+      <button onclick="abrirConviteMembro()" style="display:flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;background:var(--accent);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Convidar membro
+      </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px;" id="equipe-stats">
+      <div class="stat-card">
+        <div class="stat-label">Membros ativos</div>
+        <div class="stat-value" id="eq-membros">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Leads no pipeline</div>
+        <div class="stat-value" id="eq-leads">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Fechados este mês</div>
+        <div class="stat-value" id="eq-fechados">—</div>
+      </div>
+    </div>
+
+    <!-- Kanban pipeline da equipe -->
+    <div id="equipe-kanban" style="display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;"></div>
+  </div>
+
+  <!-- Modal convidar membro -->
+  <div id="modal-convite-membro" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;align-items:center;justify-content:center;">
+    <div style="background:var(--surface);border-radius:16px;padding:28px;width:min(420px,92vw);box-shadow:0 24px 60px rgba(0,0,0,.3);">
+      <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:6px;">Convidar membro</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:20px;">O membro convidado terá acesso à conta com permissões de busca de leads e CRM.</p>
+      <div class="form-group">
+        <label class="form-label">E-mail do membro</label>
+        <input type="email" class="form-input" id="convite-email" placeholder="email@empresa.com">
+      </div>
+      <div style="display:flex;gap:10px;margin-top:20px;">
+        <button onclick="document.getElementById('modal-convite-membro').style.display='none'" style="flex:1;padding:11px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Cancelar</button>
+        <button onclick="enviarConviteMembro()" style="flex:1;padding:11px;border-radius:10px;background:var(--accent);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">Enviar convite</button>
+      </div>
+      <div style="margin-top:14px;padding:10px 14px;background:var(--accent-bg);border-radius:8px;font-size:12px;color:var(--muted);border-left:3px solid var(--accent);">
+        Funcionalidade de onboarding dedicado disponível — entre em contato pelo suporte para configurar seu time.
+      </div>
+    </div>
+  </div>
 </div>
 
 <!--  EXPORTAÇÕES ═-->
@@ -4502,6 +4617,7 @@ function showPage(page) {
   if (page === 'leads') { if (buscaJaFeita) filterLeads(); }
   if (page === 'rede') { setRedeTab('convites'); }
   if (page === 'radar') { carregarRadar(); }
+  if (page === 'equipe') { carregarEquipe(); }
 
   // Close mobile sidebar after nav
   if (window.innerWidth <= 768) closeMobileSidebar();
@@ -4808,7 +4924,116 @@ function copyToClipboard(ev, text) {
 
 
 
-// ── Avatar via DiceBear (open-source, CDN robusto). Fallback p/ inicial. ──
+// ══════════════════════════════════════════
+// GESTÃO DE EQUIPE — Agency exclusivo
+// ══════════════════════════════════════════
+
+const EQ_COLS = [
+  { id: 'novo',        label: 'Novos leads',    color: 'var(--blue)' },
+  { id: 'contatado',   label: 'Contatados',     color: '#7C3AED' },
+  { id: 'negociando',  label: 'Negociando',     color: 'var(--accent)' },
+  { id: 'fechado',     label: 'Fechados',       color: 'var(--green)' },
+];
+
+async function carregarEquipe() {
+  const isAgency = currentProfile?.plan === 'agency';
+  document.getElementById('equipe-locked').style.display  = isAgency ? 'none' : 'block';
+  document.getElementById('equipe-content').style.display = isAgency ? 'block' : 'none';
+  if (!isAgency) return;
+
+  // Carrega entradas do CRM como pipeline da equipe
+  try {
+    const { data: entries } = await sb
+      .from('crm_entries')
+      .select('lead_id,status,notes,followup,updated_at')
+      .eq('user_id', currentUser.id);
+
+    const todos = entries || [];
+    // Busca nomes dos leads no cache
+    const ids = todos.map(e => e.lead_id);
+    let leadsMap = {};
+    if (ids.length) {
+      const { data: leads } = await sb
+        .from('leads')
+        .select('id,razao_social,nome_fantasia,segmento_simplificado,municipio')
+        .in('id', ids);
+      (leads || []).forEach(l => { leadsMap[l.id] = l; });
+    }
+
+    // Stats
+    const fechadosMes = todos.filter(e => {
+      if (e.status !== 'fechado') return false;
+      const d = new Date(e.updated_at);
+      const now = new Date();
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    });
+    document.getElementById('eq-membros').textContent = '1'; // multi-user em breve
+    document.getElementById('eq-leads').textContent   = todos.length;
+    document.getElementById('eq-fechados').textContent = fechadosMes.length;
+    document.getElementById('equipe-sub').textContent  =
+      todos.length + ' lead' + (todos.length !== 1 ? 's' : '') + ' no pipeline';
+
+    renderEquipeKanban(todos, leadsMap);
+  } catch(e) {
+    document.getElementById('equipe-kanban').innerHTML =
+      '<div class="empty-state"><p>Erro ao carregar o pipeline.</p></div>';
+  }
+}
+
+function renderEquipeKanban(entries, leadsMap) {
+  const kanban = document.getElementById('equipe-kanban');
+  if (!kanban) return;
+
+  kanban.innerHTML = EQ_COLS.map(col => {
+    const cards = entries.filter(e => (e.status || 'novo') === col.id);
+    const cardHtml = cards.length
+      ? cards.map(e => {
+          const lead = leadsMap[e.lead_id];
+          const nome = lead ? (lead.nome_fantasia || lead.razao_social || 'Lead') : 'Lead';
+          const seg  = lead ? (lead.segmento_simplificado || '') : '';
+          const mun  = lead ? (lead.municipio || '') : '';
+          const fup  = e.followup ? new Date(e.followup).toLocaleDateString('pt-BR', {day:'2-digit',month:'short'}) : '';
+          return `<div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;transition:border-color .15s,box-shadow .15s;" onmouseover="this.style.borderColor='${col.color}';this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.borderColor='';this.style.boxShadow=''">
+            <div style="font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(nome)}</div>
+            ${seg ? `<div style="font-size:11px;color:var(--muted);margin-top:3px;">${escapeHtml(seg)}${mun ? ' · ' + escapeHtml(mun) : ''}</div>` : ''}
+            ${fup ? `<div style="margin-top:7px;display:inline-flex;align-items:center;gap:4px;font-size:10.5px;color:${col.color};background:${col.color}18;padding:2px 7px;border-radius:5px;">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              ${fup}</div>` : ''}
+            ${e.notes ? `<div style="margin-top:7px;font-size:11px;color:var(--dim);line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${escapeHtml(e.notes)}</div>` : ''}
+          </div>`;
+        }).join('')
+      : `<div style="padding:20px;text-align:center;border:1.5px dashed var(--border);border-radius:10px;">
+           <div style="font-size:12px;color:var(--dim);">Nenhum lead aqui</div>
+         </div>`;
+
+    return `<div style="min-width:240px;flex:1;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;flex-direction:column;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+        <span style="width:8px;height:8px;border-radius:50%;background:${col.color};flex-shrink:0;"></span>
+        <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);">${col.label}</span>
+        <span style="margin-left:auto;font-size:11px;font-weight:700;background:var(--surface2);color:var(--dim);padding:1px 8px;border-radius:8px;">${cards.length}</span>
+      </div>
+      <div style="flex:1;">${cardHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+function abrirConviteMembro() {
+  document.getElementById('modal-convite-membro').style.display = 'flex';
+  setTimeout(() => document.getElementById('convite-email')?.focus(), 100);
+}
+
+async function enviarConviteMembro() {
+  const email = document.getElementById('convite-email')?.value.trim();
+  if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    showToast('Insira um e-mail válido.', true); return;
+  }
+  // Por ora, registra intenção e orienta o suporte
+  document.getElementById('modal-convite-membro').style.display = 'none';
+  showToast('Convite registrado! Entre em contato pelo suporte para ativar o acesso do membro.');
+  document.getElementById('convite-email').value = '';
+}
+
+// ── Avatar via DiceBear (open-source). Fallback p/ inicial. ──
 function setAvatar(elId, seed, inicial) {
   var el = document.getElementById(elId);
   if (!el) return;

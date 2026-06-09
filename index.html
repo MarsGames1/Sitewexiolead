@@ -13,7 +13,9 @@
 <meta property="og:description" content="Leads verificados para construtoras, fornecedores e empreiteiros. Nascemos na construção civil — e fomos além. Dados da Receita Federal com score inteligente.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://wexiolead.com/">
-<meta property="og:image" content="https://wexiolead.com/og-image.jpg">
+<meta property="og:image" content="https://wexiolead.com/og-image.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:alt" content="WexioLead — Leads B2B verificados da Receita Federal">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="pt_BR">
@@ -21,7 +23,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="wexiolead — Especialistas em leads para Construção Civil">
 <meta name="twitter:description" content="Leads verificados para construtoras, fornecedores e empreiteiros. Nascemos na construção — e fomos além.">
-<meta name="twitter:image" content="https://wexiolead.com/og-image.jpg">
+<meta name="twitter:image" content="https://wexiolead.com/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
@@ -856,7 +858,7 @@ async function handleGoogleLogin(){
   const b=document.getElementById('btnGoogle');b.disabled=true;
   b.innerHTML='<div class="spin"></div>Conectando...';
   try{
-    const{error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://marsgames1.github.io/Sitewexiolead/dashboard.html'}});
+    const{error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://wexiolead.com/dashboard.html'}});
     if(error) throw error;
   }catch(e){
     toast(e.message,true);b.disabled=false;

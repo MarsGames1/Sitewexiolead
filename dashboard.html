@@ -2517,11 +2517,32 @@ window.addEventListener('load', async () =>{
 
   // Registra listener só após confirmar sessão, evitando redirecionamento
   // prematuro durante o processamento do hash OAuth (access_token)
-  sb.auth.onAuthStateChange((event, session) =>{
-    if (event === 'SIGNED_OUT') window.location.href = '/';
+  sb.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
+      window.location.href = '/';
+    }
   });
 
-  await Promise.all([loadProfile(), loadLeads(), loadExports()]);
+  // Carrega dados com tratamento de erro — sessão expirada ou rede instável
+  // não deixa a tela travada no loading.
+  try {
+    await Promise.all([loadProfile(), loadLeads(), loadExports()]);
+  } catch (err) {
+    console.error('Erro ao carregar dados:', err);
+    // Verifica se a sessão ainda é válida
+    const { data: { session: chk } } = await sb.auth.getSession();
+    if (!chk) { window.location.href = '/'; return; }
+    // Sessão ok mas houve falha de rede — avisa e permite retry
+    const ls = document.getElementById('loading-screen');
+    if (ls) {
+      ls.innerHTML = '<div style="text-align:center;padding:40px;max-width:340px;">' +
+        '<div style="font-family:\'Syne\',sans-serif;font-size:18px;font-weight:700;margin-bottom:10px;">Falha ao carregar</div>' +
+        '<p style="font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.6;">Não conseguimos carregar seus dados. Verifique sua conexão e tente novamente.</p>' +
+        '<button onclick="location.reload()" style="padding:11px 24px;border-radius:10px;background:var(--accent);border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:\'DM Sans\',sans-serif;">Recarregar</button>' +
+        '</div>';
+    }
+    return;
+  }
   await loadCrmFromStorage();
   renderDashboard();   // agora roda APÓS loadExports, então userExports.length é correto
   renderSugestoesPersonalizadas();  // estado vazio com sugestões — resultados só após buscar
@@ -3836,6 +3857,11 @@ function exportCrmSelected() {
   const a = document.createElement('a');
   a.href = url; a.download = `wexiolead_crm_${Date.now()}.csv`;
   a.click(); URL.revokeObjectURL(url);
+  // Registra a exportação no histórico
+  sb.from('exports').insert({
+    user_id: currentUser.id, lead_count: ids.length, format: 'csv',
+    filters: { origem: 'CRM em lote' }
+  }).then(() => { loadExports().then(renderExports); });
   showToast(`${ids.length} lead${ids.length !== 1 ? 's' : ''} exportado${ids.length !== 1 ? 's' : ''} com sucesso!`);
   crmClearSel();
 }

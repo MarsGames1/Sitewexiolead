@@ -378,6 +378,11 @@ body {
 }
 .upgrade-banner h3 { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
 .upgrade-banner p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.upgrade-banner.banner-premium {
+  background: linear-gradient(135deg, rgba(249,115,22,0.06) 0%, rgba(251,146,60,0.03) 100%);
+  border-color: var(--border);
+}
+.upgrade-banner.banner-premium h3 { color: var(--accent); }
 
 /*  FILTER BAR  */
 .filter-bar {
@@ -3947,7 +3952,38 @@ function renderDashboard() {
   const planSubs = { free:'10 leads grátis', starter:'100 leads/mês', pro:'300 leads/mês', agency:'Ilimitado' };
   document.getElementById('dashPlanSub').textContent = planSubs[plan] || '';
 
-  if (plan === 'free') document.getElementById('upgradeBanner').style.display = 'flex';
+  // Banner contextual por plano — reconhece o cliente
+  const banner = document.getElementById('upgradeBanner');
+  if (banner) {
+    const h3 = banner.querySelector('h3');
+    const p  = banner.querySelector('p');
+    const btn = banner.querySelector('button');
+    if (plan === 'free') {
+      banner.style.display = 'flex';
+      banner.classList.remove('banner-premium');
+      if (h3) h3.textContent = 'Plano gratuito — 10 leads de degustação';
+      if (p)  p.textContent  = 'Faça upgrade para acessar toda a base de construtoras e fornecedores, com score, dados verificados e exportação CSV.';
+      if (btn) { btn.textContent = 'Ver planos →'; btn.style.display = ''; btn.setAttribute('onclick', "showPage('planos')"); }
+    } else {
+      // Cliente pagante: saudação de boas-vindas reconhecendo o plano
+      banner.style.display = 'flex';
+      banner.classList.add('banner-premium');
+      const nome = (currentProfile?.company || currentProfile?.full_name || '').split(' ')[0];
+      const planNome = { starter: 'Starter', pro: 'Pro', agency: 'Agency' }[plan] || plan;
+      const saud = (() => {
+        const h = new Date().getHours();
+        return h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
+      })();
+      const msgs = {
+        starter: 'Você tem acesso completo aos filtros, score e exportação. Bora prospectar?',
+        pro: 'Seu plano inclui CRM completo, Rede B2B e Wex ilimitada. Aproveite ao máximo.',
+        agency: 'Acesso total: consultas ilimitadas, Radar de Empresas, Gestão de Equipe e suporte prioritário.'
+      };
+      if (h3) h3.textContent = `${saud}${nome ? ', ' + nome : ''}! Plano ${planNome} ativo`;
+      if (p)  p.textContent  = msgs[plan] || 'Bom trabalho!';
+      if (btn) btn.style.display = 'none';
+    }
+  }
 
   updateQuotaUI();
 

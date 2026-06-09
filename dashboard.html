@@ -175,16 +175,16 @@ body {
 .btn-logout:hover { color: var(--red); border-color: rgba(239,68,68,0.3); }
 /* Pílula de créditos refinada */
 .credit-pill {
-  display: flex; align-items: center; gap: 7px;
-  padding: 6px 13px;
-  border-radius: 10px;
-  background: var(--surface);
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: transparent;
   border: 1px solid var(--border);
   cursor: pointer;
   transition: border-color 0.2s, background 0.2s;
 }
 .credit-pill:hover { border-color: var(--accent); background: var(--accent-bg); }
-.credit-pill .cp-divider { width:1px; height:16px; background:var(--border); }
+.credit-pill .cp-divider { width:1px; height:14px; background:var(--border); }
 
 /*  LAYOUT  */
 .layout {
@@ -1532,8 +1532,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
   <div class="nav-right">
     <!-- Contador de créditos com data de renovação -->
     <div id="creditPill" class="credit-pill" onclick="showPage('leads')" title="Créditos restantes — clique para buscar leads" style="display:none;">
-      <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--accent);fill:none;stroke-width:2;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--accent);" id="creditPillCount">—</span>
+      <span style="font-size:13px;font-weight:700;color:var(--accent);letter-spacing:-0.5px;line-height:1;" id="creditPillCount">—</span>
       <span style="font-size:11px;color:var(--muted);font-weight:500;" id="creditPillLabel">créditos</span>
       <span class="cp-divider" id="creditRenewDivider" style="display:none;"></span>
       <span style="font-size:10.5px;color:var(--dim);font-weight:500;" id="creditRenewInfo"></span>
@@ -2122,9 +2121,9 @@ textarea.form-input { resize: vertical; min-height: 90px; }
       <div class="plan-price"><sup>R$</sup>197<small>/mês</small></div>
       <p class="plan-desc">Para equipes que precisam de volume e inteligência de mercado</p>
       <ul class="plan-features">
-        <li>1.000 consultas/mês</li><li>Tudo do Starter</li>
-        <li>CRM leve integrado</li><li>Alertas de novos leads por e-mail</li>
-        <li>Radar de obras (em expansão)</li><li>Suporte prioritário por e-mail</li>
+        <li>300 consultas/mês</li><li>Tudo do Starter</li>
+        <li>CRM completo (funil e Kanban)</li><li>Rede B2B incluída</li>
+        <li>Wex completa</li><li>Suporte prioritário por e-mail</li>
 </ul>
       <button class="plan-btn solid" onclick="selectPlan('pro')">Assinar Pro</button>
 </div>
@@ -3839,23 +3838,22 @@ function updateQuotaUI() {
     pill.style.display = 'flex';
     pillCount.textContent = isUnlimited ? '∞' : remaining;
     pillLabel.textContent = isUnlimited ? 'ilimitado' : (remaining === 1 ? 'crédito' : 'créditos');
-    // Color feedback
+
+    // Reset visual para neutro
+    pill.style.background   = 'transparent';
+    pill.style.borderColor  = 'var(--border)';
+    pillCount.style.color   = isUnlimited ? 'var(--muted)' : 'var(--text)';
+    pillCount.style.fontSize = isUnlimited ? '15px' : '13px';
+
+    // Só aplica cor em situações de alerta real
     if (pct >= 100) {
-      pill.style.background = 'var(--red-bg)';
+      pill.style.background  = 'var(--red-bg)';
       pill.style.borderColor = 'rgba(220,38,38,0.3)';
-      pillCount.style.color = 'var(--red)';
-      pill.querySelector('svg').style.stroke = 'var(--red)';
-      pillLabel.textContent = '— sem créditos';
+      pillCount.style.color  = 'var(--red)';
+      pillLabel.textContent  = '— sem créditos';
     } else if (pct >= 80) {
-      pill.style.background = 'rgba(217,119,6,0.08)';
-      pill.style.borderColor = 'rgba(217,119,6,0.3)';
-      pillCount.style.color = '#D97706';
-      pill.querySelector('svg').style.stroke = '#D97706';
-    } else {
-      pill.style.background = 'var(--accent-bg)';
-      pill.style.borderColor = 'rgba(249,115,22,0.25)';
-      pillCount.style.color = 'var(--accent)';
-      pill.querySelector('svg').style.stroke = 'var(--accent)';
+      pill.style.borderColor = 'rgba(217,119,6,0.25)';
+      pillCount.style.color  = '#D97706';
     }
     // Data de vencimento do plano — quando precisa pagar de novo (plan_expires_at)
     const renewDivider = document.getElementById('creditRenewDivider');
@@ -5242,7 +5240,7 @@ const SUPPORT_FAQ = [
     keys: ['plano', 'preco', 'valor', 'assinar', 'assinatura', 'starter', 'pro', 'agency'],
     answer: `Planos disponíveis:<br><br>
       <strong>Starter — R$97/mês</strong> — 100 leads · CSV · Wex completa<br>
-      <strong>Pro — R$197/mês</strong> — 300 leads · CRM completo · Radar de obras<br>
+      <strong>Pro — R$197/mês</strong> — 300 consultas · CRM completo (Kanban) · Rede B2B incluída<br>
       <strong>Agency — R$397/mês</strong> — Ilimitado · Multi-usuário · WhatsApp<br><br>
       Contato: <a href="mailto:wexiolead@yahoo.com" style="color:var(--accent)">wexiolead@yahoo.com</a>`
   },

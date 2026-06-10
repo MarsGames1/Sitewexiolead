@@ -4593,22 +4593,8 @@ async function sendWexMessage() {
   const text = input.value.trim();
   if (!text) return;
 
-  // Wex essencial (Free/Starter): limite diário de mensagens. Pro/Agency: ilimitado.
-  const plan = currentProfile?.plan || 'free';
-  if (plan === 'free' || plan === 'starter') {
-    const limite = plan === 'free' ? 5 : 20;
-    const hoje = new Date().toISOString().slice(0,10);
-    let uso = {};
-    try { uso = JSON.parse(localStorage.getItem('wexUso') || '{}'); } catch(e) {}
-    if (uso.dia !== hoje) uso = { dia: hoje, count: 0 };
-    if (uso.count >= limite) {
-      addWexMessage('Você atingiu o limite diário de ' + limite + ' mensagens da Wex no plano ' + (plan==='free'?'Free':'Starter') + '. No plano Pro, a Wex é ilimitada.', 'wex');
-      return;
-    }
-    uso.count++;
-    localStorage.setItem('wexUso', JSON.stringify(uso));
-  }
-
+  // O limite por plano agora é validado no servidor (Edge Function wex-chat).
+  // Free: 5/dia · Starter: 20/dia · Pro/Agency: ilimitado.
   input.value = '';
   input.style.height = 'auto';
   addWexMessage(text, 'user');
@@ -4647,6 +4633,15 @@ async function sendWexMessage() {
 
     const data = await response.json();
     removeWexTyping();
+
+    // Limite diário atingido (Free/Starter): a Wex não trava — responde com
+    // conteúdo estático relevante (reaproveita a base do suporte) e sugere upgrade.
+    if (response.status === 429 || data.limited) {
+      const estatica = wexStaticAnswer(text);
+      const aviso = '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);">Você atingiu o limite diário da Wex inteligente no seu plano. As respostas rápidas continuam disponíveis. Para conversas ilimitadas com IA, <strong>faça upgrade para o Pro</strong>.</div>';
+      addWexMessage((estatica || 'Posso te ajudar com dúvidas sobre planos, exportação, score, CRM e prospecção.') + aviso, 'bot');
+      return;
+    }
 
     if (data.choices?.[0]?.message?.content) {
       const reply = data.choices[0].message.content;
@@ -5787,6 +5782,18 @@ function supportSend() {
   document.getElementById('supportQuickBtns').style.display = 'none';
   addSupportMsg(text, 'user');
   setTimeout(() => supportRespond(text), 450);
+}
+
+// Busca uma resposta estática relevante (usada pela Wex quando o limite do plano
+// é atingido — em vez de travar, entrega conteúdo pronto). Retorna o texto ou null.
+function wexStaticAnswer(text) {
+  const lower = (text || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  let best = null, bestScore = 0;
+  for (const faq of SUPPORT_FAQ) {
+    const score = faq.keys.filter(k => lower.includes(k.normalize('NFD').replace(/[\u0300-\u036f]/g, ''))).length;
+    if (score > bestScore) { bestScore = score; best = faq; }
+  }
+  return (best && bestScore > 0) ? best.answer : null;
 }
 
 function supportRespond(text) {

@@ -32,8 +32,8 @@
   --green-bg: rgba(5,150,105,0.09);
   --red: #DC2626;
   --red-bg: rgba(220,38,38,0.09);
-  --blue: #2563EB;
-  --blue-bg: rgba(37,99,235,0.09);
+  --blue: #6B7280;
+  --blue-bg: rgba(107,114,128,0.10);
   --sidebar-w: 230px;
   --nav-h: 64px;
   --radius: 14px;
@@ -552,7 +552,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
 .b-green { background: var(--green-bg); color: var(--green); }
 .b-blue { background: var(--blue-bg); color: var(--blue); }
 .b-orange { background: var(--accent-bg); color: var(--accent); }
-.b-teal { background: rgba(16,185,129,.1); color: #059669; }
+.b-teal { background: var(--green-bg); color: var(--green); }
 .b-yellow { background: rgba(251,191,36,0.15); color: #D97706; }
 .b-red { background: var(--red-bg); color: var(--red); }
 .b-gray { background: var(--surface3); color: var(--muted); }
@@ -1491,7 +1491,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
         <textarea class="form-input" id="ldmCrmNotes" placeholder="Ex: Falei com o sócio, interesse em fornecimento de cimento..." style="min-height:70px;"></textarea>
       </div>
       <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;">
-        <button class="btn" id="ldmConnectBtn" onclick="solicitarConexaoLead()" style="background:linear-gradient(135deg,#7C3AED,#6D28D9);color:#fff;border:none;display:none;">
+        <button class="btn" id="ldmConnectBtn" onclick="solicitarConexaoLead()" style="background:linear-gradient(135deg,#F97316,#EA580C);color:#fff;border:none;display:none;">
           <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Solicitar conexão para fechar negócio
         </button>
@@ -3056,11 +3056,11 @@ function renderLeadsTable() {
     const TIPO_MAP = {
       construtora:['b-orange','Construtora'], empreiteiro:['b-orange','Empreiteiro'],
       fornecedor:['b-orange','Fornecedor'], eletricista:['b-yellow','Eletricista'],
-      hidraulica:['b-blue','Hidráulica'], pintor:['b-purple','Pintor'],
+      hidraulica:['b-blue','Hidráulica'], pintor:['b-gray','Pintor'],
       revestimento:['b-gray','Revestimento'], reformas:['b-gray','Reformas'],
-      juridico:['b-purple','Jurídico'], contabilidade:['b-blue','Contabilidade'],
+      juridico:['b-gray','Jurídico'], contabilidade:['b-blue','Contabilidade'],
       consultoria:['b-blue','Consultoria'], engenharia:['b-orange','Engenharia'],
-      ti:['b-blue','TI'], marketing:['b-purple','Marketing'],
+      ti:['b-blue','TI'], marketing:['b-gray','Marketing'],
       clinica:['b-green','Saúde'], farmacia:['b-green','Farmácia'],
       imobiliaria:['b-orange','Imobiliária'], transportadora:['b-gray','Logística'],
       comercio:['b-gray','Atacadista'], prestador:['b-gray','Prestador'],
@@ -3612,7 +3612,7 @@ function renderCrmFunnel(todas, statusAtivo) {
   if (!el) return;
   const cont = { novo:0, contatado:0, negociando:0, fechado:0 };
   todas.forEach(c => { if (cont[c.status] !== undefined) cont[c.status]++; });
-  const cores = { novo:'#2563EB', contatado:'#D97706', negociando:'#7C3AED', fechado:'#059669' };
+  const cores = { novo:'#6B7280', contatado:'#D97706', negociando:'#F97316', fechado:'#059669' };
   const labels = { novo:'Novo', contatado:'Contatado', negociando:'Negociando', fechado:'Fechado' };
   const ordem = ['novo','contatado','negociando','fechado'];
 
@@ -3712,9 +3712,9 @@ function renderCrmKanban(entries, isPro) {
   if (pg) pg.style.display = 'none';
 
   const cols = [
-    { key:'novo', label:'Novo', cor:'#2563EB' },
+    { key:'novo', label:'Novo', cor:'#6B7280' },
     { key:'contatado', label:'Contatado', cor:'#D97706' },
-    { key:'negociando', label:'Negociando', cor:'#7C3AED' },
+    { key:'negociando', label:'Negociando', cor:'#F97316' },
     { key:'fechado', label:'Fechado', cor:'#059669' },
   ];
 
@@ -4010,7 +4010,7 @@ function renderDashboard() {
       // Cliente pagante: saudação de boas-vindas reconhecendo o plano
       banner.style.display = 'flex';
       banner.classList.add('banner-premium');
-      const nome = (currentProfile?.company || currentProfile?.full_name || '').split(' ')[0];
+      const nome = (currentProfile?.full_name || '').split(' ')[0] || emailFirstName || '';
       const planNome = { starter: 'Starter', pro: 'Pro', agency: 'Agency' }[plan] || plan;
       const saud = (() => {
         const h = new Date().getHours();
@@ -5048,7 +5048,7 @@ function copyToClipboard(ev, text) {
 
 const EQ_COLS = [
   { id: 'novo',        label: 'Novos leads',    color: 'var(--blue)' },
-  { id: 'contatado',   label: 'Contatados',     color: '#7C3AED' },
+  { id: 'contatado',   label: 'Contatados',     color: '#D97706' },
   { id: 'negociando',  label: 'Negociando',     color: 'var(--accent)' },
   { id: 'fechado',     label: 'Fechados',       color: 'var(--green)' },
 ];

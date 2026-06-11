@@ -381,18 +381,11 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
       <svg width="18" height="18" viewBox="0 0 23 23"><path fill="#F25022" d="M1 1h10v10H1z"/><path fill="#7FBA00" d="M12 1h10v10H12z"/><path fill="#00A4EF" d="M1 12h10v10H1z"/><path fill="#FFB900" d="M12 12h10v10H12z"/></svg>
       Continuar com Microsoft
     </button>
-    <div class="mft" style="margin-top:6px;">Ao entrar você concorda com os <a href="#" onclick="openPolicy('termos');return false;">Termos</a> e <a href="#" onclick="openPolicy('privacidade');return false;">Privacidade</a></div>
+    <div class="mft" style="margin-top:6px;">Ao entrar você concorda com os <a href="/termos" target="_blank">Termos</a> e <a href="/privacidade" target="_blank">Privacidade</a></div>
   </div>
 </div>
 
-<!-- ═══ POLICY MODAL ═══ -->
-<div class="mo" id="polMo" role="dialog" aria-modal="true" style="align-items:flex-start;padding:40px 20px;overflow-y:auto;">
-  <div class="pmb">
-    <button class="mcl" onclick="document.getElementById('polMo').classList.remove('open');document.body.style.overflow='';" aria-label="Fechar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-    <h2 id="polT" style="font-size:22px;font-weight:600;color:#fff;margin-bottom:20px;letter-spacing:-.02em;"></h2>
-    <div id="polC" style="font-size:14px;color:#9ca3af;line-height:1.8;"></div>
-  </div>
-</div>
+<!-- ═══ POLICY MODAL removido — páginas legais agora são HTML standalone ═══ -->
 
 <!-- ═══ MOBILE MENU ═══ -->
 <div class="mm" id="mMenu" role="dialog" aria-modal="true">
@@ -790,7 +783,7 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
     <div><a href="/" style="text-decoration:none;"><div class="flogo">wexio<span>lead</span></div></a><p class="fdesc">A plataforma de leads B2B especializada em construção civil. Conectando fornecedores e construtoras em todo o Brasil.</p></div>
     <div><div class="fct">Produto</div><ul class="fls"><li><a href="#problema">Para quem é</a></li><li><a href="#como">Como funciona</a></li><li><a href="#features">Funcionalidades</a></li><li><a href="#pricing">Preços</a></li><li><a href="#" onclick="openModal();return false;" class="ac">Começar grátis →</a></li></ul></div>
     <div><div class="fct">Empresa</div><ul class="fls"><li><a href="https://docs.google.com/forms/d/e/1FAIpQLSd1LTDbsPZQyQXxiV62iMrsHdwSev1WYoWMSIi50WBP8kHUrA/viewform" target="_blank" rel="noopener">Trabalhe conosco</a></li><li><a href="#" onclick="event.preventDefault();showEmailCard(this);">Suporte</a></li><li><a href="#" onclick="event.preventDefault();showEmailCard(this);">Parcerias</a></li><li><a href="#" onclick="event.preventDefault();showEmailCard(this);">Contato</a></li></ul></div>
-    <div><div class="fct">Legal</div><ul class="fls"><li><a href="#" onclick="openPolicy('privacidade');return false;">Política de Privacidade</a></li><li><a href="#" onclick="openPolicy('termos');return false;">Termos de Uso</a></li><li><a href="#" onclick="openPolicy('lgpd');return false;">LGPD</a></li><li><a href="#" onclick="openPolicy('dpo');return false;">DPO / Privacidade</a></li></ul></div>
+    <div><div class="fct">Legal</div><ul class="fls"><li><a href="/privacidade">Política de Privacidade</a></li><li><a href="/termos">Termos de Uso</a></li><li><a href="/lgpd">LGPD</a></li><li><a href="/dpo">DPO / Privacidade</a></li></ul></div>
   </div>
   <div class="fb"><div class="fc">© 2026 wexiolead · Rio de Janeiro, RJ · Brasil</div></div>
 
@@ -916,23 +909,7 @@ const so=new IntersectionObserver(es=>{
 },{threshold:.15});
 document.querySelectorAll('.step').forEach(s=>so.observe(s));
 
-// ── POLICIES ──
-const POL={
-  privacidade:{title:'Política de Privacidade',content:'<p style="margin-bottom:10px;color:rgba(255,255,255,.6);font-size:13px;">Última atualização: junho de 2026</p><p style="margin-bottom:14px">A wexiolead coleta e trata dados pessoais em conformidade com a Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018).</p><h3 style="font-size:15px;font-weight:600;color:#fff;margin:18px 0 8px">1. Dados coletados</h3><p style="margin-bottom:14px">Coletamos nome, e-mail corporativo, tipo e porte de empresa, CNPJ, telefone, estado de atuação e dados de navegação. Dados de pagamento são processados pela Asaas e não armazenados em nossos servidores.</p><h3 style="font-size:15px;font-weight:600;color:#fff;margin:18px 0 8px">2. Finalidade</h3><p style="margin-bottom:14px">Os dados são utilizados para: prestação dos serviços; personalização de leads e filtros; comunicações sobre a conta; melhoria do produto; cumprimento de obrigações legais.</p><h3 style="font-size:15px;font-weight:600;color:#fff;margin:18px 0 8px">3. Compartilhamento</h3><p style="margin-bottom:14px">Não vendemos dados pessoais. Compartilhamos apenas com fornecedores de infraestrutura (Supabase, Asaas, Groq) necessários para a operação.</p><h3 style="font-size:15px;font-weight:600;color:#fff;margin:18px 0 8px">4. Seus direitos</h3><p style="margin-bottom:14px">Você pode solicitar: acesso, correção, portabilidade, anonimização ou exclusão dos seus dados. Envie para <a href="mailto:wexiolead@yahoo.com" style="color:#F97316">wexiolead@yahoo.com</a>.</p><h3 style="font-size:15px;font-weight:600;color:#fff;margin:18px 0 8px">5. Retenção</h3><p>Dados são retidos enquanto a conta estiver ativa. Após encerramento, eliminados em até 90 dias, salvo obrigação legal.</p>'},
-  termos:{title:'Termos de Uso',content:'<p style="margin-bottom:10px;color:rgba(255,255,255,.6);font-size:13px;">Última atualização: junho de 2026</p><p style="margin-bottom:14px">Ao criar uma conta ou usar a plataforma wexiolead, você concorda com os termos abaixo.</p><h3 style="font-size:15px;font-weight:600;color:#fff;margin:18px 0 8px">1. O serviço</h3><p style="margin-bottom:14px">A wexiolead é uma plataforma SaaS de inteligência comercial e geração de leads B2B especializada no setor de construção civil brasileiro.</p><h3 style="font-size:15px;font-weight:600;color:#fff;margin:18px 0 8px">2. Uso permitido</h3><p style="margin-bottom:14px">A plataforma destina-se exclusivamente à prospecção comercial B2B legítima. É proibido: revender dados, usar para spam, tentar acessar dados de outros usuários ou realizar exportação massiva automatizada sem autorização.</p><h3 style="font-size:15px;font-weight:600;color:#fff;margin:18px 0 8px">3. Planos e pagamentos</h3><p style="margin-bottom:14px">Os planos são cobrados mensalmente e podem ser cancelados a qualquer momento. Não há reembolso de períodos já pagos, salvo falha técnica comprovada. Preços podem ser ajustados com aviso prévio de 30 dias.</p><h3 style="font-size:15px;font-weight:600;color:#fff;margin:18px 0 8px">4. Propriedade intelectual</h3><p style="margin-bottom:14px">Todo o conteúdo, marca, algoritmos e base de dados da wexiolead são de propriedade exclusiva da empresa.</p><h3 style="font-size:15px;font-weight:600;color:#fff;margin:18px 0 8px">5. Foro</h3><p>Fica eleito o foro da Comarca do Rio de Janeiro/RJ para dirimir quaisquer controvérsias.</p>'},
-  lgpd:{title:'LGPD — Proteção de Dados',content:'<p style="margin-bottom:10px;color:rgba(255,255,255,.6);font-size:13px;">Lei nº 13.709/2018 — Última atualização: junho de 2026</p><p style="margin-bottom:14px">A wexiolead opera em plena conformidade com a Lei Geral de Proteção de Dados Pessoais.</p><h3 style="font-size:15px;font-weight:600;color:#fff;margin:18px 0 8px">Base legal</h3><p style="margin-bottom:14px">Tratamos dados com base em: execução de contrato; legítimo interesse; e consentimento para marketing, sempre revogável.</p><h3 style="font-size:15px;font-weight:600;color:#fff;margin:18px 0 8px">Seus direitos (Art. 18 LGPD)</h3><p style="margin-bottom:14px">Confirmar existência de tratamento · Acessar seus dados · Corrigir dados · Solicitar anonimização ou eliminação · Portabilidade · Revogar consentimento a qualquer momento.</p><h3 style="font-size:15px;font-weight:600;color:#fff;margin:18px 0 8px">Encarregado (DPO)</h3><p><a href="mailto:wexiolead@yahoo.com" style="color:#F97316">wexiolead@yahoo.com</a></p>'},
-  dpo:{title:'DPO / Encarregado de Dados',content:'<p style="margin-bottom:14px">O Encarregado de Proteção de Dados (DPO) da wexiolead é o canal oficial para solicitações relacionadas à LGPD e privacidade.</p><h3 style="font-size:15px;font-weight:600;color:#fff;margin:18px 0 8px">Como entrar em contato</h3><p style="margin-bottom:14px">Envie sua solicitação para <a href="mailto:wexiolead@yahoo.com" style="color:#F97316">wexiolead@yahoo.com</a> informando: nome completo, e-mail cadastrado e descrição da solicitação.</p><h3 style="font-size:15px;font-weight:600;color:#fff;margin:18px 0 8px">Prazo de resposta</h3><p style="margin-bottom:14px">Respondemos em até 15 dias úteis, conforme previsto na LGPD.</p><h3 style="font-size:15px;font-weight:600;color:#fff;margin:18px 0 8px">Solicitações atendidas</h3><p>Acesso e portabilidade · Correção de dados · Exclusão de conta · Revogação de consentimento · Reclamações sobre tratamento de dados.</p>'}
-};
-function openPolicy(k){
-  const p=POL[k];if(!p) return;
-  document.getElementById('polT').textContent=p.title;
-  document.getElementById('polC').innerHTML=p.content;
-  document.getElementById('polMo').classList.add('open');
-  document.body.style.overflow='hidden';
-}
-document.getElementById('polMo').addEventListener('click',e=>{
-  if(e.target===document.getElementById('polMo')){document.getElementById('polMo').classList.remove('open');document.body.style.overflow='';}
-});
+// Páginas legais agora são HTML standalone (/privacidade, /termos, /lgpd, /dpo)
 </script>
 
 <!-- EMAIL CARD -->

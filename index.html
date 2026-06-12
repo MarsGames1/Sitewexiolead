@@ -76,8 +76,9 @@ body{background:#000;color:#fff;font-family:'Inter',sans-serif;font-weight:400;o
 @media(min-width:768px){.nav-wrap{padding:16px 48px 0;}}
 @media(min-width:1024px){.nav-wrap{padding:16px 64px 0;}}
 .navbar{display:flex;align-items:center;justify-content:space-between;border-radius:12px;padding:8px 16px;pointer-events:all;}
-.nav-logo{font-size:20px;font-weight:600;letter-spacing:-.04em;color:#fff;text-decoration:none;}
-.nav-logo span{color:#F97316;}
+.nav-logo{display:flex;align-items:center;text-decoration:none;}
+.nav-logo img{height:26px;width:auto;display:block;}
+@media(max-width:480px){.nav-logo img{height:22px;}}
 .nav-center{display:none;gap:32px;list-style:none;}
 @media(min-width:768px){.nav-center{display:flex;}}
 .nav-center a{color:#fff;text-decoration:none;font-size:14px;font-weight:500;opacity:1;transition:opacity .2s;}
@@ -173,7 +174,7 @@ section{padding:100px 24px;}
 .l-info{flex:1;min-width:0;}
 .l-name{font-size:13px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .l-meta{font-size:11px;color:#6b7280;margin-top:1px;display:flex;gap:6px;align-items:center;}
-.l-ver{font-size:9px;background:rgba(5,150,105,.15);color:#34d399;padding:1px 6px;border-radius:4px;font-weight:700;}
+.l-ver{font-size:9px;background:rgba(5,150,105,.15);color:#059669;padding:1px 6px;border-radius:4px;font-weight:700;}
 .l-score{font-size:15px;font-weight:700;color:#F97316;flex-shrink:0;}
 .mk-wex{margin:8px;border-radius:10px;background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.15);padding:12px 14px;display:flex;align-items:center;gap:10px;}
 .wdot{width:7px;height:7px;border-radius:50%;background:#F97316;flex-shrink:0;animation:bk 2s infinite;}
@@ -207,16 +208,30 @@ section{padding:100px 24px;}
 .wd{width:5px;height:5px;border-radius:50%;background:#F97316;flex-shrink:0;}
 
 /* chat */
-.chat{background:#fff;border:1px solid #ebebeb;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.06);}
+.chat{background:#fff;border:1px solid #ebebeb;border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(249,115,22,.10),0 4px 24px rgba(0,0,0,.05);}
 .chat-h{background:#f7f7f5;border-bottom:1px solid #ebebeb;padding:14px 18px;display:flex;align-items:center;gap:10px;}
-.chat-av{width:32px;height:32px;border-radius:50%;background:#F97316;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;flex-shrink:0;}
+.chat-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#F97316,#c2410c);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;flex-shrink:0;box-shadow:0 2px 8px rgba(249,115,22,.35);}
 .chat-nm{font-size:13px;font-weight:600;color:#1a1814;}
 .chat-st{font-size:10px;color:#F97316;display:flex;align-items:center;gap:4px;margin-top:1px;}
-.chat-st::before{content:'';width:5px;height:5px;background:#F97316;border-radius:50%;display:inline-block;}
+.chat-st::before{content:'';width:5px;height:5px;background:#F97316;border-radius:50%;display:inline-block;animation:wexpulse 1.8s ease-in-out infinite;}
+@keyframes wexpulse{0%,100%{box-shadow:0 0 0 0 rgba(249,115,22,.45);}50%{box-shadow:0 0 0 4px rgba(249,115,22,0);}}
 .chat-bd{padding:16px;display:flex;flex-direction:column;gap:10px;}
-.cm{max-width:85%;font-size:13px;line-height:1.55;}
+.cm{max-width:88%;font-size:13px;line-height:1.55;}
 .cm.bot{background:#f7f7f5;border:1px solid #ebebeb;border-radius:4px 14px 14px 14px;padding:10px 14px;color:#1a1814;align-self:flex-start;}
 .cm.usr{background:#F97316;border-radius:14px 4px 14px 14px;padding:10px 14px;color:#fff;align-self:flex-end;}
+.wlead{align-self:flex-start;max-width:88%;background:#fff;border:1px solid #f0d9c8;border-left:3px solid #F97316;border-radius:4px 14px 14px 14px;padding:12px 14px;box-shadow:0 2px 12px rgba(249,115,22,.08);}
+.wlead-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;}
+.wlead-nm{font-size:12.5px;font-weight:700;color:#1a1814;letter-spacing:.01em;}
+.wlead-sc{background:rgba(5,150,105,.1);color:#059669;font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px;white-space:nowrap;}
+.wlead-meta{font-size:11px;color:#6b6760;line-height:1.6;}
+.wlead-tags{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.wlead-tag{font-size:9.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#c2410c;background:rgba(249,115,22,.09);border:1px solid rgba(249,115,22,.18);padding:3px 8px;border-radius:5px;}
+.wlead-more{font-size:11px;color:#F97316;font-weight:600;margin-top:8px;}
+.wtyping{align-self:flex-start;background:#f7f7f5;border:1px solid #ebebeb;border-radius:4px 14px 14px 14px;padding:12px 16px;display:flex;gap:4px;}
+.wtyping i{width:6px;height:6px;background:#c9c5bd;border-radius:50%;animation:wtyp 1.2s ease-in-out infinite;}
+.wtyping i:nth-child(2){animation-delay:.15s;}
+.wtyping i:nth-child(3){animation-delay:.3s;}
+@keyframes wtyp{0%,60%,100%{transform:translateY(0);opacity:.5;}30%{transform:translateY(-4px);opacity:1;}}
 .chat-inp{padding:12px 16px;border-top:1px solid #ebebeb;display:flex;gap:8px;}
 .chat-fld{flex:1;background:#f7f7f5;border:1px solid #ebebeb;border-radius:8px;padding:8px 12px;font-size:12px;color:#6b6760;font-family:'Inter',sans-serif;cursor:default;}
 .chat-btn{background:#F97316;border:none;border-radius:8px;padding:8px 14px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:background .2s;}
@@ -410,7 +425,7 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
   <!-- NAV -->
   <div class="nav-wrap">
     <nav class="navbar lg" role="navigation" aria-label="Navegação principal">
-      <a href="/" class="nav-logo" id="navLogo">wexio<span>lead</span></a>
+      <a href="/" class="nav-logo" id="navLogo" aria-label="wexiolead"><img src="wexiolead-logo-dark.png" alt="wexiolead" decoding="async"></a>
       <ul class="nav-center">
         <li><a href="#problema">Para quem é</a></li>
         <li><a href="#como">Como funciona</a></li>
@@ -461,7 +476,7 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
           <div style="display:flex;align-items:center;gap:8px;">
             <span style="font-size:11px;color:rgba(255,255,255,0.35);font-weight:400;">CNAE 41.20</span>
             <span style="width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,0.2);flex-shrink:0;display:block;"></span>
-            <span style="font-size:11px;color:#34d399;font-weight:400;">Verificado</span>
+            <span style="font-size:11px;color:#059669;font-weight:400;">Verificado</span>
             <span style="width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,0.2);flex-shrink:0;display:block;"></span>
             <span style="font-size:11px;color:rgba(255,255,255,0.35);font-weight:400;">Score 70+</span>
           </div>
@@ -573,7 +588,7 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
               <div style="font-size:16px;font-weight:700;color:#F97316;">88</div>
             </div>
             <div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;border:1px solid #f3f4f6;margin-bottom:4px;">
-              <div style="width:34px;height:34px;border-radius:8px;background:rgba(37,99,235,.1);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#3b82f6;flex-shrink:0;">PA</div>
+              <div style="width:34px;height:34px;border-radius:8px;background:rgba(249,115,22,.12);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#F97316;flex-shrink:0;">PA</div>
               <div style="flex:1;min-width:0;">
                 <div style="font-size:13px;font-weight:600;color:#1a1814;">Projetos Alfa Incorporadora</div>
                 <div style="font-size:11px;color:#9ca3af;margin-top:1px;">Campinas · SP</div>
@@ -581,7 +596,7 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
               <div style="font-size:16px;font-weight:700;color:#F97316;">82</div>
             </div>
             <div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;border:1px solid #f3f4f6;margin-bottom:12px;">
-              <div style="width:34px;height:34px;border-radius:8px;background:rgba(139,92,246,.1);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#8b5cf6;flex-shrink:0;">VS</div>
+              <div style="width:34px;height:34px;border-radius:8px;background:#1a1814;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;">VS</div>
               <div style="flex:1;min-width:0;">
                 <div style="font-size:13px;font-weight:600;color:#1a1814;">Vitória Sienge Construtora</div>
                 <div style="font-size:11px;color:#9ca3af;margin-top:1px;display:flex;gap:6px;align-items:center;">Ribeirão Preto · SP <span style="font-size:9px;background:rgba(5,150,105,.1);color:#059669;padding:1px 6px;border-radius:4px;font-weight:700;">Verificado</span></div>
@@ -638,11 +653,17 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
       <div class="chat">
         <div class="chat-h"><div class="chat-av">W</div><div><div class="chat-nm">Wex</div><div class="chat-st">Online agora</div></div></div>
         <div class="chat-bd">
-          <div class="cm bot">Olá! Qual tipo de lead você está buscando hoje?</div>
-          <div class="cm usr">Quero construtoras em SP com obras ativas</div>
-          <div class="cm bot">Vou filtrar por CNAE 41.20 em SP. Prefere por porte ou tem mínimo de faturamento?</div>
-          <div class="cm usr">Médio porte, acima de R$2M faturamento</div>
-          <div class="cm bot">Encontrei 347 construtoras em SP com score 70+. Quer aplicar o filtro "Decisor disponível"?</div>
+          <div class="cm usr">Wex, preciso de construtoras de médio porte com obras ativas em SP</div>
+          <div class="cm bot">Deixa comigo. Filtrei por CNAE 41.20, porte médio e atividade recente. Olha a melhor da lista:</div>
+          <div class="wlead">
+            <div class="wlead-top"><div class="wlead-nm">CONSTRUTORA HORIZONTE LTDA</div><div class="wlead-sc">Score 87</div></div>
+            <div class="wlead-meta">São Paulo · 11 anos de mercado · 40–99 funcionários</div>
+            <div class="wlead-tags"><span class="wlead-tag">Decisor identificado</span><span class="wlead-tag">Obras ativas</span><span class="wlead-tag">Verificado RF</span></div>
+            <div class="wlead-more">+346 empresas no mesmo filtro →</div>
+          </div>
+          <div class="cm usr">Perfeita. Escreve um e-mail de prospecção pra ela</div>
+          <div class="cm bot">Pronto! Assunto: <em>"Materiais para suas obras na zona sul — condição de parceiro"</em>. Personalizei com o porte e a região das obras dela. Quer que eu ajuste o tom?</div>
+          <div class="wtyping" aria-hidden="true"><i></i><i></i><i></i></div>
         </div>
         <div class="chat-inp"><div class="chat-fld">Pergunte à Wex...</div><button class="chat-btn" onclick="openModal()">Testar grátis</button></div>
       </div>
@@ -676,8 +697,8 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
     <h2 class="sec-title rv d1">Quem já usa, não volta atrás.</h2>
     <div class="tg">
       <div class="te rv"><div class="te-st"></div><p class="te-q">"Passávamos semanas encontrando construtoras no RS. Com o wexiolead, em 20 minutos tenho uma lista qualificada com os decisores identificados."</p><div class="te-a"><div class="te-av" style="background:rgba(249,115,22,.12);color:#F97316;">RF</div><div><div class="te-nm">Ricardo Ferreira</div><div class="te-rl">Diretor Comercial · Equipamentos Alfa</div></div></div></div>
-      <div class="te rv d1"><div class="te-st"></div><p class="te-q">"A Wex nos ajudou a montar uma abordagem específica para construtoras de médio porte. Taxa de resposta subiu 40% na prospecção."</p><div class="te-a"><div class="te-av" style="background:rgba(5,150,105,.12);color:#34d399;">CS</div><div><div class="te-nm">Camila Santos</div><div class="te-rl">Fundadora · Materiais Construção Pro</div></div></div></div>
-      <div class="te rv d2"><div class="te-st"></div><p class="te-q">"Como construtora, encontramos 3 novos fornecedores de qualidade nos primeiros 15 dias. O filtro por obras ativas é excelente."</p><div class="te-a"><div class="te-av" style="background:rgba(37,99,235,.12);color:#60a5fa;">MA</div><div><div class="te-nm">Marcos Andrade</div><div class="te-rl">CEO · Andrade Incorporações</div></div></div></div>
+      <div class="te rv d1"><div class="te-st"></div><p class="te-q">"A Wex nos ajudou a montar uma abordagem específica para construtoras de médio porte. Taxa de resposta subiu 40% na prospecção."</p><div class="te-a"><div class="te-av" style="background:#1a1814;color:#fff;">CS</div><div><div class="te-nm">Camila Santos</div><div class="te-rl">Fundadora · Materiais Construção Pro</div></div></div></div>
+      <div class="te rv d2"><div class="te-st"></div><p class="te-q">"Como construtora, encontramos 3 novos fornecedores de qualidade nos primeiros 15 dias. O filtro por obras ativas é excelente."</p><div class="te-a"><div class="te-av" style="background:rgba(249,115,22,.22);color:#c2410c;">MA</div><div><div class="te-nm">Marcos Andrade</div><div class="te-rl">CEO · Andrade Incorporações</div></div></div></div>
     </div>
   </div>
 </section>
@@ -685,9 +706,9 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
 <!-- ═══════════════════════════════════
      EXPANSÃO SETORIAL
 ═══════════════════════════════════ -->
-<section style="background:#0f0f0e;padding:120px 64px;overflow:hidden;position:relative;">
+<section style="background:#f7f7f5;border-top:1px solid #ebebeb;padding:120px 64px;overflow:hidden;position:relative;">
   <!-- Grade de fundo sutil -->
-  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(249,115,22,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(249,115,22,.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;"></div>
+  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(249,115,22,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(249,115,22,.05) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;"></div>
   <div style="max-width:1100px;margin:0 auto;position:relative;">
 
     <!-- Eyebrow -->
@@ -697,51 +718,51 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
     </div>
 
     <!-- Headline -->
-    <h2 style="font-size:clamp(32px,5vw,64px);font-weight:300;line-height:1.04;letter-spacing:-.04em;color:#fff;margin-bottom:20px;max-width:700px;">Nascemos na construção.<br>Crescemos para<br><em style="font-style:italic;color:#F97316;">todo o mercado.</em></h2>
-    <p style="font-size:clamp(15px,1.2vw,17px);color:#9ca3af;max-width:480px;line-height:1.7;margin-bottom:64px;">Nossa especialidade é construção civil — e continuará sendo. Mas sua empresa pode precisar de um contador, um advogado ou uma transportadora. A mesma qualidade de dados para quem também move a economia.</p>
+    <h2 style="font-size:clamp(32px,5vw,64px);font-weight:300;line-height:1.04;letter-spacing:-.04em;color:#1a1814;margin-bottom:20px;max-width:700px;">Nascemos na construção.<br>Crescemos para<br><em style="font-style:italic;color:#F97316;">todo o mercado.</em></h2>
+    <p style="font-size:clamp(15px,1.2vw,17px);color:#6b6760;max-width:480px;line-height:1.7;margin-bottom:64px;">Nossa especialidade é construção civil — e continuará sendo. Mas sua empresa pode precisar de um contador, um advogado ou uma transportadora. A mesma qualidade de dados para quem também move a economia.</p>
 
     <!-- Grade de setores -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:rgba(255,255,255,.07);border-radius:16px;overflow:hidden;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:#ebebeb;border-radius:16px;border:1px solid #ebebeb;overflow:hidden;">
 
-      <div class="setor-item" style="background:#141413;padding:28px 24px;transition:background .2s;">
+      <div class="setor-item" style="background:#fff;padding:28px 24px;transition:background .2s;">
         <div style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#F97316;margin-bottom:8px;">Saúde</div>
-        <div style="font-size:15px;font-weight:400;color:#e5e7eb;line-height:1.5;">Clínicas, laboratórios,<br>planos e distribuidoras</div>
+        <div style="font-size:15px;font-weight:400;color:#4a463f;line-height:1.5;">Clínicas, laboratórios,<br>planos e distribuidoras</div>
       </div>
 
-      <div class="setor-item" style="background:#141413;padding:28px 24px;transition:background .2s;">
+      <div class="setor-item" style="background:#fff;padding:28px 24px;transition:background .2s;">
         <div style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#F97316;margin-bottom:8px;">Jurídico</div>
-        <div style="font-size:15px;font-weight:400;color:#e5e7eb;line-height:1.5;">Escritórios de advocacia<br>e consultoria jurídica</div>
+        <div style="font-size:15px;font-weight:400;color:#4a463f;line-height:1.5;">Escritórios de advocacia<br>e consultoria jurídica</div>
       </div>
 
-      <div class="setor-item" style="background:#141413;padding:28px 24px;transition:background .2s;">
+      <div class="setor-item" style="background:#fff;padding:28px 24px;transition:background .2s;">
         <div style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#F97316;margin-bottom:8px;">Tecnologia</div>
-        <div style="font-size:15px;font-weight:400;color:#e5e7eb;line-height:1.5;">Startups, software houses<br>e prestadores de TI</div>
+        <div style="font-size:15px;font-weight:400;color:#4a463f;line-height:1.5;">Startups, software houses<br>e prestadores de TI</div>
       </div>
 
-      <div class="setor-item" style="background:#141413;padding:28px 24px;transition:background .2s;">
+      <div class="setor-item" style="background:#fff;padding:28px 24px;transition:background .2s;">
         <div style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#F97316;margin-bottom:8px;">Contabilidade</div>
-        <div style="font-size:15px;font-weight:400;color:#e5e7eb;line-height:1.5;">Escritórios contábeis<br>e consultorias fiscais</div>
+        <div style="font-size:15px;font-weight:400;color:#4a463f;line-height:1.5;">Escritórios contábeis<br>e consultorias fiscais</div>
       </div>
 
-      <div class="setor-item" style="background:#141413;padding:28px 24px;transition:background .2s;">
+      <div class="setor-item" style="background:#fff;padding:28px 24px;transition:background .2s;">
         <div style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#F97316;margin-bottom:8px;">Engenharia</div>
-        <div style="font-size:15px;font-weight:400;color:#e5e7eb;line-height:1.5;">Projetos, arquitetura<br>e laudos técnicos</div>
+        <div style="font-size:15px;font-weight:400;color:#4a463f;line-height:1.5;">Projetos, arquitetura<br>e laudos técnicos</div>
       </div>
 
-      <div class="setor-item" style="background:#141413;padding:28px 24px;transition:background .2s;">
+      <div class="setor-item" style="background:#fff;padding:28px 24px;transition:background .2s;">
         <div style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#F97316;margin-bottom:8px;">Logística</div>
-        <div style="font-size:15px;font-weight:400;color:#e5e7eb;line-height:1.5;">Transportadoras, frotas<br>e distribuidores</div>
+        <div style="font-size:15px;font-weight:400;color:#4a463f;line-height:1.5;">Transportadoras, frotas<br>e distribuidores</div>
       </div>
 
-      <div class="setor-item" style="background:#141413;padding:28px 24px;transition:background .2s;">
+      <div class="setor-item" style="background:#fff;padding:28px 24px;transition:background .2s;">
         <div style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#F97316;margin-bottom:8px;">Imobiliário</div>
-        <div style="font-size:15px;font-weight:400;color:#e5e7eb;line-height:1.5;">Imobiliárias, loteadoras<br>e administradoras</div>
+        <div style="font-size:15px;font-weight:400;color:#4a463f;line-height:1.5;">Imobiliárias, loteadoras<br>e administradoras</div>
       </div>
 
       <!-- Destaque: e mais -->
       <div style="background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.2);padding:28px 24px;display:flex;flex-direction:column;justify-content:center;">
         <div style="font-size:13px;font-weight:600;color:#F97316;margin-bottom:6px;">+ 12 segmentos</div>
-        <div style="font-size:14px;color:#9ca3af;line-height:1.6;">Atacado, comércio,<br>marketing e muito mais.</div>
+        <div style="font-size:14px;color:#6b6760;line-height:1.6;">Atacado, comércio,<br>marketing e muito mais.</div>
         <div style="margin-top:14px;">
           <button onclick="openModal()" style="background:#F97316;color:#fff;border:none;padding:8px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Explorar base →</button>
         </div>
@@ -750,14 +771,14 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
     </div>
 
     <!-- Rodapé da seção -->
-    <p style="margin-top:32px;font-size:13px;color:#6b7280;text-align:center;">
-      Todos os dados são extraídos diretamente da <strong style="color:#9ca3af;">Receita Federal</strong>, enriquecidos com contatos reais e verificados em tempo real.
+    <p style="margin-top:32px;font-size:13px;color:#6b6760;text-align:center;">
+      Todos os dados são extraídos diretamente da <strong style="color:#1a1814;">Receita Federal</strong>, enriquecidos com contatos reais e verificados em tempo real.
     </p>
   </div>
 </section>
 
 <style>
-  .setor-item:hover { background: #1a1917 !important; }
+  .setor-item:hover { background: #fdf6f0 !important; }
   @media(max-width:767px) {
     #sec-setores-grid { grid-template-columns: 1fr 1fr; }
   }

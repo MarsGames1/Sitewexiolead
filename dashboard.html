@@ -1098,26 +1098,26 @@ textarea.form-input { resize: vertical; min-height: 90px; }
   <div class="paywall-box">
     <div class="paywall-icon"></div>
     <div class="paywall-title">Seus leads gratuitos acabaram!</div>
-    <div class="paywall-sub">Você usou todos os leads do plano gratuito. Assine um plano para continuar prospeccionando a base de construção civil.</div>
+    <div class="paywall-sub">Você usou todos os leads do plano gratuito. Contrate um plano para continuar prospectando a base de construção civil.</div>
     <div class="paywall-plans">
       <div class="pw-plan sel" onclick="selectPaywallPlan('starter',this)">
         <div class="pw-plan-name">Starter</div>
-        <div class="pw-plan-price">R$97<small>/mês</small></div>
+        <div class="pw-plan-price">R$97<small>/30 dias</small></div>
         <div class="pw-plan-feat">100 leads · CSV · Wex essencial</div>
 </div>
       <div class="pw-plan" onclick="selectPaywallPlan('pro',this)">
         <div class="pw-plan-name">Pro</div>
-        <div class="pw-plan-price">R$197<small>/mês</small></div>
+        <div class="pw-plan-price">R$197<small>/30 dias</small></div>
         <div class="pw-plan-feat">300 leads · CRM completo</div>
 </div>
       <div class="pw-plan" onclick="selectPaywallPlan('agency',this)">
         <div class="pw-plan-name">Agency</div>
-        <div class="pw-plan-price">R$397<small>/mês</small></div>
+        <div class="pw-plan-price">R$397<small>/30 dias</small></div>
         <div class="pw-plan-feat">Ilimitado · Multi-usuário · WhatsApp</div>
 </div>
 </div>
-    <button class="pw-cta" id="paywallCta" onclick="goToPlanPayment()">Assinar Starter — R$97/mês →</button>
-    <div class="pw-note">Pagamento seguro · Cancele quando quiser</div>
+    <button class="pw-cta" id="paywallCta" onclick="goToPlanPayment()">Contratar Starter — R$97 / 30 dias →</button>
+    <div class="pw-note">Pagamento seguro · Sem renovação automática</div>
 </div>
 </div>
 
@@ -1519,22 +1519,22 @@ textarea.form-input { resize: vertical; min-height: 90px; }
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;" id="creditPlanGrid">
       <div class="pw-plan" onclick="selectCreditPlan('starter',this)">
         <div class="pw-plan-name">Starter</div>
-        <div class="pw-plan-price">R$97<small>/mês</small></div>
+        <div class="pw-plan-price">R$97<small>/30 dias</small></div>
         <div class="pw-plan-feat">100 leads · CSV · Wex essencial</div>
       </div>
       <div class="pw-plan sel" onclick="selectCreditPlan('pro',this)">
         <div class="pw-plan-name">Pro</div>
-        <div class="pw-plan-price">R$197<small>/mês</small></div>
+        <div class="pw-plan-price">R$197<small>/30 dias</small></div>
         <div class="pw-plan-feat">300 leads · CRM completo</div>
       </div>
       <div class="pw-plan" onclick="selectCreditPlan('agency',this)">
         <div class="pw-plan-name">Agency</div>
-        <div class="pw-plan-price">R$397<small>/mês</small></div>
+        <div class="pw-plan-price">R$397<small>/30 dias</small></div>
         <div class="pw-plan-feat">Ilimitado · Multi-usuário · WhatsApp</div>
       </div>
     </div>
-    <button class="pw-cta" id="creditPlanCta" onclick="goToCreditPayment()">Assinar Pro — R$197/mês →</button>
-    <p style="font-size:11px;color:var(--dim);margin-top:8px;">Sem fidelidade · Cancele quando quiser</p>
+    <button class="pw-cta" id="creditPlanCta" onclick="goToCreditPayment()">Contratar Pro — R$197 / 30 dias →</button>
+    <p style="font-size:11px;color:var(--dim);margin-top:8px;">Sem fidelidade · Sem renovação automática</p>
   </div>
 </div>
 
@@ -1639,11 +1639,11 @@ textarea.form-input { resize: vertical; min-height: 90px; }
 
   <div class="quota-card">
     <div class="quota-header">
-      <div class="quota-title">Créditos restantes este mês</div>
+      <div class="quota-title">Créditos do seu ciclo (30 dias)</div>
       <div class="quota-nums"><strong id="quotaRemaining" style="color:var(--accent);">10</strong> <span style="color:var(--muted);font-size:12px;">de</span> <strong id="quotaTotal">10</strong></div>
 </div>
     <div class="quota-track"><div class="quota-fill" id="quotaFill" style="width:0%;"></div></div>
-    <div class="quota-hint" id="quotaHint">Renova no dia 1º do próximo mês.</div>
+    <div class="quota-hint" id="quotaHint">Válido por 30 dias a partir da ativação.</div>
 </div>
 
   <div class="stats-grid">
@@ -1651,7 +1651,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
       <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
       <div class="stat-label">Leads disponíveis</div>
       <div class="stat-value" id="dashLeadsLeft">—</div>
-      <div class="stat-sub">restantes no mês</div>
+      <div class="stat-sub">restantes no ciclo</div>
 </div>
     <div class="stat-card">
       <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
@@ -2152,9 +2152,9 @@ textarea.form-input { resize: vertical; min-height: 90px; }
           </div>
         </div>
         <button onclick="showPage('plans')" style="width:100%;padding:14px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 4px 16px rgba(249,115,22,.35);transition:opacity .2s;" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
-          Ver plano Agency — R$397/mês
+          Ver plano Agency — R$397 / 30 dias
         </button>
-        <div style="margin-top:12px;font-size:12px;color:var(--dim);">Cancele quando quiser · Sem burocracia</div>
+        <div style="margin-top:12px;font-size:12px;color:var(--dim);">Sem renovação automática · Sem burocracia</div>
       </div>
     </div>
   </div>
@@ -2245,48 +2245,48 @@ textarea.form-input { resize: vertical; min-height: 90px; }
 <!--  PLANOS ═-->
 <div class="page-section" id="page-planos">
   <div class="page-header">
-    <div class="page-title">Planos & Assinatura</div>
+    <div class="page-title">Planos & Acesso</div>
     <div class="page-sub">Escolha o plano ideal para o seu negócio na construção civil</div>
 </div>
   <div class="plans-grid">
     <div class="plan-card" id="planCardStarter">
       <div class="plan-name">Starter</div>
-      <div class="plan-price"><sup>R$</sup>97<small>/mês</small></div>
+      <div class="plan-price"><sup>R$</sup>97<small>/30 dias</small></div>
       <p class="plan-desc">Para quem está começando a prospectar fornecedores e construtoras</p>
       <ul class="plan-features">
-        <li>100 consultas/mês</li><li>Filtros completos por região, porte e CNAE</li>
+        <li>100 consultas / 30 dias</li><li>Filtros completos por região, porte e CNAE</li>
         <li>Score completo 0–100</li><li>Selo Lead Verificado</li>
         <li>Exportação CSV</li><li>Perfil público no diretório</li>
         <li>Wex completa com sugestões personalizadas</li>
 </ul>
-      <button class="plan-btn outline" onclick="selectPlan('starter')">Assinar Starter</button>
+      <button class="plan-btn outline" onclick="selectPlan('starter')">Contratar Starter</button>
 </div>
     <div class="plan-card featured" id="planCardPro">
       <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--accent2);color:#fff;font-size:10px;font-weight:700;padding:3px 12px;border-radius:20px;letter-spacing:0.05em;text-transform:uppercase;white-space:nowrap;">Mais popular</div>
       <div class="plan-name">Pro</div>
-      <div class="plan-price"><sup>R$</sup>197<small>/mês</small></div>
+      <div class="plan-price"><sup>R$</sup>197<small>/30 dias</small></div>
       <p class="plan-desc">Para equipes que precisam de volume e inteligência de mercado</p>
       <ul class="plan-features">
-        <li>300 consultas/mês</li><li>Tudo do Starter</li>
+        <li>300 consultas / 30 dias</li><li>Tudo do Starter</li>
         <li>CRM completo (funil e Kanban)</li><li>Rede B2B incluída</li>
         <li>Wex completa</li><li>Suporte prioritário por e-mail</li>
 </ul>
-      <button class="plan-btn solid" onclick="selectPlan('pro')">Assinar Pro</button>
+      <button class="plan-btn solid" onclick="selectPlan('pro')">Contratar Pro</button>
 </div>
     <div class="plan-card" id="planCardAgency">
       <div class="plan-name">Agency</div>
-      <div class="plan-price"><sup>R$</sup>397<small>/mês</small></div>
+      <div class="plan-price"><sup>R$</sup>397<small>/30 dias</small></div>
       <p class="plan-desc">Para agências e equipes com alto volume de prospecção</p>
       <ul class="plan-features">
         <li>Consultas ilimitadas</li><li>Tudo do Pro</li>
         <li>Múltiplos usuários na mesma conta</li><li>Gestão de equipe de vendas</li>
         <li>Onboarding dedicado</li><li>Suporte via WhatsApp</li>
 </ul>
-      <button class="plan-btn outline" onclick="selectPlan('agency')">Assinar Agency</button>
+      <button class="plan-btn outline" onclick="selectPlan('agency')">Contratar Agency</button>
 </div>
 </div>
   <div style="margin-top:18px;padding:16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--muted);text-align:center;box-shadow:var(--shadow);">
-     Para assinar ou tirar dúvidas: <a href="mailto:wexiolead@yahoo.com" style="color:var(--accent);text-decoration:none;font-weight:500;">wexiolead@yahoo.com</a>
+     Para contratar ou tirar dúvidas: <a href="mailto:wexiolead@yahoo.com" style="color:var(--accent);text-decoration:none;font-weight:500;">wexiolead@yahoo.com</a>
     &nbsp;·&nbsp; <a href="https://wa.me/5521998936273" target="_blank" style="color:var(--accent);text-decoration:none;font-weight:500;">WhatsApp</a>
 </div>
 </div>
@@ -2380,7 +2380,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
       <button class="wex-sug" onclick="supportAsk('Como usar o CRM?')">Usar o CRM</button>
       <button class="wex-sug" onclick="supportAsk('Quais são os planos disponíveis?')">Ver planos</button>
       <button class="wex-sug" onclick="supportAsk('Não consigo ver o telefone do lead')">Dado bloqueado</button>
-      <button class="wex-sug" onclick="supportAsk('Como cancelar minha assinatura?')">Cancelar plano</button>
+      <button class="wex-sug" onclick="supportAsk('Como funciona o pagamento do plano?')">Como funciona o pagamento</button>
       <button class="wex-sug" onclick="supportAsk('Falar com um humano')">Falar com humano</button>
     </div>
     <div style="padding:12px 14px;display:flex;gap:8px;align-items:center;border-top:1px solid var(--border);margin-top:10px;">
@@ -3988,7 +3988,7 @@ function renderDashboard() {
   document.getElementById('dashLeadsLeft').textContent = remaining;
   document.getElementById('dashExports').textContent = userExports.length;
   document.getElementById('dashPlan').textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
-  const planSubs = { free:'10 leads grátis', starter:'100 leads/mês', pro:'300 leads/mês', agency:'Ilimitado' };
+  const planSubs = { free:'10 leads grátis', starter:'100 leads/30 dias', pro:'300 leads/30 dias', agency:'Ilimitado' };
   document.getElementById('dashPlanSub').textContent = planSubs[plan] || '';
 
   // Banner contextual por plano — reconhece o cliente
@@ -4066,7 +4066,7 @@ function updateQuotaUI() {
     ? 'Plano Agency: consultas ilimitadas.'
     : pct >= 100
       ? 'Limite atingido! Faça upgrade para continuar.'
-      : `Renova no dia 1º do próximo mês.`;
+      : `Válido por 30 dias a partir da ativação.`;
 
   // Topnav real-time pill
   const pill = document.getElementById('creditPill');
@@ -4155,8 +4155,8 @@ function selectPaywallPlan(plan, el) {
   selectedPaywallPlan = plan;
   document.querySelectorAll('.pw-plan').forEach(p =>p.classList.remove('sel'));
   el.classList.add('sel');
-  const labels = { starter:'Assinar Starter — R$97/mês →', pro:'Assinar Pro — R$197/mês →', agency:'Assinar Agency — R$397/mês →' };
-  document.getElementById('paywallCta').textContent = labels[plan] || 'Assinar agora →';
+  const labels = { starter:'Contratar Starter — R$97 / 30 dias →', pro:'Contratar Pro — R$197 / 30 dias →', agency:'Contratar Agency — R$397 / 30 dias →' };
+  document.getElementById('paywallCta').textContent = labels[plan] || 'Contratar agora →';
 }
 
 function goToPlanPayment() {
@@ -4486,11 +4486,11 @@ FUNCIONALIDADES QUE VOCÊ CONHECE E PODE EXPLICAR:
 - Radar de Empresas Novas: lista empresas recém-abertas (negócio novo = oportunidade quente). Exclusivo do plano Agency
 - Exportação: CSV/Excel dos leads e do CRM
 
-PLANOS (cobrança mensal avulsa, o cliente pode trocar a qualquer momento):
-- Free: gratuito, 10 consultas/mês, filtros básicos, score parcial, Wex limitada. Sem CRM, sem rede, sem radar
-- Starter R$97/mês: 100 consultas, filtros completos, score 0-100, selo verificado, CSV, CRM leve (lista), Rede B2B (1 crédito por conexão), Wex essencial
-- Pro R$197/mês: 300 consultas, tudo do Starter, CRM completo (funil e Kanban), Rede B2B incluída, Wex completa, suporte prioritário
-- Agency R$397/mês: consultas ilimitadas, tudo do Pro, Radar de Empresas Novas exclusivo, multi-usuário e gestão de equipe, onboarding dedicado, suporte WhatsApp
+PLANOS (pagamento avulso, cada plano vale 30 dias e expira sem renovação automática — o cliente paga só quando precisar):
+- Free: gratuito, 10 consultas/30 dias, filtros básicos, score parcial, Wex limitada. Sem CRM, sem rede, sem radar
+- Starter R$97 / 30 dias: 100 consultas, filtros completos, score 0-100, selo verificado, CSV, CRM leve (lista), Rede B2B (1 crédito por conexão), Wex essencial
+- Pro R$197 / 30 dias: 300 consultas, tudo do Starter, CRM completo (funil e Kanban), Rede B2B incluída, Wex completa, suporte prioritário
+- Agency R$397 / 30 dias: consultas ilimitadas, tudo do Pro, Radar de Empresas Novas exclusivo, multi-usuário e gestão de equipe, onboarding dedicado, suporte WhatsApp
 
 O QUE VOCÊ FAZ:
 - Sugere termos e filtros de busca para o que o cliente procura
@@ -5527,8 +5527,8 @@ function selectCreditPlan(plan, el) {
   selectedCreditPlan = plan;
   document.querySelectorAll('#creditPlanGrid .pw-plan').forEach(p => p.classList.remove('sel'));
   el.classList.add('sel');
-  const labels = { starter: 'Assinar Starter — R$97/mês →', pro: 'Assinar Pro — R$197/mês →', agency: 'Assinar Agency — R$397/mês →' };
-  document.getElementById('creditPlanCta').textContent = labels[plan] || 'Assinar →';
+  const labels = { starter: 'Contratar Starter — R$97 / 30 dias →', pro: 'Contratar Pro — R$197 / 30 dias →', agency: 'Contratar Agency — R$397 / 30 dias →' };
+  document.getElementById('creditPlanCta').textContent = labels[plan] || 'Contratar →';
 }
 
 function goToCreditPayment() {
@@ -5670,9 +5670,9 @@ const SUPPORT_FAQ = [
     keys: ['limite', 'aumentar', 'mais leads', 'quota', 'credito', 'acabou'],
     answer: `Seu limite de leads depende do plano:<br><br>
       <strong>Free</strong> — 10 leads<br>
-      <strong>Starter R$97/mês</strong> — 100 leads<br>
-      <strong>Pro R$197/mês</strong> — 300 leads<br>
-      <strong>Agency R$397/mês</strong> — Ilimitado<br><br>
+      <strong>Starter R$97 / 30 dias</strong> — 100 leads<br>
+      <strong>Pro R$197 / 30 dias</strong> — 300 leads<br>
+      <strong>Agency R$397 / 30 dias</strong> — Ilimitado<br><br>
       Para fazer upgrade acesse <strong>Planos</strong> no menu ou envie e-mail para <a href="mailto:wexiolead@yahoo.com" style="color:var(--accent)">wexiolead@yahoo.com</a>.`
   },
   {
@@ -5702,9 +5702,9 @@ const SUPPORT_FAQ = [
   {
     keys: ['plano', 'preco', 'valor', 'assinar', 'assinatura', 'starter', 'pro', 'agency'],
     answer: `Planos disponíveis:<br><br>
-      <strong>Starter — R$97/mês</strong> — 100 leads · CSV · Wex completa<br>
-      <strong>Pro — R$197/mês</strong> — 300 consultas · CRM completo (Kanban) · Rede B2B incluída<br>
-      <strong>Agency — R$397/mês</strong> — Ilimitado · Multi-usuário · WhatsApp<br><br>
+      <strong>Starter — R$97 / 30 dias</strong> — 100 leads · CSV · Wex completa<br>
+      <strong>Pro — R$197 / 30 dias</strong> — 300 consultas · CRM completo (Kanban) · Rede B2B incluída<br>
+      <strong>Agency — R$397 / 30 dias</strong> — Ilimitado · Multi-usuário · WhatsApp<br><br>
       Contato: <a href="mailto:wexiolead@yahoo.com" style="color:var(--accent)">wexiolead@yahoo.com</a>`
   },
   {
@@ -5713,14 +5713,12 @@ const SUPPORT_FAQ = [
       1. Acesse <strong>Buscar Leads</strong><br>
       2. Clique em <strong>Ver Lead</strong> na linha desejada<br>
       3. Isso consome <strong>1 crédito</strong> do seu plano<br><br>
-      Os créditos reiniciam no dia 1º de cada mês.`
+      Os créditos valem por 30 dias a partir da ativação do plano.`
   },
   {
     keys: ['cancelar', 'cancel', 'desativar', 'encerrar'],
-    answer: `Para cancelar sua assinatura:<br><br>
-      E-mail: <strong>wexiolead@yahoo.com</strong><br>
-      WhatsApp: <strong>(21) 99893-6273</strong><br><br>
-      Sem multa até o último dia do ciclo. Após o cancelamento você retorna ao plano Free.`
+    answer: `Não há cobrança recorrente: seu plano vale 30 dias e simplesmente expira se você não renovar — você não precisa cancelar nada.<br><br>
+      Dúvidas? E-mail: <strong>wexiolead@yahoo.com</strong> · WhatsApp: <strong>(21) 99893-6273</strong>`
   },
   {
     keys: ['cnae', 'segmento', 'construcao', 'civil', 'categoria'],

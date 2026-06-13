@@ -1436,24 +1436,13 @@ textarea.form-input { resize: vertical; min-height: 90px; }
     <!-- Dados do lead -->
     <div id="ldmBody" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;"></div>
     <!-- Wex Insight (Dica da Wex) -->
-    <div id="ldmWexInsight" style="display:none;margin-bottom:16px;background:linear-gradient(135deg,#FFF7ED 0%,#FFFBF5 100%);border:1.5px solid rgba(249,115,22,0.25);border-radius:12px;padding:14px 16px;">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-        <div style="width:28px;height:28px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z"/></svg></div>
-        <div>
-          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:12px;color:var(--accent);">Dica da Wex — O que vender</div>
-          <div style="font-size:10px;color:var(--muted);">Baseado no perfil do lead (CNAE)</div>
-        </div>
-      </div>
+    <div id="ldmWexInsight" style="display:none;margin-bottom:16px;background:var(--surface2);border:1px solid var(--border);border-left:2px solid var(--accent);border-radius:10px;padding:13px 15px;">
+      <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">Dica da Wex · o que vender</div>
       <div id="ldmWexInsightText" style="font-size:13px;color:var(--text);line-height:1.6;"></div>
     </div>
     <!-- Redes Sociais -->
-    <div id="ldmSocialSection" style="margin-bottom:16px;border-top:1px solid var(--border);padding-top:14px;">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-        <div style="width:26px;height:26px;background:#1e3a5f22;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:#4f8ef7;fill:none;stroke-width:2;"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-        </div>
-        <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:12px;">Site & Canais</span>
-      </div>
+    <div id="ldmSocialSection" style="margin-bottom:16px;border-top:1px solid var(--border);padding-top:16px;">
+      <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;">Site & Canais</div>
       <div id="ldmSocialGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:7px;"></div>
     </div>
     <!-- Export rápido -->
@@ -1469,10 +1458,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
     </div>
     <!-- CRM inline -->
     <div style="border-top:1px solid var(--border);padding-top:16px;">
-      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
-        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--accent);fill:none;stroke-width:2;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        CRM — Acompanhamento
-      </div>
+      <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;">CRM · Acompanhamento</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
         <div class="form-group" style="margin:0;">
           <label class="form-label">Status</label>
@@ -1491,7 +1477,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
         <textarea class="form-input" id="ldmCrmNotes" placeholder="Ex: Falei com o sócio, interesse em fornecimento de cimento..." style="min-height:70px;"></textarea>
       </div>
       <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;">
-        <button class="btn" id="ldmConnectBtn" onclick="solicitarConexaoLead()" style="background:linear-gradient(135deg,#F97316,#EA580C);color:#fff;border:none;display:none;">
+        <button class="btn" id="ldmConnectBtn" onclick="solicitarConexaoLead()" style="background:var(--accent);color:#fff;border:none;display:none;">
           <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Solicitar conexão para fechar negócio
         </button>
@@ -5334,16 +5320,18 @@ function openLeadDetailModal(leadId) {
       ' <button onclick="copyToClipboard(event,\'' + e.replace(/'/g,'') + '\')" title="Copiar" style="background:none;border:none;cursor:pointer;padding:2px;vertical-align:middle;opacity:.5;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>';
   };
 
-  const fields = [
+  const contatoFields = [
+    { icon: 'phone', label: 'Telefone', value: telLink(lead.telefone_1) },
+    { icon: 'phone', label: 'Telefone 2', value: lead.telefone_2 ? telLink(lead.telefone_2) : '—' },
+    { icon: 'mail', label: 'E-mail', value: emailLink(lead.email_comercial) },
+    { icon: 'mail', label: 'E-mail 2', value: lead.email_2 ? emailLink(lead.email_2) : '—' },
+  ];
+  const empresaFields = [
     { icon: 'construcao', label: 'CNPJ', value: lead.cnpj || '—' },
     { icon: 'regiao', label: 'Cidade / UF', value: (lead.municipio || '—') + (lead.estado ? ' · ' + lead.estado : '') },
-    { icon: 'phone', label: 'Telefone', value: telLink(lead.telefone_1) },
-    ...(lead.telefone_2 ? [{ icon: 'phone', label: 'Telefone 2', value: telLink(lead.telefone_2) }] : []),
-    { icon: 'mail', label: 'E-mail', value: emailLink(lead.email_comercial) },
-    ...(lead.email_2 ? [{ icon: 'mail', label: 'E-mail 2', value: emailLink(lead.email_2) }] : []),
     { icon: 'user', label: 'Sócio / Decisor', value: lead.nome_socio_1 || '—' },
-    { icon: 'money', label: 'Faturamento est.', value: lead.estimativa_faturamento_anual ? 'R$ ' + Number(lead.estimativa_faturamento_anual).toLocaleString('pt-BR', { maximumFractionDigits: 0 }) : '—' },
     { icon: 'building', label: 'Tipo', value: lead.tipo_empresa || '—' },
+    { icon: 'money', label: 'Faturamento est.', value: lead.estimativa_faturamento_anual ? 'R$ ' + Number(lead.estimativa_faturamento_anual).toLocaleString('pt-BR', { maximumFractionDigits: 0 }) : '—' },
     { icon: 'premium', label: 'Score', value: lead.score_lead ? `<span class="score-badge ${scoreClass(lead.score_lead)}" style="width:auto;padding:2px 10px;">${lead.score_lead}</span>` : '—' },
   ];
 
@@ -5363,11 +5351,16 @@ function openLeadDetailModal(leadId) {
     </div>
   </div>`;
 
-  document.getElementById('ldmBody').innerHTML = qualHtml + fields.map(f => `
+  const cardHtml = f => `
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;">
       <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;display:inline-flex;align-items:center;gap:5px;">${UI_ICON(f.icon,"11")} ${f.label}</div>
       <div style="font-size:14px;font-weight:500;color:var(--text);">${f.value}</div>
-    </div>`).join('');
+    </div>`;
+  const secLabel = t => `<div style="grid-column:1/-1;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-top:2px;">${t}</div>`;
+  document.getElementById('ldmBody').innerHTML =
+    qualHtml +
+    secLabel('Contato') + contatoFields.map(cardHtml).join('') +
+    secLabel('Empresa') + empresaFields.map(cardHtml).join('');
 
   // Wex Insight — baseado no CNAE do lead
   const insightBox = document.getElementById('ldmWexInsight');
@@ -5404,7 +5397,7 @@ function renderLdmSocial(lead) {
   if (lead.site) {
     var siteUrl = lead.site.startsWith('http') ? lead.site : 'https://' + lead.site;
     var siteLabel = lead.site.replace(/^https?:\/\//, '').replace(/\/$/, '');
-    siteHtml = '<a href="' + siteUrl + '" target="_blank" rel="noopener" style="grid-column:1/-1;display:flex;align-items:center;gap:9px;padding:11px 13px;background:linear-gradient(135deg,var(--accent-bg) 0%,var(--accent-bg2) 100%);border-radius:9px;text-decoration:none;border:1.5px solid rgba(249,115,22,0.3);margin-bottom:3px;">' +
+    siteHtml = '<a href="' + siteUrl + '" target="_blank" rel="noopener" style="grid-column:1/-1;display:flex;align-items:center;gap:9px;padding:11px 13px;background:var(--surface2);border-radius:9px;text-decoration:none;border:1px solid var(--border);border-left:2px solid var(--accent);margin-bottom:3px;">' +
       '<svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:var(--accent);stroke-width:2;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>' +
       '<div style="overflow:hidden;"><div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;">Site Oficial</div>' +
       '<div style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + siteLabel + '</div></div></a>';

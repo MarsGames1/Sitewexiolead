@@ -1418,7 +1418,11 @@ textarea.form-input { resize: vertical; min-height: 90px; }
             Salvar
           </button>
         </div>
-</div>
+      </div>
+      <button class="btn" id="crmConnectBtn" onclick="solicitarConexaoCrm()" style="width:100%;justify-content:center;background:var(--accent);color:#fff;border:none;display:none;margin-top:12px;">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Solicitar conexão para fechar negócio
+      </button>
 </div>
 </div>
 </div>
@@ -3202,8 +3206,8 @@ async function saveCrmToStorage() {
 }
 
 function openCrmModal(leadId) {
-  const lead = allLeads.find(l =>l.id === leadId);
-  if (!lead) return;
+  const lead = getLeadCrm(leadId);
+  if (!lead) { showToast('Não foi possível abrir este lead. Recarregue a página.', true); return; }
   currentCrmLeadId = leadId;
 
   document.getElementById('crmModalTitle').textContent = lead.nome_fantasia || lead.razao_social || 'Lead';
@@ -3232,6 +3236,7 @@ function openCrmModal(leadId) {
   fetchPncp(lead.cnpj);
   // Renderiza links de redes sociais
   renderSocialSection(lead);
+  atualizarBotaoConexaoCrm(lead);
 }
 
 // ─── PNCP — Licitações & Contratos Públicos ───────────────────────────────────
@@ -6358,6 +6363,74 @@ async function enviarMensagem() {
 }
 
 // Solicitar conexão a partir do modal de lead
+// ===== Conexão B2B a partir do modal do CRM =====
+async function atualizarBotaoConexaoCrm(lead) {
+  const btn = document.getElementById('crmConnectBtn');
+  if (!btn) return;
+  btn.style.display = 'none';
+  _leadClienteId = null;
+  const plan = currentProfile?.plan || 'free';
+  if (plan === 'free') return;            // conexão B2B é exclusiva de planos pagos
+  btn.style.display = 'inline-flex';
+  if (lead.cnpj) {
+    try {
+      const { data } = await sb.rpc('lead_eh_cliente', { p_cnpj: lead.cnpj });
+      if (data && data !== currentUser.id) {
+        _leadClienteId = data;
+        btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg> Solicitar conexão para fechar negócio';
+      } else {
+        btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9z"/></svg> Enviar proposta de negócio';
+      }
+    } catch(e) {}
+  }
+}
+
+async function solicitarConexaoCrm() {
+  const leadId = currentCrmLeadId;
+  const lead = getLeadCrm(leadId);
+  if (!lead) return;
+
+  if (!_leadClienteId) {
+    const temTel = lead.telefone_1 || lead.telefone_2;
+    const temEmail = lead.email_comercial || lead.email_2;
+    let msg = 'Esta empresa ainda não faz parte da rede Wexiolead, então não dá para conectar pelo chat por aqui. ';
+    if (temTel || temEmail) {
+      msg += 'Mas você já tem os contatos dela! Recomendamos falar direto:\n\n';
+      if (temTel) msg += 'Telefone: ' + (lead.telefone_1 || lead.telefone_2) + '\n';
+      if (temEmail) msg += 'E-mail: ' + (lead.email_comercial || lead.email_2) + '\n';
+      msg += '\nDica: empresas fora da plataforma podem demorar a responder — um contato direto e simpático costuma funcionar melhor.';
+    } else {
+      msg += 'Tente buscar os contatos dela ou aguarde — em breve mais empresas entram na rede.';
+    }
+    alert(msg);
+    return;
+  }
+
+  const msg = prompt('Mensagem de apresentação (opcional):\n\nEx: "Olá! Somos uma construtora e temos interesse nos seus materiais."');
+  if (msg === null) return;
+
+  try {
+    const { data } = await sb.rpc('solicitar_conexao', { p_destinatario_id: _leadClienteId, p_mensagem: msg || null });
+    if (data && data.ok) {
+      showToast('Convite de conexão enviado!');
+      crmData[leadId] = crmData[leadId] || { leadId, status: 'negociando', notes: 'Conexão solicitada', followup: '', updatedAt: new Date().toISOString() };
+      await sb.from('crm_entries').upsert({
+        user_id: currentUser.id, lead_id: leadId,
+        status: crmData[leadId].status, notes: crmData[leadId].notes, followup: crmData[leadId].followup || null
+      }, { onConflict: 'user_id,lead_id' });
+      updateQuotaUI();
+    } else {
+      const erros = {
+        plano_free: 'Conexões B2B são exclusivas para planos pagos.',
+        sem_creditos: 'Créditos insuficientes para conectar.',
+        ja_existe: 'Você já tem uma conexão ou convite com esta empresa.',
+        destinatario_nao_cliente: 'Esta empresa ainda não faz parte da rede.'
+      };
+      showToast(erros[data?.erro] || data?.msg || 'Não foi possível conectar.', true);
+    }
+  } catch(e) { showToast('Erro ao solicitar conexão.', true); }
+}
+
 async function solicitarConexaoLead() {
   const leadId = document.getElementById('leadDetailModal').dataset.leadId;
   const lead = allLeads.find(l => l.id === leadId);

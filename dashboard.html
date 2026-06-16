@@ -1665,25 +1665,47 @@ textarea.form-input { resize: vertical; min-height: 90px; }
     <button class="btn btn-accent" onclick="showPage('planos')">Ver planos →</button>
 </div>
 
-  <!-- Leads recentes do CRM -->
-  <div class="card">
+  <!-- Radar de Obras — feed de descoberta -->
+  <style>
+  .radar-list{display:flex;flex-direction:column;gap:10px;}
+  .radar-item{display:flex;gap:12px;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--surface);position:relative;transition:border-color .15s,box-shadow .15s;}
+  .radar-item:hover{border-color:var(--border2);box-shadow:0 2px 10px rgba(20,24,40,.04);}
+  .radar-item.wex{border-color:rgba(249,115,22,.35);}
+  .radar-thumb{flex:0 0 92px;width:92px;height:92px;border-radius:10px;background:var(--surface2);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+  .radar-thumb::before{content:"";position:absolute;inset:0;background-image:radial-gradient(var(--border) 1px,transparent 1px);background-size:11px 11px;opacity:.7;}
+  .radar-thumb svg{position:relative;width:30px;height:30px;}
+  .radar-main{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .radar-top{display:flex;align-items:center;gap:8px;margin-bottom:2px;}
+  .radar-setor{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:2px 7px;border-radius:999px;}
+  .radar-date{font-size:11px;color:var(--muted);margin-left:auto;white-space:nowrap;text-transform:capitalize;}
+  .radar-title{font-size:14px;font-weight:600;color:var(--text);line-height:1.25;margin:0;}
+  .radar-resumo{font-size:12px;color:var(--muted);margin:3px 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .radar-foot{display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;}
+  .radar-loc{font-size:11px;color:var(--muted);display:inline-flex;align-items:center;gap:4px;}
+  .radar-cta{margin-left:auto;font-size:12px;font-weight:600;color:var(--accent);background:none;border:none;cursor:pointer;padding:0;display:inline-flex;align-items:center;gap:4px;}
+  .radar-cta:hover{color:var(--accent-hover);}
+  .radar-wexbadge{font-size:10px;font-weight:600;color:var(--green);background:var(--green-bg);padding:2px 7px;border-radius:999px;white-space:nowrap;}
+  .radar-dismiss{position:absolute;top:8px;right:8px;width:22px;height:22px;border:none;background:none;color:var(--muted);cursor:pointer;border-radius:6px;opacity:0;transition:opacity .15s,background .15s;display:flex;align-items:center;justify-content:center;}
+  .radar-item:hover .radar-dismiss{opacity:.65;}
+  .radar-dismiss:hover{background:var(--surface3);opacity:1;}
+  .radar-gate{margin-top:12px;padding:14px 16px;border:1px dashed rgba(249,115,22,.4);border-radius:12px;background:var(--accent-bg);text-align:center;}
+  .radar-gate p{font-size:12.5px;color:var(--text);line-height:1.5;margin:0 0 10px;}
+  .radar-empty{text-align:center;padding:24px 14px;color:var(--muted);}
+  @media(max-width:640px){.radar-item{flex-direction:column;}.radar-thumb{width:100%;height:80px;flex-basis:auto;}.radar-date{margin-left:0;}}
+  </style>
+  <div class="card" id="radarCard">
     <div class="card-head">
-      <div class="card-title">Últimos leads no CRM</div>
-      <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px;" onclick="showPage('crm')">Ver CRM →</button>
+      <div>
+        <div class="card-title">Radar de Obras</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px;">Empresas em movimento na sua região · atualizado mensalmente</div>
+      </div>
+      <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px;" onclick="abrirOnboardingRadar()">Como funciona →</button>
 </div>
-    <div class="card-body" id="recentCrmList">
-      <div class="empty-state"><div class="empty-icon"></div><p>Nenhum lead salvo ainda.<br>Busque leads e adicione-os ao seu CRM!</p></div>
+    <div class="card-body" id="radarFeed">
+      <div class="radar-empty">Carregando o radar…</div>
 </div>
-</div>
-
-  <!-- Exportações recentes -->
-  <div class="card">
-    <div class="card-head">
-      <div class="card-title">Exportações recentes</div>
-      <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px;" onclick="showPage('exports')">Ver todas →</button>
-</div>
-    <div class="card-body" id="recentExportsList">
-      <div class="empty-state"><div class="empty-icon"></div><p>Nenhuma exportação ainda.<br>Faça sua primeira busca de leads!</p></div>
+    <div id="radarFeedMore" style="display:none;text-align:center;margin-top:10px;">
+      <button class="btn btn-ghost" onclick="radarLoadMore()">Ver mais →</button>
 </div>
 </div>
 </div>
@@ -4020,9 +4042,9 @@ function renderDashboard() {
 
   updateQuotaUI();
 
-  // Recent exports
+  // Recent exports (card pode não existir mais na home — guarda contra null)
   const recentExportsList = document.getElementById('recentExportsList');
-  if (userExports.length) {
+  if (recentExportsList && userExports.length) {
     recentExportsList.innerHTML = userExports.slice(0,3).map(e =>{
       const date = new Date(e.created_at).toLocaleDateString('pt-BR');
       return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:9px;background:var(--surface2);margin-bottom:8px;border:1px solid var(--border);">
@@ -4034,6 +4056,8 @@ function renderDashboard() {
 </div>`;
     }).join('');
   }
+
+  loadRadarFeed();
 }
 
 function updateQuotaUI() {
@@ -5298,6 +5322,139 @@ function UI_ICON(name, size) {
   };
   var d = p[name] || p.building;
   return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;">'+d+'</svg>';
+}
+
+/* ===== Radar de Obras — feed ===== */
+const radarState = { offset: 0, full: false, loading: false, done: false, count: 0 };
+
+function radarSetorVisual(setor){
+  const map = {
+    construcao:{c:'#F97316',bg:'rgba(249,115,22,.12)',label:'Construção',d:'M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6'},
+    advocacia:{c:'#6366F1',bg:'rgba(99,102,241,.12)',label:'Advocacia',d:'M12 3v18M5 7h14M7 7l-3 7a4 4 0 0 0 6 0M17 7l-3 7a4 4 0 0 0 6 0'},
+    saude:{c:'#059669',bg:'rgba(5,150,105,.12)',label:'Saúde',d:'M12 5v14M5 12h14'},
+    contabilidade:{c:'#0EA5E9',bg:'rgba(14,165,233,.12)',label:'Contabilidade',d:'M7 3h10a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM9 7h6M9 11h6M9 15h3'},
+    fornecedor:{c:'#D97706',bg:'rgba(217,119,6,.12)',label:'Fornecedor',d:'M3 9l1-5h16l1 5M4 9h16v11H4zM9 13h6'}
+  };
+  return map[setor] || {c:'#64748B',bg:'rgba(100,116,139,.12)',label:(setor||'Empresa'),d:'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM2 12h20'};
+}
+
+function radarEsc(s){ return (s==null?'':s.toString()).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function radarItemHTML(it){
+  const v = radarSetorVisual(it.setor);
+  const dt = it.data_evento ? new Date(it.data_evento+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}) : '';
+  const loc = [it.municipio, it.uf].filter(Boolean).join('/');
+  const wex = !!it.wex_envolvida;
+  const cta = (wex && it.lead_id) ? `<button class="radar-cta" onclick="radarVerLead('${it.lead_id}')">Ver lead relacionado →</button>` : '';
+  const wexBadge = wex ? `<span class="radar-wexbadge">Wex tem este contato</span>` : '';
+  return `<div class="radar-item${wex?' wex':''}">
+    <button class="radar-dismiss" title="Ocultar" onclick="radarDismiss('${it.id}',this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <div class="radar-thumb"><svg viewBox="0 0 24 24" fill="none" stroke="${v.c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${v.d}"/></svg></div>
+    <div class="radar-main">
+      <div class="radar-top">
+        <span class="radar-setor" style="color:${v.c};background:${v.bg};">${v.label}</span>
+        ${wexBadge}
+        <span class="radar-date">${dt}</span>
+      </div>
+      <p class="radar-title">${radarEsc(it.titulo)}</p>
+      ${it.resumo?`<p class="radar-resumo">${radarEsc(it.resumo)}</p>`:''}
+      <div class="radar-foot">
+        ${loc?`<span class="radar-loc"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>${radarEsc(loc)}</span>`:''}
+        ${cta}
+      </div>
+    </div>
+  </div>`;
+}
+
+function radarGateHTML(){
+  return `<div class="radar-gate" id="radarGate">
+    <p>O Radar completo mostra todas as obras e empresas em movimento, com detalhe por empresa e sem limite — exclusivo do plano Agency.</p>
+    <button class="btn btn-accent" style="font-size:13px;" onclick="showPage('planos')">Conhecer o Agency →</button>
+  </div>`;
+}
+
+function radarEmptyHTML(){
+  const isAgency = currentProfile?.plan === 'agency';
+  return `<div class="radar-empty">
+      <div style="font-size:13px;color:var(--text);font-weight:500;margin-bottom:4px;">Ainda não há registros na sua região</div>
+      <div style="font-size:12px;">Assim que novas obras e empresas forem licenciadas por aqui, aparecem neste feed.</div>
+    </div>${isAgency?'':radarGateHTML()}`;
+}
+
+async function loadRadarFeed(reset=true){
+  const box = document.getElementById('radarFeed');
+  if (!box || typeof sb === 'undefined') return;
+  if (radarState.loading) return;
+  if (reset){ radarState.offset=0; radarState.done=false; radarState.count=0; }
+  radarState.loading = true;
+  try{
+    const { data, error } = await sb.rpc('radar_feed', { p_limit: 12, p_offset: radarState.offset });
+    if (error) throw error;
+    const items = data || [];
+    radarState.full = items.length ? !!items[0].full_access : (currentProfile?.plan==='agency');
+    const gateOld = document.getElementById('radarGate'); if (gateOld) gateOld.remove();
+    if (reset){
+      box.innerHTML = items.length ? `<div class="radar-list">${items.map(radarItemHTML).join('')}</div>` : radarEmptyHTML();
+    } else if (items.length){
+      const list = box.querySelector('.radar-list');
+      if (list) list.insertAdjacentHTML('beforeend', items.map(radarItemHTML).join(''));
+    }
+    radarState.count += items.length;
+    radarState.offset += items.length;
+    if (items.length < 12) radarState.done = true;
+    const moreBox = document.getElementById('radarFeedMore');
+    if (radarState.full){
+      if (moreBox) moreBox.style.display = radarState.done ? 'none' : 'block';
+    } else {
+      if (moreBox) moreBox.style.display = 'none';
+      if (radarState.count > 0 && !document.getElementById('radarGate')) box.insertAdjacentHTML('afterend', radarGateHTML());
+    }
+  }catch(e){
+    box.innerHTML = `<div class="radar-empty">Não foi possível carregar o radar agora.</div>`;
+  }finally{
+    radarState.loading = false;
+  }
+}
+
+function radarLoadMore(){ if(!radarState.done) loadRadarFeed(false); }
+
+async function radarDismiss(id, btn){
+  try{
+    const item = btn.closest('.radar-item');
+    if (item){ item.style.transition='opacity .15s'; item.style.opacity='0'; }
+    await sb.rpc('radar_dismiss', { p_radar_id: id });
+    setTimeout(()=>{ if(item) item.remove(); }, 160);
+  }catch(e){ /* silencioso */ }
+}
+
+function radarVerLead(leadId){
+  if (typeof allLeads !== 'undefined' && allLeads.find(l=>l.id===leadId)){
+    openLeadDetailModal(leadId);
+  } else {
+    showToast('Abra a busca de leads para ver os detalhes completos deste contato.');
+  }
+}
+
+function abrirOnboardingRadar(){
+  if (document.getElementById('radarOnboard')) return;
+  const m = document.createElement('div');
+  m.id = 'radarOnboard';
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,40,.45);display:flex;align-items:center;justify-content:center;z-index:9999;padding:18px;';
+  m.onclick = (e)=>{ if(e.target===m) m.remove(); };
+  m.innerHTML = `<div style="background:var(--surface);border-radius:16px;max-width:460px;width:100%;padding:24px;border:1px solid var(--border);">
+    <div style="font-family:'Syne',sans-serif;font-size:19px;font-weight:700;color:var(--text);margin-bottom:6px;">Radar de Obras</div>
+    <p style="font-size:13px;color:var(--muted);line-height:1.55;margin:0 0 14px;">Reunimos sinais públicos de empresas em movimento — novas obras licenciadas, empreendimentos e atividade por setor — e cruzamos com a sua base. Quando uma empresa do radar já é seu lead, a gente destaca.</p>
+    <ul style="font-size:13px;color:var(--text);line-height:1.7;margin:0 0 16px;padding-left:18px;">
+      <li>Atualizado mensalmente, por região.</li>
+      <li>Multi-setor: construção, fornecedores e mais.</li>
+      <li>No plano Agency, acesso completo e detalhe por empresa.</li>
+    </ul>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn btn-ghost" onclick="document.getElementById('radarOnboard').remove()">Fechar</button>
+      <button class="btn btn-accent" onclick="document.getElementById('radarOnboard').remove();showPage('planos')">Ver planos</button>
+    </div>
+  </div>`;
+  document.body.appendChild(m);
 }
 
 function openLeadDetailModal(leadId) {

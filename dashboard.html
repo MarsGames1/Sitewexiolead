@@ -1449,6 +1449,22 @@ textarea.form-input { resize: vertical; min-height: 90px; }
       <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;">Site & Canais</div>
       <div id="ldmSocialGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:7px;"></div>
     </div>
+    <!-- Radar de Obras (com mapa do local) -->
+    <div id="ldmRadarSection" style="display:none;margin-bottom:16px;border-top:1px solid var(--border);padding-top:16px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;">Radar de Obras</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">Localização e registros públicos · atualizado mensalmente</div>
+        </div>
+        <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px;flex-shrink:0;" onclick="abrirOnboardingRadar()">Como funciona →</button>
+      </div>
+      <div id="ldmRadarMap" style="width:100%;height:190px;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:var(--surface2);"></div>
+      <div id="ldmRadarList" style="margin-top:12px;"></div>
+      <div id="ldmRadarGate" style="display:none;margin-top:12px;padding:14px 16px;border:1px dashed rgba(249,115,22,.4);border-radius:12px;background:var(--accent-bg);">
+        <p style="font-size:12.5px;color:var(--text);line-height:1.5;margin:0 0 10px;">O Radar completo abre todos os registros de obra desta empresa, com detalhe e histórico — exclusivo do plano Agency.</p>
+        <button class="btn btn-accent" style="font-size:13px;" onclick="document.getElementById('leadDetailModal').classList.remove('open');showPage('planos')">Conhecer o Agency →</button>
+      </div>
+    </div>
     <!-- Export rápido -->
     <div style="display:flex;gap:8px;margin-bottom:16px;">
       <button class="btn btn-ghost" style="flex:1;font-size:12px;padding:8px;" onclick="exportSingleLead('csv')">
@@ -1674,6 +1690,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
   .radar-thumb{flex:0 0 92px;width:92px;height:92px;border-radius:10px;background:var(--surface2);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
   .radar-thumb::before{content:"";position:absolute;inset:0;background-image:radial-gradient(var(--border) 1px,transparent 1px);background-size:11px 11px;opacity:.7;}
   .radar-thumb svg{position:relative;width:30px;height:30px;}
+  .radar-thumb-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;}
   .radar-main{flex:1;min-width:0;display:flex;flex-direction:column;}
   .radar-top{display:flex;align-items:center;gap:8px;margin-bottom:2px;}
   .radar-setor{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:2px 7px;border-radius:999px;}
@@ -1696,7 +1713,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
   <div class="card" id="radarCard">
     <div class="card-head">
       <div>
-        <div class="card-title">Radar de Obras</div>
+        <div class="card-title">Feed</div>
         <div style="font-size:11px;color:var(--muted);margin-top:3px;">Empresas em movimento na sua região · atualizado mensalmente</div>
       </div>
       <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px;" onclick="abrirOnboardingRadar()">Como funciona →</button>
@@ -5327,6 +5344,64 @@ function UI_ICON(name, size) {
 /* ===== Radar de Obras — feed ===== */
 const radarState = { offset: 0, full: false, loading: false, done: false, count: 0 };
 
+function renderLeadRadar(lead){
+  const sec = document.getElementById('ldmRadarSection');
+  if (!sec) return;
+  const mapBox = document.getElementById('ldmRadarMap');
+  const listBox = document.getElementById('ldmRadarList');
+  const gate = document.getElementById('ldmRadarGate');
+  const isAgency = currentProfile?.plan === 'agency';
+  const local = [lead.municipio, lead.estado].filter(Boolean).join(' - ');
+
+  // Mapa do local (nível cidade) — embed sem chave de API
+  if (mapBox){
+    if (local){
+      const q = encodeURIComponent(local + ', Brasil');
+      mapBox.innerHTML = `<iframe title="Mapa de ${radarEsc(local)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=${q}&z=12&output=embed" style="width:100%;height:100%;border:0;display:block;"></iframe>`;
+    } else {
+      mapBox.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:12px;color:var(--muted);">Localização não informada</div>`;
+    }
+  }
+  sec.style.display = 'block';
+  if (gate) gate.style.display = isAgency ? 'none' : 'block';
+  if (!listBox) return;
+  listBox.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:6px 0;">Carregando registros públicos…</div>';
+  (async ()=>{
+    try{
+      let items = [];
+      const cnpj = lead.cnpj || '';
+      if (cnpj && typeof sb !== 'undefined'){
+        const { data, error } = await sb.rpc('radar_por_lead', { p_cnpj: cnpj });
+        if (!error) items = data || [];
+      }
+      if (items.length){
+        listBox.innerHTML = `<div class="radar-list">${items.map(radarModalItemHTML).join('')}</div>`;
+      } else {
+        listBox.innerHTML = `<div style="font-size:12.5px;color:var(--muted);padding:4px 0 2px;line-height:1.5;">Ainda não há registros públicos de obra para esta empresa. O mapa acima mostra a região de atuação.</div>`;
+      }
+    }catch(e){
+      listBox.innerHTML = `<div style="font-size:12px;color:var(--muted);">Não foi possível carregar agora.</div>`;
+    }
+  })();
+}
+
+function radarModalItemHTML(it){
+  const dt = it.data_evento ? new Date(it.data_evento+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'}) : '';
+  const loc = [it.municipio, it.uf].filter(Boolean).join('/');
+  return `<div class="radar-item" style="padding:10px;">
+    <div class="radar-main">
+      <div class="radar-top">
+        <span class="radar-setor" style="color:var(--accent);background:var(--accent-bg);">${radarEsc(it.tipo||'Registro')}</span>
+        <span class="radar-date">${dt}</span>
+      </div>
+      <p class="radar-title">${radarEsc(it.titulo)}</p>
+      ${it.resumo?`<p class="radar-resumo">${radarEsc(it.resumo)}</p>`:''}
+      ${(it.endereco||loc)?`<div class="radar-foot"><span class="radar-loc">${radarEsc(it.endereco||loc)}</span></div>`:''}
+    </div>
+  </div>`;
+}
+
+
 function radarSetorVisual(setor){
   const map = {
     construcao:{c:'#F97316',bg:'rgba(249,115,22,.12)',label:'Construção',d:'M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6'},
@@ -5343,23 +5418,24 @@ function radarEsc(s){ return (s==null?'':s.toString()).replace(/&/g,'&amp;').rep
 function radarItemHTML(it){
   const v = radarSetorVisual(it.setor);
   const dt = it.data_evento ? new Date(it.data_evento+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}) : '';
-  const loc = [it.municipio, it.uf].filter(Boolean).join('/');
   const wex = !!it.wex_envolvida;
   const cta = (wex && it.lead_id) ? `<button class="radar-cta" onclick="radarVerLead('${it.lead_id}')">Ver lead relacionado →</button>` : '';
   const wexBadge = wex ? `<span class="radar-wexbadge">Wex tem este contato</span>` : '';
+  const fonte = it.fonte ? `<span class="radar-loc">${radarEsc(it.fonte)}</span>` : '';
+  const img = it.imagem_url ? `<img class="radar-thumb-img" src="${radarEsc(it.imagem_url)}" loading="lazy" alt="" onerror="this.remove()">` : '';
+  const abrir = it.fonte_url ? `onclick="window.open('${radarEsc(it.fonte_url)}','_blank','noopener')" style="cursor:pointer;"` : '';
   return `<div class="radar-item${wex?' wex':''}">
     <button class="radar-dismiss" title="Ocultar" onclick="radarDismiss('${it.id}',this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-    <div class="radar-thumb"><svg viewBox="0 0 24 24" fill="none" stroke="${v.c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${v.d}"/></svg></div>
+    <div class="radar-thumb"><svg viewBox="0 0 24 24" fill="none" stroke="${v.c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${v.d}"/></svg>${img}</div>
     <div class="radar-main">
       <div class="radar-top">
         <span class="radar-setor" style="color:${v.c};background:${v.bg};">${v.label}</span>
         ${wexBadge}
         <span class="radar-date">${dt}</span>
       </div>
-      <p class="radar-title">${radarEsc(it.titulo)}</p>
-      ${it.resumo?`<p class="radar-resumo">${radarEsc(it.resumo)}</p>`:''}
+      <p class="radar-title" ${abrir}>${radarEsc(it.titulo)}</p>
       <div class="radar-foot">
-        ${loc?`<span class="radar-loc"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>${radarEsc(loc)}</span>`:''}
+        ${fonte}
         ${cta}
       </div>
     </div>
@@ -5543,6 +5619,7 @@ function openLeadDetailModal(leadId) {
   document.getElementById('ldmCrmFollowup').value = crm.followup || '';
   document.getElementById('leadDetailModal').dataset.leadId = leadId;
   renderLdmSocial(lead);
+  renderLeadRadar(lead);
   atualizarBotaoConexao(lead);
   document.getElementById('leadDetailModal').classList.add('open');
 }

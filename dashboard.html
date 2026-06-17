@@ -5342,6 +5342,7 @@ function UI_ICON(name, size) {
 
 /* ===== Radar de Obras — feed ===== */
 const radarState = { offset: 0, full: false, loading: false, done: false, count: 0 };
+const radarItemsById = {};
 
 function radarMapEmbed(q){
   return `<iframe title="Mapa" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=${encodeURIComponent(q)}&z=16&output=embed" style="width:100%;height:100%;border:0;display:block;"></iframe>`;
@@ -5461,27 +5462,83 @@ function radarItemHTML(it){
   const v = radarSetorVisual(it.setor);
   const dt = it.data_evento ? new Date(it.data_evento+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}) : '';
   const wex = !!it.wex_envolvida;
-  const cta = (wex && it.lead_id) ? `<button class="radar-cta" onclick="radarVerLead('${it.lead_id}')">Ver leads desta empresa →</button>` : '';
+  const cta = `<button class="radar-cta" onclick="radarVerLeads('${it.id}')">Ver leads desta empresa →</button>`;
   const wexBadge = wex ? `<span class="radar-wexbadge">Wex tem este contato</span>` : '';
   const fonte = it.fonte ? `<span class="radar-loc">${radarEsc(it.fonte)}</span>` : '';
   const img = it.imagem_url ? `<img class="radar-thumb-img" src="${radarEsc(it.imagem_url)}" loading="lazy" alt="" onerror="this.remove()">` : '';
-  const abrir = it.fonte_url ? `onclick="window.open('${radarEsc(it.fonte_url)}','_blank','noopener')" style="cursor:pointer;"` : '';
   return `<div class="radar-item${wex?' wex':''}">
     <button class="radar-dismiss" title="Ocultar" onclick="radarDismiss('${it.id}',this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-    <div class="radar-thumb">${img || `<span class="radar-thumb-mono">${radarEsc((it.fonte||'·').trim().charAt(0).toUpperCase())}</span>`}</div>
+    <div class="radar-thumb" onclick="radarAbrirNoticia('${it.id}')" style="cursor:pointer;">${img || `<span class="radar-thumb-mono">${radarEsc((it.fonte||'·').trim().charAt(0).toUpperCase())}</span>`}</div>
     <div class="radar-main">
       <div class="radar-top">
         <span class="radar-setor">${radarEsc(v.label)}</span>
         ${wexBadge}
         <span class="radar-date">${dt}</span>
       </div>
-      <p class="radar-title" ${abrir}>${radarEsc(it.titulo)}</p>
+      <p class="radar-title" onclick="radarAbrirNoticia('${it.id}')" style="cursor:pointer;">${radarEsc(it.titulo)}</p>
       <div class="radar-foot">
         ${fonte}
         ${cta}
       </div>
     </div>
   </div>`;
+}
+
+// Extrai um provável nome de empresa (sequência de palavras capitalizadas) do título
+function radarEmpresaGuess(titulo){
+  const stop = /^(O|A|Os|As|De|Do|Da|Dos|Das|E|Em|No|Na|Nos|Nas|Para|Com|Por|Que|Após|Sobre|Entre|Governo|Brasil|STF|STJ|Lei|Nova|Novo|Como|Já|Veja|Mais|Menos|Até|Sem|Ele|Ela)$/;
+  const words = (titulo||'').replace(/[",.;:!?()]/g,' ').split(/\s+/);
+  let best=[], cur=[];
+  for (const w of words){
+    if (/^[A-ZÀ-Ý][A-Za-zÀ-ÿ&.\-]{2,}$/.test(w) && !stop.test(w)) { cur.push(w); if (cur.length>best.length) best=[...cur]; }
+    else cur=[];
+  }
+  return best.slice(0,4).join(' ').trim();
+}
+
+// "Ver leads desta empresa": busca no banco por CNPJ (se a notícia bateu com lead) ou pelo nome provável.
+function radarVerLeads(id){
+  const it = radarItemsById[id]; if (!it) return;
+  let termo = '';
+  if (it.cnpj) termo = (it.cnpj+'').replace(/\D/g,'');
+  if (!termo) termo = radarEmpresaGuess(it.titulo);
+  const rd = document.getElementById('radarReader'); if (rd) rd.remove();
+  showPage('leads');
+  if (termo && typeof buscarRapido === 'function') { buscarRapido(termo); }
+  else { try{ document.getElementById('leadSearch').focus(); }catch(e){} showToast('Digite o nome da empresa para buscar na sua base.'); }
+}
+
+// Leitor interno — mantém o cliente no site; resumo + foto + link discreto para a fonte
+function radarAbrirNoticia(id){
+  const it = radarItemsById[id]; if (!it) return;
+  const old = document.getElementById('radarReader'); if (old) old.remove();
+  const v = radarSetorVisual(it.setor);
+  const dt = it.data_evento ? new Date(it.data_evento+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'}) : '';
+  const hero = it.imagem_url ? `<img src="${radarEsc(it.imagem_url)}" alt="" style="width:100%;height:200px;object-fit:cover;border-radius:12px 12px 0 0;display:block;" onerror="this.remove()">` : '';
+  const resumo = it.resumo ? `<p style="font-size:14.5px;line-height:1.65;color:var(--text);margin:0 0 16px;">${radarEsc(it.resumo)}</p>` : `<p style="font-size:13.5px;color:var(--muted);margin:0 0 16px;">Resumo não disponível para esta notícia.</p>`;
+  const wexBadge = it.wex_envolvida ? `<span class="radar-wexbadge">Wex tem este contato</span>` : '';
+  const m = document.createElement('div');
+  m.id = 'radarReader';
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,40,.5);display:flex;align-items:center;justify-content:center;z-index:9999;padding:18px;';
+  m.onclick = (e)=>{ if (e.target===m) m.remove(); };
+  m.innerHTML = `<div style="background:var(--surface);border-radius:14px;max-width:560px;width:100%;max-height:88vh;overflow:auto;border:1px solid var(--border);">
+    ${hero}
+    <div style="padding:20px 22px 22px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+        <span class="radar-setor">${radarEsc(v.label)}</span>
+        ${wexBadge}
+        <span style="font-size:11px;color:var(--muted);">${radarEsc(it.fonte||'')}${dt?' · '+dt:''}</span>
+        <button onclick="document.getElementById('radarReader').remove()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--muted);font-size:20px;line-height:1;">×</button>
+      </div>
+      <h2 style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--text);line-height:1.3;margin:0 0 14px;">${radarEsc(it.titulo)}</h2>
+      ${resumo}
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:16px;">
+        <button class="btn btn-accent" style="font-size:13px;" onclick="radarVerLeads('${it.id}')">Ver leads desta empresa</button>
+        ${it.fonte_url?`<a href="${radarEsc(it.fonte_url)}" target="_blank" rel="noopener" style="font-size:12.5px;color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:4px;">Ler matéria completa na fonte <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg></a>`:''}
+      </div>
+    </div>
+  </div>`;
+  document.body.appendChild(m);
 }
 
 function radarGateHTML(){
@@ -5509,6 +5566,7 @@ async function loadRadarFeed(reset=true){
     const { data, error } = await sb.rpc('radar_feed', { p_limit: 12, p_offset: radarState.offset });
     if (error) throw error;
     const items = data || [];
+    items.forEach(it => { radarItemsById[it.id] = it; });
     radarState.full = items.length ? !!items[0].full_access : (currentProfile?.plan==='agency');
     const gateOld = document.getElementById('radarGate'); if (gateOld) gateOld.remove();
     if (reset){

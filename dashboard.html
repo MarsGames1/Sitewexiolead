@@ -1687,13 +1687,12 @@ textarea.form-input { resize: vertical; min-height: 90px; }
   .radar-item{display:flex;gap:12px;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--surface);position:relative;transition:border-color .15s,box-shadow .15s;}
   .radar-item:hover{border-color:var(--border2);box-shadow:0 2px 10px rgba(20,24,40,.04);}
   .radar-item.wex{border-color:rgba(249,115,22,.35);}
-  .radar-thumb{flex:0 0 92px;width:92px;height:92px;border-radius:10px;background:var(--surface2);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
-  .radar-thumb::before{content:"";position:absolute;inset:0;background-image:radial-gradient(var(--border) 1px,transparent 1px);background-size:11px 11px;opacity:.7;}
-  .radar-thumb svg{position:relative;width:30px;height:30px;}
+  .radar-thumb{flex:0 0 92px;width:92px;height:92px;border-radius:10px;background:var(--surface3);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+  .radar-thumb-mono{font-family:'Syne',sans-serif;font-weight:700;font-size:28px;color:var(--border2);user-select:none;}
   .radar-thumb-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;}
   .radar-main{flex:1;min-width:0;display:flex;flex-direction:column;}
   .radar-top{display:flex;align-items:center;gap:8px;margin-bottom:2px;}
-  .radar-setor{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:2px 7px;border-radius:999px;}
+  .radar-setor{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:2px 7px;border-radius:6px;color:var(--muted);background:var(--surface3);}
   .radar-date{font-size:11px;color:var(--muted);margin-left:auto;white-space:nowrap;text-transform:capitalize;}
   .radar-title{font-size:14px;font-weight:600;color:var(--text);line-height:1.25;margin:0;}
   .radar-resumo{font-size:12px;color:var(--muted);margin:3px 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
@@ -1714,7 +1713,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
     <div class="card-head">
       <div>
         <div class="card-title">Feed</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:3px;">Empresas em movimento na sua região · atualizado mensalmente</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px;">Negócios, leis, NRs e empreendimentos do Brasil</div>
       </div>
       <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px;" onclick="abrirOnboardingRadar()">Como funciona →</button>
 </div>
@@ -5344,6 +5343,20 @@ function UI_ICON(name, size) {
 /* ===== Radar de Obras — feed ===== */
 const radarState = { offset: 0, full: false, loading: false, done: false, count: 0 };
 
+function radarMapEmbed(q){
+  return `<iframe title="Mapa" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=${encodeURIComponent(q)}&z=16&output=embed" style="width:100%;height:100%;border:0;display:block;"></iframe>`;
+}
+function radarTitle(s){ return (s||'').toLowerCase().replace(/\b([a-zà-ú])/g,(m)=>m.toUpperCase()); }
+function radarBRL(s){
+  const n = parseFloat(String(s||'').replace(/\./g,'').replace(',','.'));
+  if (!isFinite(n) || n<=0) return null;
+  return n.toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});
+}
+function radarDataBR(iso){ if(!iso||iso.length<10) return null; const [a,m,d]=iso.split('-'); return `${d}/${m}/${a}`; }
+function radarAnos(iso){ if(!iso) return ''; const y=(Date.now()-new Date(iso+'T00:00:00').getTime())/31557600000; return y>=1?` · há ${Math.floor(y)} ano${Math.floor(y)>1?'s':''}`:''; }
+function radarCEP(c){ c=(c||'').replace(/\D/g,''); return c.length===8?`${c.slice(0,5)}-${c.slice(5)}`:c; }
+function radarTel(t){ const n=(t.numero||'').replace(/\D/g,''); const f=n.length>=9?`${n.slice(0,5)}-${n.slice(5)}`:n.length>=8?`${n.slice(0,4)}-${n.slice(4)}`:n; return `(${t.ddd}) ${f}`; }
+
 function renderLeadRadar(lead){
   const sec = document.getElementById('ldmRadarSection');
   if (!sec) return;
@@ -5351,36 +5364,71 @@ function renderLeadRadar(lead){
   const listBox = document.getElementById('ldmRadarList');
   const gate = document.getElementById('ldmRadarGate');
   const isAgency = currentProfile?.plan === 'agency';
-  const local = [lead.municipio, lead.estado].filter(Boolean).join(' - ');
+  const cnpjDigits = (lead.cnpj||'').replace(/\D/g,'');
+  const cidade = [lead.municipio, lead.estado].filter(Boolean).join(' - ');
 
-  // Mapa do local (nível cidade) — embed sem chave de API
-  if (mapBox){
-    if (local){
-      const q = encodeURIComponent(local + ', Brasil');
-      mapBox.innerHTML = `<iframe title="Mapa de ${radarEsc(local)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=${q}&z=12&output=embed" style="width:100%;height:100%;border:0;display:block;"></iframe>`;
-    } else {
-      mapBox.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:12px;color:var(--muted);">Localização não informada</div>`;
-    }
-  }
   sec.style.display = 'block';
-  if (gate) gate.style.display = isAgency ? 'none' : 'block';
-  if (!listBox) return;
-  listBox.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:6px 0;">Carregando registros públicos…</div>';
+  if (gate) gate.style.display = 'none';
+  if (mapBox && cidade) mapBox.innerHTML = radarMapEmbed(cidade + ', Brasil'); // fallback nível cidade enquanto carrega
+  if (listBox) listBox.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:6px 0;">Buscando dados públicos da empresa…</div>';
+
+  if (cnpjDigits.length !== 14){
+    if (listBox) listBox.innerHTML = `<div style="font-size:12.5px;color:var(--muted);padding:4px 0;line-height:1.5;">CNPJ não disponível para este lead. O mapa mostra a região informada.</div>`;
+    return;
+  }
+
   (async ()=>{
     try{
-      let items = [];
-      const cnpj = lead.cnpj || '';
-      if (cnpj && typeof sb !== 'undefined'){
-        const { data, error } = await sb.rpc('radar_por_lead', { p_cnpj: cnpj });
-        if (!error) items = data || [];
-      }
-      if (items.length){
-        listBox.innerHTML = `<div class="radar-list">${items.map(radarModalItemHTML).join('')}</div>`;
+      const resp = await fetch(`https://api.opencnpj.org/${cnpjDigits}`);
+      if (!resp.ok) throw new Error('cnpj '+resp.status);
+      const d = await resp.json();
+
+      // Mapa em nível de rua, com o endereço real
+      const endParts = [d.tipo_logradouro, d.logradouro].filter(Boolean).join(' ');
+      const endFull = `${endParts}, ${d.numero||''} - ${d.bairro||''}, ${d.municipio||''} - ${d.uf||''}`.replace(/\s+/g,' ').trim();
+      if (mapBox && d.logradouro) mapBox.innerHTML = radarMapEmbed(endFull + ', Brasil');
+
+      const cnaePrinc = (d.cnaes||[]).find(c=>c.is_principal) || (d.cnaes||[])[0];
+      const sit = d.situacao_cadastral||'';
+      const sitCor = /ativa/i.test(sit) ? 'var(--green)' : 'var(--muted)';
+      const sitBg = /ativa/i.test(sit) ? 'var(--green-bg)' : 'var(--surface3)';
+      const abertura = radarDataBR(d.data_inicio_atividade);
+      const cap = radarBRL(d.capital_social);
+      const endHtml = `${radarTitle(endFull)}${d.cep?` · CEP ${radarCEP(d.cep)}`:''}`;
+
+      const fact = (lbl,val)=>`<div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:2px;">${lbl}</div><div style="font-size:13px;color:var(--text);font-weight:500;">${val}</div></div>`;
+
+      // Bloco básico (todos os planos)
+      let html = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;margin-bottom:12px;">`;
+      html += fact('Situação', `<span style="color:${sitCor};background:${sitBg};padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;">${radarEsc(sit||'—')}</span>`);
+      if (abertura) html += fact('Aberta em', `${abertura}<span style="color:var(--muted);font-weight:400;">${radarAnos(d.data_inicio_atividade)}</span>`);
+      html += `</div>`;
+      if (cnaePrinc) html += `<div style="margin-bottom:12px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:3px;">Ramo principal</div><div style="font-size:13px;color:var(--text);font-weight:500;">${radarEsc(cnaePrinc.descricao)}</div></div>`;
+      if (endFull) html += `<div style="margin-bottom:12px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:3px;">Endereço</div><div style="font-size:13px;color:var(--text);">${radarEsc(endHtml)}</div></div>`;
+
+      if (isAgency){
+        // Aprofundado (Agency)
+        let extra = `<div style="border-top:1px solid var(--border);margin-top:4px;padding-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;">`;
+        if (cap) extra += fact('Capital social', cap);
+        if (d.porte_empresa) extra += fact('Porte', radarEsc(d.porte_empresa));
+        if (d.natureza_juridica) extra += fact('Natureza jurídica', radarEsc(d.natureza_juridica));
+        if (d.telefones && d.telefones.length) extra += fact('Telefone', d.telefones.filter(t=>!t.is_fax).map(radarTel).join(' · ')||radarTel(d.telefones[0]));
+        extra += `</div>`;
+        const secund = (d.cnaes||[]).filter(c=>!c.is_principal).slice(0,6);
+        if (secund.length) extra += `<div style="margin-top:12px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:5px;">Também atua em</div><div style="display:flex;flex-wrap:wrap;gap:6px;">${secund.map(c=>`<span style="font-size:11px;color:var(--muted);background:var(--surface3);padding:3px 9px;border-radius:999px;">${radarEsc(c.descricao)}</span>`).join('')}</div></div>`;
+        if (d.QSA && d.QSA.length){
+          extra += `<div style="margin-top:12px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:5px;">Sócios e administradores</div>`;
+          extra += d.QSA.slice(0,6).map(s=>`<div style="font-size:13px;color:var(--text);margin-bottom:3px;">${radarEsc(radarTitle(s.nome_socio))} <span style="font-size:11px;color:var(--muted);">— ${radarEsc(s.qualificacao_socio||'')}${s.data_entrada_sociedade?` · desde ${radarDataBR(s.data_entrada_sociedade)}`:''}</span></div>`).join('');
+          extra += `</div>`;
+        }
+        html += extra;
       } else {
-        listBox.innerHTML = `<div style="font-size:12.5px;color:var(--muted);padding:4px 0 2px;line-height:1.5;">Ainda não há registros públicos de obra para esta empresa. O mapa acima mostra a região de atuação.</div>`;
+        html += `<div class="radar-gate"><p>No plano Agency você vê também capital social, sócios e administradores, telefones e todas as atividades desta empresa.</p><button class="btn btn-accent" style="font-size:13px;" onclick="document.getElementById('leadDetailModal').classList.remove('open');showPage('planos')">Conhecer o Agency →</button></div>`;
       }
+      html += `<div style="font-size:10px;color:var(--muted);margin-top:10px;">Fonte: Receita Federal (dados públicos) · atualizado mensalmente</div>`;
+      if (listBox) listBox.innerHTML = html;
     }catch(e){
-      listBox.innerHTML = `<div style="font-size:12px;color:var(--muted);">Não foi possível carregar agora.</div>`;
+      if (listBox) listBox.innerHTML = `<div style="font-size:12.5px;color:var(--muted);padding:4px 0;line-height:1.5;">Não foi possível buscar os dados públicos desta empresa agora. O mapa mostra a região informada.</div>`;
     }
   })();
 }
@@ -5403,14 +5451,8 @@ function radarModalItemHTML(it){
 
 
 function radarSetorVisual(setor){
-  const map = {
-    construcao:{c:'#F97316',bg:'rgba(249,115,22,.12)',label:'Construção',d:'M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6'},
-    advocacia:{c:'#6366F1',bg:'rgba(99,102,241,.12)',label:'Advocacia',d:'M12 3v18M5 7h14M7 7l-3 7a4 4 0 0 0 6 0M17 7l-3 7a4 4 0 0 0 6 0'},
-    saude:{c:'#059669',bg:'rgba(5,150,105,.12)',label:'Saúde',d:'M12 5v14M5 12h14'},
-    contabilidade:{c:'#0EA5E9',bg:'rgba(14,165,233,.12)',label:'Contabilidade',d:'M7 3h10a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM9 7h6M9 11h6M9 15h3'},
-    fornecedor:{c:'#D97706',bg:'rgba(217,119,6,.12)',label:'Fornecedor',d:'M3 9l1-5h16l1 5M4 9h16v11H4zM9 13h6'}
-  };
-  return map[setor] || {c:'#64748B',bg:'rgba(100,116,139,.12)',label:(setor||'Empresa'),d:'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM2 12h20'};
+  const map = { construcao:'Construção', advocacia:'Jurídico', saude:'Saúde', contabilidade:'Tributário', fornecedor:'Indústria', juridico:'Legislação', empresa:'Negócios' };
+  return { label: map[setor] || 'Negócios' };
 }
 
 function radarEsc(s){ return (s==null?'':s.toString()).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -5419,17 +5461,17 @@ function radarItemHTML(it){
   const v = radarSetorVisual(it.setor);
   const dt = it.data_evento ? new Date(it.data_evento+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}) : '';
   const wex = !!it.wex_envolvida;
-  const cta = (wex && it.lead_id) ? `<button class="radar-cta" onclick="radarVerLead('${it.lead_id}')">Ver lead relacionado →</button>` : '';
+  const cta = (wex && it.lead_id) ? `<button class="radar-cta" onclick="radarVerLead('${it.lead_id}')">Ver leads desta empresa →</button>` : '';
   const wexBadge = wex ? `<span class="radar-wexbadge">Wex tem este contato</span>` : '';
   const fonte = it.fonte ? `<span class="radar-loc">${radarEsc(it.fonte)}</span>` : '';
   const img = it.imagem_url ? `<img class="radar-thumb-img" src="${radarEsc(it.imagem_url)}" loading="lazy" alt="" onerror="this.remove()">` : '';
   const abrir = it.fonte_url ? `onclick="window.open('${radarEsc(it.fonte_url)}','_blank','noopener')" style="cursor:pointer;"` : '';
   return `<div class="radar-item${wex?' wex':''}">
     <button class="radar-dismiss" title="Ocultar" onclick="radarDismiss('${it.id}',this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-    <div class="radar-thumb"><svg viewBox="0 0 24 24" fill="none" stroke="${v.c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${v.d}"/></svg>${img}</div>
+    <div class="radar-thumb">${img || `<span class="radar-thumb-mono">${radarEsc((it.fonte||'·').trim().charAt(0).toUpperCase())}</span>`}</div>
     <div class="radar-main">
       <div class="radar-top">
-        <span class="radar-setor" style="color:${v.c};background:${v.bg};">${v.label}</span>
+        <span class="radar-setor">${radarEsc(v.label)}</span>
         ${wexBadge}
         <span class="radar-date">${dt}</span>
       </div>

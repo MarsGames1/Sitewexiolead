@@ -1090,6 +1090,39 @@ textarea.form-input { resize: vertical; min-height: 90px; }
   .ob-yesno { flex-direction: column; }
 }
 </style>
+<style>
+/* ── MOBILE POLISH (carinho com o celular) ── */
+@media (max-width: 768px){
+  html, body { overflow-x: hidden; max-width: 100%; }
+  /* Header do topo: compacto, sem estourar */
+  #topnav { padding-left: 12px; padding-right: 12px; gap: 8px; }
+  .nav-right { gap: 8px; min-width: 0; }
+  #creditPill { padding: 6px 10px; }
+  #creditRenewDivider, #creditRenewInfo, #creditPillLabel { display: none !important; }
+  .user-name { display: none !important; }          /* mantém avatar + plano */
+  .user-chip { gap: 6px; padding: 4px 6px; }
+  .btn-logout { padding: 6px 10px; font-size: 12px; }
+  /* Inputs em 16px evitam o zoom automático do iOS */
+  .form-input, input.form-input, select.form-input, textarea.form-input { font-size: 16px; }
+  /* Onboarding: card ocupa a tela, rola, e os grids empilham */
+  #onboardingModal .modal-box { width: calc(100vw - 24px) !important; max-width: none !important; max-height: 90vh; overflow-y: auto; }
+  .ob-field-grid { grid-template-columns: 1fr !important; }
+  .ob-type-grid { grid-template-columns: 1fr 1fr !important; }
+  .ob-cnpj-row { flex-wrap: wrap; }
+  .ob-cnpj-row button { width: 100%; }
+  .ob-actions { flex-wrap: wrap; gap: 8px; }
+  .ob-actions .btn { flex: 1; min-width: 130px; }
+  /* Conteúdo: respiro lateral e cards sem aperto */
+  .main-content { padding: 16px 12px; }
+  .card { padding: 16px; }
+  /* Leitor de notícia: hero menor no celular */
+  #radarReader img { height: 160px !important; }
+}
+@media (max-width: 380px){
+  .plan-badge { display: none; }                    /* tela muito estreita: só o avatar */
+  .logo { font-size: 16px; }
+}
+</style>
 </head>
 <body>
 
@@ -1201,14 +1234,18 @@ textarea.form-input { resize: vertical; min-height: 90px; }
     <!-- ── STEP 1: Dados da empresa ── -->
     <div class="ob-step" id="obStep1">
       <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:4px;">Dados da sua empresa</div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">Informe o CNPJ para preenchermos automaticamente.</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">Informe o CNPJ para preenchermos automaticamente — ou deixe em branco (opcional).</div>
       <div class="form-group">
-        <label class="form-label">CNPJ da empresa</label>
+        <label class="form-label">CNPJ da empresa <span style="color:var(--muted);font-weight:400;">(opcional)</span></label>
         <div class="ob-cnpj-row">
           <input type="text" class="form-input" id="obCnpj" placeholder="00.000.000/0001-00" maxlength="18" oninput="maskCnpj(this)">
           <button class="btn btn-accent" onclick="fetchCnpj()" id="btnFetchCnpj">Buscar</button>
         </div>
         <div id="cnpjStatus" style="font-size:11px;margin-top:5px;color:var(--muted);"></div>
+        <div style="font-size:11px;margin-top:6px;color:var(--muted);display:flex;align-items:flex-start;gap:6px;line-height:1.45;">
+          <svg style="width:13px;height:13px;flex-shrink:0;margin-top:1px;stroke:var(--accent);fill:none;stroke-width:2;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <span>Sem CNPJ você usa a plataforma normalmente, mas recursos que dependem dos dados públicos da Receita (como o Radar da empresa no lead) ficam limitados. Você pode adicionar depois no seu perfil.</span>
+        </div>
       </div>
       <div class="ob-field-grid">
         <div class="form-group" style="margin:0;">
@@ -4286,8 +4323,8 @@ function obGoStep2() {
   if (BLOCKED_EMAIL_DOMAINS.includes(emailDomain)) {
     showToast('Use um e-mail corporativo ou pessoal válido.', true); return;
   }
-  if (!cnpj || cnpj.length !== 14) {
-    showToast('Informe e consulte o CNPJ antes de continuar.', true); return;
+  if (cnpj && cnpj.length !== 14) {
+    showToast('CNPJ incompleto. Informe o CNPJ completo ou deixe o campo em branco.', true); return;
   }
   obGo(2);
 }

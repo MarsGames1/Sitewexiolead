@@ -2259,6 +2259,16 @@ textarea.form-input { resize: vertical; min-height: 90px; }
       <div id="equipe-membros-lista" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;"></div>
     </div>
 
+    <!-- Desempenho por funcionário -->
+    <div style="margin-bottom:24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap;">
+        <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);">Desempenho por funcionário</div>
+        <button onclick="exportarDesempenhoCSV()" style="display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Exportar CSV</button>
+      </div>
+      <div id="equipe-desempenho" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;"></div>
+    </div>
+
     <!-- Kanban pipeline da equipe -->
     <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:12px;">Pipeline de leads</div>
     <div id="equipe-kanban" style="display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;"></div>
@@ -2551,6 +2561,9 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 //  Estado global 
 let currentUser = null;
 let currentProfile = null;
+let accountId = null;          // conta efetiva p/ dados (dono se filha, senão o próprio)
+let accountOwnerId = null;     // id da conta-mãe quando esta é uma conta-filha
+let isChildAccount = false;    // true quando o usuário logado é funcionário (conta-filha)
 let allLeads = [];
 let userExports = [];
 let crmData = {}; // leadId ->{status, notes, followup}
@@ -2579,6 +2592,7 @@ window.addEventListener('load', async () =>{
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { window.location.href = '/'; return; }
   currentUser = session.user;
+  accountId = currentUser.id; // padrão: conta própria (sobrescrito se for conta-filha)
 
   // Registra listener só após confirmar sessão, evitando redirecionamento
   // prematuro durante o processamento do hash OAuth (access_token)
@@ -2591,7 +2605,9 @@ window.addEventListener('load', async () =>{
   // Carrega dados com tratamento de erro — sessão expirada ou rede instável
   // não deixa a tela travada no loading.
   try {
-    await Promise.all([loadProfile(), loadLeads(), loadExports()]);
+    await loadProfile();
+    await resolveAccount();          // define se é conta-filha e a conta efetiva
+    await Promise.all([loadLeads(), loadExports()]);
   } catch (err) {
     console.error('Erro ao carregar dados:', err);
     // Verifica se a sessão ainda é válida
@@ -2626,6 +2642,37 @@ window.addEventListener('load', async () =>{
 // 
 // PROFILE
 // 
+// Resolve se o usuário logado é uma conta-filha (funcionário de uma conta Agency).
+// Se for: compartilha os dados/plano da conta-mãe e bloqueia as áreas de gestão.
+async function resolveAccount() {
+  try {
+    const { data: acc } = await sb.rpc('resolve_my_account');
+    if (acc && acc.is_child) {
+      isChildAccount = true;
+      accountOwnerId = acc.owner_id;
+      accountId      = acc.owner_id;
+      // Carrega o perfil da conta-mãe (plano/cota), mantendo o e-mail da filha no topo
+      const { data: ownerProf } = await sb.from('profiles').select('*').eq('id', acc.owner_id).single();
+      if (ownerProf) {
+        const childEmail = currentProfile?.email || currentUser.email;
+        currentProfile = { ...ownerProf, email: childEmail, is_child: true, owner_company: acc.owner_company };
+      }
+      // Esconde as áreas exclusivas da conta-mãe
+      ['nav-planos','nav-perfil','nav-equipe'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.style.display = 'none';
+      });
+      document.body.classList.add('is-child-account');
+    } else {
+      isChildAccount = false;
+      accountId = currentUser.id;
+    }
+  } catch (e) {
+    isChildAccount = false;
+    accountId = currentUser.id;
+    console.warn('resolveAccount falhou:', e);
+  }
+}
+
 async function loadProfile() {
   // Antes de ler o perfil: verifica se o plano venceu (passou 30 dias sem pagar → vira free)
   try {
@@ -3220,7 +3267,7 @@ async function loadCrmFromStorage() {
     const { data, error } = await sb
       .from('crm_entries')
       .select('lead_id,status,notes,followup,updated_at')
-      .eq('user_id', currentUser.id);
+      .eq('user_id', accountId);
     if (error) { console.error('Erro ao carregar CRM:', error.message); return; }
     crmData = {};
     (data || []).forEach(row => {
@@ -3240,7 +3287,7 @@ async function loadCrmFromStorage() {
         for (const [leadId, c] of Object.entries(parsed)) {
           if (!crmData[leadId]) {
             await sb.from('crm_entries').upsert({
-              user_id: currentUser.id, lead_id: leadId,
+              user_id: accountId, actor_id: currentUser.id, lead_id: leadId,
               status: c.status || 'novo', notes: c.notes || '', followup: c.followup || null
             }, { onConflict: 'user_id,lead_id' });
             crmData[leadId] = c;
@@ -3511,7 +3558,7 @@ async function saveCrm() {
   // Persiste no Supabase (sobrevive a troca de dispositivo / limpeza de cache)
   try {
     const { error } = await sb.from('crm_entries').upsert({
-      user_id: currentUser.id,
+      user_id: accountId, actor_id: currentUser.id,
       lead_id: currentCrmLeadId,
       status: entry.status,
       notes: entry.notes,
@@ -3535,7 +3582,7 @@ async function excluirCrm(leadId) {
   try {
     const { error } = await sb.from('crm_entries')
       .delete()
-      .eq('user_id', currentUser.id)
+      .eq('user_id', accountId)
       .eq('lead_id', leadId);
     if (error) { showToast('Erro ao remover: ' + error.message, true); return; }
     delete crmData[leadId];
@@ -3564,7 +3611,7 @@ async function excluirCrmSelecionados() {
   try {
     const { error } = await sb.from('crm_entries')
       .delete()
-      .eq('user_id', currentUser.id)
+      .eq('user_id', accountId)
       .in('lead_id', ids);
     if (error) { showToast('Erro ao remover: ' + error.message, true); return; }
     ids.forEach(id => delete crmData[id]);
@@ -3833,7 +3880,7 @@ async function dropKanban(ev, novoStatus) {
   try {
     const c = crmData[leadId];
     await sb.from('crm_entries').upsert({
-      user_id: currentUser.id, lead_id: leadId,
+      user_id: accountId, actor_id: currentUser.id, lead_id: leadId,
       status: novoStatus, notes: c.notes||'', followup: c.followup||null
     }, { onConflict: 'user_id,lead_id' });
   } catch(e) { showToast('Erro ao mover lead.', true); }
@@ -3925,7 +3972,7 @@ function exportCrmSelected() {
   a.click(); URL.revokeObjectURL(url);
   // Registra a exportação no histórico
   sb.from('exports').insert({
-    user_id: currentUser.id, lead_count: ids.length, format: 'csv',
+    user_id: accountId, lead_count: ids.length, format: 'csv',
     filters: { origem: 'CRM em lote' }
   }).then(() => { loadExports().then(renderExports); });
   showToast(`${ids.length} lead${ids.length !== 1 ? 's' : ''} exportado${ids.length !== 1 ? 's' : ''} com sucesso!`);
@@ -3936,7 +3983,7 @@ function exportCrmSelected() {
 // EXPORTS
 // 
 async function loadExports() {
-  const { data } = await sb.from('exports').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+  const { data } = await sb.from('exports').select('*').eq('user_id', accountId).order('created_at', { ascending: false });
   userExports = data || [];
 }
 
@@ -3991,7 +4038,7 @@ async function exportLeads() {
   const est = document.getElementById('leadEstado').value;
 
   await sb.from('exports').insert({
-    user_id: currentUser.id, lead_count: count, format: 'csv',
+    user_id: accountId, lead_count: count, format: 'csv',
     filters: { segmento: seg||null, estado: est||null }
   });
   // Debita créditos do export via Edge Function (servidor valida quota)
@@ -4241,6 +4288,8 @@ let obType = '';
 let obData = {};
 
 function checkOnboarding() {
+  // Conta-filha (funcionário) não passa por cadastro — nunca mostra o onboarding
+  if (isChildAccount) return;
   // Se já tem tipo_empresa salvo no banco, onboarding já foi feito — nunca mostrar de novo
   if (currentProfile?.tipo_empresa) return;
   // Sem tipo = primeiro acesso, mostra modal
@@ -4766,6 +4815,11 @@ async function loadTickets() {
 // NAVIGATION
 // 
 function showPage(page) {
+  // Conta-filha não acessa áreas exclusivas da conta-mãe
+  if (isChildAccount && ['planos','perfil','equipe'].includes(page)) {
+    showToast('Essa área é exclusiva do administrador da conta.', true);
+    return;
+  }
   // CRM gating — Starter (leve), Pro e Agency (completo). Free não tem.
   if (page === 'crm') {
     const plan = currentProfile?.plan || 'free';
@@ -5134,8 +5188,8 @@ async function carregarEquipe() {
   try {
     const { data: entries } = await sb
       .from('crm_entries')
-      .select('lead_id,status,notes,followup,updated_at')
-      .eq('user_id', currentUser.id);
+      .select('lead_id,status,notes,followup,updated_at,actor_id')
+      .eq('user_id', accountId);
 
     const todos = entries || [];
     const ids = todos.map(e => e.lead_id);
@@ -5159,6 +5213,7 @@ async function carregarEquipe() {
       todos.length + ' lead' + (todos.length !== 1 ? 's' : '') + ' no pipeline';
 
     renderEquipeKanban(todos, leadsMap);
+    renderEquipeDesempenho(todos, leadsMap);
   } catch(e) {
     document.getElementById('equipe-kanban').innerHTML =
       '<div class="empty-state"><p>Erro ao carregar o pipeline.</p></div>';
@@ -5171,7 +5226,7 @@ async function carregarMembrosEquipe() {
   try {
     const { data, error } = await sb
       .from('team_members')
-      .select('id,nome,email,cargo,status,created_at')
+      .select('id,nome,email,cargo,status,created_at,member_user_id')
       .eq('owner_id', currentUser.id)
       .order('created_at', { ascending: true });
     if (error) throw error;
@@ -5213,9 +5268,12 @@ async function carregarMembrosEquipe() {
     '</div>';
   }).join('');
 
-  const addCard =
-    '<button onclick="abrirConviteMembro()" style="background:transparent;border:1.5px dashed var(--border);border-radius:12px;padding:14px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:var(--muted);font-size:13px;font-weight:600;font-family:\'DM Sans\',sans-serif;transition:border-color .15s,color .15s;" onmouseover="this.style.borderColor=\'var(--accent)\';this.style.color=\'var(--accent)\'" onmouseout="this.style.borderColor=\'\';this.style.color=\'\'">' +
-      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Adicionar membro</button>';
+  const ativosCount = equipeMembros.filter(m => m.status !== 'inativo').length;
+  const addCard = ativosCount >= 4
+    ? '<div style="border:1.5px dashed var(--border);border-radius:12px;padding:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--muted);font-size:12px;text-align:center;">' +
+        '<span style="font-weight:700;color:var(--text);">4/4 funcionários</span>Limite do plano atingido</div>'
+    : '<button onclick="abrirConviteMembro()" style="background:transparent;border:1.5px dashed var(--border);border-radius:12px;padding:14px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:var(--muted);font-size:13px;font-weight:600;font-family:\'DM Sans\',sans-serif;transition:border-color .15s,color .15s;" onmouseover="this.style.borderColor=\'var(--accent)\';this.style.color=\'var(--accent)\'" onmouseout="this.style.borderColor=\'\';this.style.color=\'\'">' +
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Adicionar funcionário (' + ativosCount + '/4)</button>';
 
   lista.innerHTML = ownerCard + membroCards + addCard;
 }
@@ -5233,10 +5291,164 @@ async function removerMembroEquipe(id) {
   }
 }
 
+// Mapa autor(id) -> nome exibível (dono + funcionários vinculados)
+function actorNameMap() {
+  const map = {};
+  map[currentUser.id] = (currentProfile?.company || currentProfile?.full_name || 'Você') + ' (você)';
+  (equipeMembros || []).forEach(m => { if (m.member_user_id) map[m.member_user_id] = m.nome || m.email; });
+  return map;
+}
+
+function miniStat(label, val, cor) {
+  return '<div style="background:var(--surface2);border-radius:8px;padding:8px 10px;">' +
+    '<div style="font-family:\'Syne\',sans-serif;font-size:18px;font-weight:800;color:' + cor + ';line-height:1;">' + val + '</div>' +
+    '<div style="font-size:10px;color:var(--muted);margin-top:3px;">' + label + '</div></div>';
+}
+
+// Tempo relativo curto ("há 2h", "ontem")
+function tempoDesde(iso) {
+  if (!iso) return null;
+  const ms = Date.now() - new Date(iso).getTime();
+  if (isNaN(ms)) return null;
+  const min = Math.floor(ms / 60000);
+  if (min < 1) return 'agora há pouco';
+  if (min < 60) return 'há ' + min + ' min';
+  const h = Math.floor(min / 60);
+  if (h < 24) return 'há ' + h + 'h';
+  const d = Math.floor(h / 24);
+  if (d === 1) return 'ontem';
+  if (d < 30) return 'há ' + d + ' dias';
+  return 'há mais de 1 mês';
+}
+
+// Desempenho por funcionário: agrega o CRM por autor da ação (+ meta e última atividade)
+let equipeDesempenhoCache = [];
+function renderEquipeDesempenho(entries) {
+  const cont = document.getElementById('equipe-desempenho');
+  if (!cont) return;
+  const nomes = actorNameMap();
+  const memberBy = {};
+  (equipeMembros || []).forEach(m => { if (m.member_user_id) memberBy[m.member_user_id] = m; });
+  const now = new Date();
+  const agg = {};
+  (entries || []).forEach(e => {
+    const a = e.actor_id || currentUser.id;
+    if (!agg[a]) agg[a] = { total:0, contatado:0, negociando:0, fechado:0, fechadoMes:0, last:null };
+    agg[a].total++;
+    if (agg[a][e.status] !== undefined) agg[a][e.status]++;
+    if (e.status === 'fechado') {
+      const d = new Date(e.updated_at);
+      if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) agg[a].fechadoMes++;
+    }
+    if (e.updated_at && (!agg[a].last || e.updated_at > agg[a].last)) agg[a].last = e.updated_at;
+  });
+  const ordem = [currentUser.id].concat((equipeMembros || []).filter(m => m.member_user_id && m.status !== 'inativo').map(m => m.member_user_id));
+  const vistos = new Set();
+  equipeDesempenhoCache = [];
+  let html = '';
+  ordem.forEach(a => {
+    if (vistos.has(a)) return; vistos.add(a);
+    const s = agg[a] || { total:0, contatado:0, negociando:0, fechado:0, fechadoMes:0, last:null };
+    const m = memberBy[a];
+    const isOwner = (a === currentUser.id);
+    const nome = nomes[a] || 'Funcionário';
+    const conv = s.total ? Math.round((s.fechado / s.total) * 100) : 0;
+    const meta = m ? (m.meta_fechados || 0) : 0;
+    const ativo = tempoDesde(s.last);
+    equipeDesempenhoCache.push({ nome: nome.replace(' (você)',''), total:s.total, contatado:s.contatado, negociando:s.negociando, fechado:s.fechado, fechadoMes:s.fechadoMes, conv, meta, ultima: ativo || '—' });
+
+    let metaHtml = '';
+    if (!isOwner && m) {
+      if (meta > 0) {
+        const pct = Math.min(100, Math.round((s.fechadoMes / meta) * 100));
+        const corBar = pct >= 100 ? 'var(--green)' : 'var(--accent)';
+        metaHtml = '<div style="margin-top:10px;">' +
+          '<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px;"><span>Meta do mês</span><span style="font-weight:700;color:var(--text);">' + s.fechadoMes + '/' + meta + '</span></div>' +
+          '<div style="height:6px;background:var(--surface3);border-radius:4px;overflow:hidden;"><div style="height:100%;width:' + pct + '%;background:' + corBar + ';border-radius:4px;transition:width .3s;"></div></div>' +
+          '<button onclick="definirMeta(\'' + m.id + '\',' + meta + ')" style="margin-top:7px;background:transparent;border:none;color:var(--muted);font-size:10.5px;cursor:pointer;padding:0;text-decoration:underline;">Editar meta</button>' +
+        '</div>';
+      } else {
+        metaHtml = '<button onclick="definirMeta(\'' + m.id + '\',0)" style="margin-top:10px;background:transparent;border:1px dashed var(--border);border-radius:7px;padding:6px;width:100%;color:var(--muted);font-size:11px;cursor:pointer;">Definir meta mensal</button>';
+      }
+    }
+    const ativoHtml = ativo
+      ? '<div style="font-size:10.5px;color:var(--muted);margin-top:2px;">Última atividade: ' + ativo + '</div>'
+      : (isOwner ? '' : '<div style="font-size:10.5px;color:var(--dim);margin-top:2px;">Ainda sem atividade</div>');
+
+    html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;">' +
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">' + avaHtml(nome, 34) +
+        '<div style="min-width:0;flex:1;"><div style="font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(nome) + '</div>' +
+        ativoHtml + '</div></div>' +
+      '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">' +
+        miniStat('Fechados (mês)', s.fechadoMes, 'var(--green)') +
+        miniStat('Negociando', s.negociando, 'var(--accent)') +
+        miniStat('Contatados', s.contatado, '#D97706') +
+        miniStat('Conversão', conv + '%', 'var(--text)') +
+      '</div>' + metaHtml + '</div>';
+  });
+  cont.innerHTML = html || '<div style="color:var(--muted);font-size:13px;">Sem dados ainda. Quando sua equipe trabalhar os leads, o desempenho aparece aqui.</div>';
+}
+
+// #1 Definir/editar meta mensal de um funcionário
+async function definirMeta(memberId, atual) {
+  const v = prompt('Meta de leads FECHADOS por mês para este funcionário:', atual || 0);
+  if (v === null) return;
+  const meta = parseInt(v, 10);
+  if (isNaN(meta) || meta < 0) { showToast('Informe um número válido.', true); return; }
+  try {
+    const { error } = await sb.rpc('set_member_goal', { p_member_id: memberId, p_meta: meta });
+    if (error) throw error;
+    showToast('Meta atualizada.');
+    await carregarEquipe();
+  } catch(e) { showToast('Erro ao salvar a meta.', true); console.error(e); }
+}
+
+// #5 Exportar desempenho da equipe em CSV
+function exportarDesempenhoCSV() {
+  if (!equipeDesempenhoCache.length) { showToast('Nada para exportar ainda.', true); return; }
+  const head = ['Funcionario','Leads no funil','Contatados','Negociando','Fechados (total)','Fechados (mes)','Conversao %','Meta mensal','Ultima atividade'];
+  const linhas = equipeDesempenhoCache.map(r => [r.nome, r.total, r.contatado, r.negociando, r.fechado, r.fechadoMes, r.conv, r.meta, r.ultima]);
+  const csv = [head].concat(linhas).map(row => row.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('\n');
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'desempenho-equipe-' + new Date().toISOString().slice(0,10) + '.csv';
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+
+// #3 Reatribuir lead a outro funcionário
+function abrirReatribuir(leadId) {
+  const nomes = actorNameMap();
+  const pessoas = [{ id: currentUser.id, nome: (nomes[currentUser.id] || 'Você') }]
+    .concat((equipeMembros || []).filter(m => m.member_user_id && m.status !== 'inativo').map(m => ({ id: m.member_user_id, nome: m.nome || m.email })));
+  let ov = document.getElementById('reatribuirModal'); if (ov) ov.remove();
+  ov = document.createElement('div');
+  ov.id = 'reatribuirModal';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,40,.5);display:flex;align-items:center;justify-content:center;z-index:9999;padding:18px;';
+  ov.innerHTML = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:340px;width:100%;padding:18px;">' +
+      '<div style="font-weight:700;font-size:14px;margin-bottom:4px;">Reatribuir lead</div>' +
+      '<div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Escolha quem passa a cuidar deste lead.</div>' +
+      pessoas.map(p => '<button onclick="confirmarReatribuir(' + JSON.stringify(leadId) + ',\'' + p.id + '\')" style="display:flex;align-items:center;gap:10px;width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:10px;margin-bottom:8px;cursor:pointer;text-align:left;">' + avaHtml(p.nome,28) + '<span style="font-size:13px;font-weight:600;color:var(--text);">' + escapeHtml(p.nome.replace(' (você)','')) + '</span></button>').join('') +
+      '<button onclick="document.getElementById(\'reatribuirModal\').remove()" style="width:100%;background:transparent;border:none;color:var(--muted);font-size:12px;cursor:pointer;padding:6px;margin-top:2px;">Cancelar</button>' +
+    '</div>';
+  ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+  document.body.appendChild(ov);
+}
+async function confirmarReatribuir(leadId, actorId) {
+  try {
+    const { error } = await sb.rpc('reatribuir_lead', { p_lead_id: leadId, p_actor_id: actorId });
+    if (error) throw error;
+    const mod = document.getElementById('reatribuirModal'); if (mod) mod.remove();
+    showToast('Lead reatribuído.');
+    await carregarEquipe();
+  } catch(e) { showToast('Erro ao reatribuir.', true); console.error(e); }
+}
+
 function renderEquipeKanban(entries, leadsMap) {
   const kanban = document.getElementById('equipe-kanban');
   if (!kanban) return;
   const colIdx = Object.fromEntries(EQ_COLS.map((c,i) => [c.id, i]));
+  const nomes = actorNameMap();
 
   kanban.innerHTML = EQ_COLS.map(col => {
     const cards = entries.filter(e => (e.status || 'novo') === col.id);
@@ -5253,6 +5465,7 @@ function renderEquipeKanban(entries, leadsMap) {
               '<div style="flex:1;min-width:0;">' +
                 '<div style="font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(nome) + '</div>' +
                 (seg ? '<div style="font-size:11px;color:var(--muted);margin-top:2px;">' + escapeHtml(seg) + (mun ? ' · ' + escapeHtml(mun) : '') + '</div>' : '') +
+                (e.actor_id && nomes[e.actor_id] ? '<div onclick="event.stopPropagation();abrirReatribuir(' + JSON.stringify(e.lead_id) + ')" title="Clique para reatribuir" style="margin-top:5px;display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--muted);cursor:pointer;border:1px solid var(--border);border-radius:20px;padding:2px 7px 2px 2px;"><span style="width:14px;height:14px;border-radius:50%;background:var(--surface3);display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:var(--text);">' + escapeHtml((nomes[e.actor_id] || '?').charAt(0).toUpperCase()) + '</span>' + escapeHtml((nomes[e.actor_id] || '').replace(' (você)','').split(' ')[0]) + '</div>' : '') +
               '</div>' +
               (nextCol
                 ? '<button title="Avançar para ' + nextCol.label + '" onclick="moverCardEquipe(\'' + e.lead_id + '\',\'' + nextCol.id + '\')" style="flex-shrink:0;width:22px;height:22px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button>'
@@ -5288,7 +5501,7 @@ async function moverCardEquipe(leadId, novoStatus) {
     const { error } = await sb.from('crm_entries')
       .update({ status: novoStatus, updated_at: new Date().toISOString() })
       .eq('lead_id', leadId)
-      .eq('user_id', currentUser.id);
+      .eq('user_id', accountId);
     if (error) throw error;
     if (crmData[leadId]) crmData[leadId].status = novoStatus;
     await carregarEquipe();
@@ -5316,23 +5529,21 @@ async function enviarConviteMembro() {
   const btn = document.getElementById('convite-btn');
   if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
   try {
-    const { error } = await sb.from('team_members').insert({
-      owner_id: currentUser.id,
-      nome: nome || null,
-      email: email,
-      cargo: cargo,
-      status: 'convidado'
-    });
+    const { error } = await sb.rpc('add_team_member', { p_email: email, p_nome: nome || null, p_cargo: cargo });
     if (error) {
-      if (error.code === '23505') { showToast('Esse e-mail já está na sua equipe.', true); }
+      const m = (error.message || '');
+      if (m.includes('limite_4_membros'))        showToast('Você já atingiu o limite de 4 funcionários.', true);
+      else if (m.includes('ja_na_equipe'))       showToast('Esse e-mail já está na sua equipe.', true);
+      else if (m.includes('nao_pode_adicionar')) showToast('Você não pode adicionar o seu próprio e-mail.', true);
+      else if (m.includes('apenas_agency'))      showToast('Adicionar funcionários é exclusivo do plano Agency.', true);
       else throw error;
     } else {
-      showToast('Membro adicionado à sua equipe!');
+      showToast('Funcionário adicionado! Ele entra com a conta Google/Microsoft desse e-mail.');
       document.getElementById('modal-convite-membro').style.display = 'none';
       await carregarMembrosEquipe();
     }
   } catch(e) {
-    showToast('Erro ao adicionar membro. Tente novamente.', true);
+    showToast('Erro ao adicionar funcionário. Tente novamente.', true);
     console.error('enviarConviteMembro:', e);
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = 'Adicionar'; }
@@ -5880,7 +6091,7 @@ async function saveLeadDetailCrm() {
 
   try {
     const { error } = await sb.from('crm_entries').upsert({
-      user_id: currentUser.id,
+      user_id: accountId, actor_id: currentUser.id,
       lead_id: leadId,
       status: entry.status,
       notes: entry.notes,
@@ -6794,7 +7005,7 @@ async function solicitarConexaoCrm() {
       showToast('Convite de conexão enviado!');
       crmData[leadId] = crmData[leadId] || { leadId, status: 'negociando', notes: 'Conexão solicitada', followup: '', updatedAt: new Date().toISOString() };
       await sb.from('crm_entries').upsert({
-        user_id: currentUser.id, lead_id: leadId,
+        user_id: accountId, actor_id: currentUser.id, lead_id: leadId,
         status: crmData[leadId].status, notes: crmData[leadId].notes, followup: crmData[leadId].followup || null
       }, { onConflict: 'user_id,lead_id' });
       updateQuotaUI();
@@ -6846,7 +7057,7 @@ async function solicitarConexaoLead() {
       // Salva no CRM automaticamente
       crmData[leadId] = crmData[leadId] || { leadId, status: 'negociando', notes: 'Conexão solicitada', followup: '', updatedAt: new Date().toISOString() };
       await sb.from('crm_entries').upsert({
-        user_id: currentUser.id, lead_id: leadId,
+        user_id: accountId, actor_id: currentUser.id, lead_id: leadId,
         status: crmData[leadId].status, notes: crmData[leadId].notes, followup: crmData[leadId].followup || null
       }, { onConflict: 'user_id,lead_id' });
       updateQuotaUI();

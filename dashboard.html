@@ -160,6 +160,7 @@ body {
 .plan-starter { background: var(--blue-bg); color: var(--blue); }
 .plan-pro { background: var(--accent-bg); color: var(--accent); }
 .plan-agency { background: #1A1A2E; color: #FBBF24; }
+.plan-child { background: var(--accent-bg); color: var(--accent); }
 .btn-logout {
   background: transparent;
   border: 1px solid var(--border);
@@ -2742,9 +2743,15 @@ async function loadProfile() {
   document.getElementById('userName').textContent = email;
 
   const planBadge = document.getElementById('userPlanBadge');
-  const plan = currentProfile.plan || 'free';
-  planBadge.textContent = plan;
-  planBadge.className = `plan-badge plan-${plan}`;
+  if (isChildAccount) {
+    planBadge.textContent = 'Funcionário';
+    planBadge.className = 'plan-badge plan-child';
+    planBadge.title = currentProfile.owner_company ? ('Acesso via ' + currentProfile.owner_company) : 'Acesso de funcionário';
+  } else {
+    const plan = currentProfile.plan || 'free';
+    planBadge.textContent = plan;
+    planBadge.className = `plan-badge plan-${plan}`;
+  }
 
   // Preencher perfil
   document.getElementById('profileName').value = currentProfile.full_name || '';

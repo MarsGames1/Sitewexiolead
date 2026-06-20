@@ -2,9 +2,63 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<script>
+  // Aplica tema/acessibilidade salvos ANTES de pintar (evita flash)
+  (function(){
+    try {
+      var t = localStorage.getItem('wl_theme');
+      if (t === 'dark') document.documentElement.setAttribute('data-theme','dark');
+      if (localStorage.getItem('wl_textsize') === 'large') document.documentElement.classList.add('a11y-large');
+    } catch(e){}
+  })();
+</script>
 <link rel="icon" type="image/png" href="favicon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WexioLead — Painel do Cliente</title>
+<title>WexioLead — Leads B2B e Dados de Empresas Brasileiras</title>
+
+<!-- ─── SEO ─── (confirme o domínio em og:url / canonical e troque se necessário) -->
+<meta name="description" content="WexioLead: plataforma de geração de leads B2B com dados oficiais de empresas brasileiras (Receita Federal), CRM e inteligência de mercado. B2B lead generation and verified company data for selling into Brazil.">
+<meta name="keywords" content="leads B2B, geração de leads, empresas brasileiras, dados CNPJ, prospecção, CRM, inteligência de mercado, Brazilian B2B leads, company data Brazil, sales intelligence Brazil, sell into Brazil">
+<meta name="author" content="WexioLead">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#F0F2F8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E1118" media="(prefers-color-scheme: dark)">
+<link rel="canonical" href="https://wexiolead.com.br/">
+
+<!-- Open Graph (compartilhamento em WhatsApp, LinkedIn, Facebook) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WexioLead">
+<meta property="og:title" content="WexioLead — Leads B2B e Dados de Empresas Brasileiras">
+<meta property="og:description" content="Plataforma de leads B2B com dados oficiais de empresas brasileiras. B2B lead generation and verified company data for selling into Brazil.">
+<meta property="og:url" content="https://wexiolead.com.br/">
+<meta property="og:image" content="https://wexiolead.com.br/favicon.png">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:locale:alternate" content="en_US">
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="WexioLead — Leads B2B e Dados de Empresas Brasileiras">
+<meta name="twitter:description" content="Plataforma de leads B2B com dados oficiais de empresas brasileiras. B2B leads & company data for selling into Brazil.">
+<meta name="twitter:image" content="https://wexiolead.com.br/favicon.png">
+
+<!-- Dados estruturados para o Google (ajuda a ranquear em PT e EN) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "WexioLead",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+  "url": "https://wexiolead.com.br/",
+  "inLanguage": ["pt-BR", "en"],
+  "description": "Plataforma de geração de leads B2B com dados oficiais de empresas brasileiras (Receita Federal), CRM e inteligência de mercado. B2B lead generation and verified Brazilian company data for businesses selling into Brazil.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "BRL"
+  }
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
@@ -40,6 +94,48 @@
   --shadow: 0 1px 4px rgba(15,23,40,0.06);
   --shadow-md: 0 4px 20px rgba(15,23,40,0.09);
   --shadow-lg: 0 12px 48px rgba(15,23,40,0.13);
+}
+
+/* ─── TEMA ESCURO ─── sobrescreve só as variáveis; todo o resto herda */
+[data-theme="dark"] {
+  --bg: #0E1118;
+  --surface: #161A23;
+  --surface2: #1B202B;
+  --surface3: #232A37;
+  --border: #2A313F;
+  --border2: #3A4252;
+  --text: #E9EDF4;
+  --muted: #9AA6B8;
+  --dim: #6B7888;
+  --accent: #FB8534;
+  --accent-hover: #F97316;
+  --accent2: #FBBF24;
+  --accent-bg: rgba(251,133,52,0.15);
+  --accent-bg2: rgba(251,133,52,0.22);
+  --green: #34D399;
+  --green-bg: rgba(52,211,153,0.13);
+  --red: #F87171;
+  --red-bg: rgba(248,113,113,0.13);
+  --blue: #9AA6B8;
+  --blue-bg: rgba(154,166,184,0.12);
+  --shadow: 0 1px 4px rgba(0,0,0,0.40);
+  --shadow-md: 0 4px 20px rgba(0,0,0,0.50);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.62);
+}
+[data-theme="dark"] #loading-screen { background: var(--bg); }
+[data-theme="dark"] img.radar-thumb-img { opacity: .94; }
+
+/* ─── ACESSIBILIDADE ─── */
+/* Texto/UI maior para baixa visão (equivale a um zoom uniforme) */
+html.a11y-large { zoom: 1.12; }
+/* Respeita quem pediu menos animação no sistema */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+}
+/* Foco visível para navegação por teclado */
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1497,11 +1593,18 @@ textarea.form-input { resize: vertical; min-height: 90px; }
         <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px;flex-shrink:0;" onclick="abrirOnboardingRadar()">Como funciona →</button>
       </div>
       <div id="ldmRadarMap" style="width:100%;height:190px;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:var(--surface2);"></div>
+      <div id="ldmMapLink" style="margin-top:8px;"></div>
+      <div id="ldmRadarNews" style="margin-top:14px;"></div>
       <div id="ldmRadarList" style="margin-top:12px;"></div>
       <div id="ldmRadarGate" style="display:none;margin-top:12px;padding:14px 16px;border:1px dashed rgba(249,115,22,.4);border-radius:12px;background:var(--accent-bg);">
         <p style="font-size:12.5px;color:var(--text);line-height:1.5;margin:0 0 10px;">O Radar completo abre todos os registros de obra desta empresa, com detalhe e histórico — exclusivo do plano Agency.</p>
         <button class="btn btn-accent" style="font-size:13px;" onclick="document.getElementById('leadDetailModal').classList.remove('open');showPage('planos')">Conhecer o Agency →</button>
       </div>
+    </div>
+    <!-- Consulta pública (cadastro, contratos e licitações) -->
+    <div id="ldmPncpSection" style="margin-bottom:16px;border-top:1px solid var(--border);padding-top:16px;">
+      <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;">Consulta Pública · Cadastro, Contratos e Licitações</div>
+      <div id="ldmPncpContent"></div>
     </div>
     <!-- Export rápido -->
     <div style="display:flex;gap:8px;margin-bottom:16px;">
@@ -2424,6 +2527,43 @@ textarea.form-input { resize: vertical; min-height: 90px; }
       <p style="font-size:13px;color:var(--muted);">Para redefinir sua senha, acesse o link de recuperação enviado por e-mail ou entre em contato com o suporte.</p>
     </div>
   </div>
+  <div class="card" style="margin-top:16px;">
+    <div class="card-head"><div class="card-title">Aparência e acessibilidade</div></div>
+    <div class="card-body">
+      <div style="display:flex;flex-direction:column;gap:18px;">
+
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);">Tema</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px;">Escolha entre claro e escuro. Sua preferência fica salva.</div>
+          </div>
+          <div style="display:inline-flex;background:var(--surface3);border-radius:9px;padding:3px;gap:3px;">
+            <button id="themeOptLight" onclick="setTheme('light')" style="border:none;background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--muted);padding:7px 14px;border-radius:7px;display:inline-flex;align-items:center;gap:6px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>Claro</button>
+            <button id="themeOptDark" onclick="setTheme('dark')" style="border:none;background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--muted);padding:7px 14px;border-radius:7px;display:inline-flex;align-items:center;gap:6px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>Escuro</button>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:18px;">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);">Tamanho do texto</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px;">Aumenta o tamanho de tudo, para facilitar a leitura.</div>
+          </div>
+          <div style="display:inline-flex;background:var(--surface3);border-radius:9px;padding:3px;gap:3px;">
+            <button id="textOptNormal" onclick="setTextSize('normal')" style="border:none;background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--muted);padding:7px 14px;border-radius:7px;">Normal</button>
+            <button id="textOptLarge" onclick="setTextSize('large')" style="border:none;background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;color:var(--muted);padding:7px 14px;border-radius:7px;">Grande</button>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid var(--border);padding-top:16px;display:flex;gap:9px;align-items:flex-start;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <div style="font-size:12.5px;color:var(--muted);line-height:1.5;">Precisa de outro idioma? Use a opção <strong style="color:var(--text);">"Traduzir"</strong> do seu navegador (Chrome, Edge ou Safari) para ver o painel em inglês, espanhol e outros. A Wex responde automaticamente no idioma em que você escrever.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
 </div>
 
 <!--  SUPORTE ═-->
@@ -2672,6 +2812,33 @@ async function resolveAccount() {
     accountId = currentUser.id;
     console.warn('resolveAccount falhou:', e);
   }
+}
+
+// ─── Aparência e acessibilidade (tema escuro + tamanho de texto) ───
+function applyAppearanceUI() {
+  let theme = 'light', size = 'normal';
+  try { theme = localStorage.getItem('wl_theme') || 'light'; size = localStorage.getItem('wl_textsize') || 'normal'; } catch(e){}
+  const setActive = (el, on) => {
+    if (!el) return;
+    el.style.background = on ? 'var(--surface)' : 'transparent';
+    el.style.color = on ? 'var(--accent)' : 'var(--muted)';
+    el.style.boxShadow = on ? 'var(--shadow)' : 'none';
+  };
+  setActive(document.getElementById('themeOptLight'), theme !== 'dark');
+  setActive(document.getElementById('themeOptDark'), theme === 'dark');
+  setActive(document.getElementById('textOptNormal'), size !== 'large');
+  setActive(document.getElementById('textOptLarge'), size === 'large');
+}
+function setTheme(mode) {
+  try { localStorage.setItem('wl_theme', mode); } catch(e){}
+  if (mode === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  else document.documentElement.removeAttribute('data-theme');
+  applyAppearanceUI();
+}
+function setTextSize(size) {
+  try { localStorage.setItem('wl_textsize', size); } catch(e){}
+  document.documentElement.classList.toggle('a11y-large', size === 'large');
+  applyAppearanceUI();
 }
 
 async function loadProfile() {
@@ -3335,6 +3502,10 @@ async function saveCrmToStorage() {
 }
 
 function openCrmModal(leadId) {
+  // Unificado: o CRM abre o MESMO modal completo da busca (mapa, Receita, notícias, consulta pública)
+  openLeadDetailModal(leadId);
+}
+function _openCrmModalLegado(leadId) {
   const lead = getLeadCrm(leadId);
   if (!lead) { showToast('Não foi possível abrir este lead. Recarregue a página.', true); return; }
   currentCrmLeadId = leadId;
@@ -3369,8 +3540,8 @@ function openCrmModal(leadId) {
 }
 
 // ─── PNCP — Licitações & Contratos Públicos ───────────────────────────────────
-async function fetchPncp(cnpj) {
-  const el = document.getElementById('pncpContent');
+async function fetchPncp(cnpj, targetId) {
+  const el = document.getElementById(targetId || 'pncpContent');
   if (!el) return;
 
   const cnpjLimpo = (cnpj || '').replace(/\D/g, '');
@@ -3423,7 +3594,24 @@ async function fetchPncp(cnpj) {
         ${abertura            ? `<span style="font-size:11px;padding:3px 9px;border-radius:6px;background:var(--surface3);color:var(--muted);">Desde ${abertura}</span>` : ''}
         ${r.cadastro.capital  ? `<span style="font-size:11px;padding:3px 9px;border-radius:6px;background:var(--surface3);color:var(--muted);">Capital ${fmtValor(r.cadastro.capital)}</span>` : ''}
         ${r.cadastro.cnae     ? `<span style="font-size:11px;padding:3px 9px;border-radius:6px;background:var(--blue-bg);color:var(--blue);max-width:100%;">${r.cadastro.cnae.length>60?r.cadastro.cnae.slice(0,60)+'…':r.cadastro.cnae}</span>` : ''}
+        ${r.cadastro.simples === true ? `<span style="font-size:11px;padding:3px 9px;border-radius:6px;background:var(--green-bg);color:var(--green);font-weight:600;">Simples Nacional</span>` : ''}
+        ${r.cadastro.mei === true ? `<span style="font-size:11px;padding:3px 9px;border-radius:6px;background:var(--surface3);color:var(--muted);font-weight:600;">MEI</span>` : ''}
       </div>`;
+    }
+
+    // Risco & Conformidade (CEIS/CNEP) — sinal de risco público
+    if (r.sancoes && r.sancoes.length) {
+      html += `<div style="font-size:11px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:0.06em;margin:14px 0 8px;display:flex;align-items:center;gap:6px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Risco &amp; Conformidade · ${r.sancoes.length} sanção(ões)</div>`;
+      html += r.sancoes.map(s => {
+        const periodo = [s.dataInicio?fmtData(s.dataInicio):'', s.dataFim?('até '+fmtData(s.dataFim)):''].filter(Boolean).join(' ');
+        return card(s.tipo, s.orgao || '', periodo, s.fonte, 'var(--red)');
+      }).join('');
+    } else if (r.cadastro && r.sancoesChecked) {
+      html += `<div style="margin:14px 0 0;padding:10px 12px;background:var(--green-bg);border-radius:10px;font-size:12px;color:var(--green);font-weight:600;display:flex;align-items:center;gap:7px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        Nenhuma sanção pública encontrada (CEIS/CNEP)</div>`;
     }
 
     // Contratos públicos (se houver)
@@ -4588,42 +4776,35 @@ PERSONALIDADE: profissional, direta, simpática e prática, como uma consultora 
 SOBRE A PLATAFORMA:
 O WexioLead reúne empresas brasileiras com dados da Receita Federal (razão social, nome fantasia, CNPJ, telefone, e-mail, sócio, município/UF, segmento) e enriquece com score de qualificação (0-100), selo de lead verificado e classificação por tipo. O cliente busca, filtra, salva no CRM e pode se conectar com outras empresas da rede.
 
-SETORES COBERTOS (não apenas construção):
-- Construção civil: construtoras, incorporadoras, empreiteiros, fornecedores de materiais (cimento, aço, madeira, cerâmica, tintas), serviços (elétrica, hidráulica, pintura, gesso, terraplenagem, climatização), engenharia e arquitetura
-- Saúde: clínicas, consultórios, odontologia, laboratórios, farmácias, fisioterapia, veterinária, psicologia
-- Jurídico e contábil: advocacia, contabilidade, consultoria, assessoria
-- Tecnologia: software, TI, agências digitais, marketing, suporte técnico
-- Logística e transporte: transportadoras, frete, armazenagem, distribuição
-- Imobiliário: imobiliárias, corretagem, administração de imóveis
-- Comércio: atacado, varejo, distribuidores, lojas
-- Alimentação: padarias, restaurantes, açougues, distribuidoras de bebidas
-- Serviços: beleza, academias, educação, limpeza, segurança, eventos
-- Indústria: fábricas, fabricantes, manufatura
+BASE DE DADOS ATUAL (seja honesta sobre isso):
+A base hoje é fortemente concentrada em CONSTRUÇÃO CIVIL e cadeia relacionada (construtoras, incorporadoras, empreiteiros, fornecedores de materiais, instalações elétricas/hidráulicas, infraestrutura, acabamento). A busca entende termos livres e sinônimos de muitos setores (saúde, jurídico, contábil, tecnologia, etc.), mas a cobertura de dados desses outros setores ainda é pequena e está em expansão. Se o cliente buscar um setor com poucos dados, seja transparente: a busca funciona, mas pode haver poucos resultados por enquanto.
 
 FUNCIONALIDADES QUE VOCÊ CONHECE E PODE EXPLICAR:
-- Busca inteligente: o cliente pode buscar por termos livres (ex: "padarias em SP", "clínicas", "fornecedor de cimento") e o sistema entende sinônimos e expande a busca
+- Busca inteligente: termos livres (ex: "padarias em SP", "fornecedor de cimento") com sinônimos e expansão automática
 - Filtros: por tipo de empresa, estado e segmento (planos pagos)
 - Ordenação por clique: clicar no cabeçalho da tabela ordena por empresa, segmento, cidade, score ou status; clicar de novo inverte
 - Score de lead (0-100): quanto maior, mais qualificado e completo o cadastro
+- Detalhe do lead (modal): ao clicar em "Ver Lead", abre um painel rico com dados da Receita (situação cadastral, data de abertura, capital social, porte, natureza jurídica, sócios e atividades), MAPA da localização com link para o Google Maps, canais de contato (site e redes sociais) e NOTÍCIAS recentes da empresa quando houver
 - CRM: organiza leads em etapas (novo, contatado, negociando, fechado). Versão lista no Starter; funil e Kanban completo no Pro e Agency
-- Rede B2B: conecta o cliente com outras empresas da plataforma via chat interno para fechar negócios. Starter gasta 1 crédito por conexão; Pro e Agency têm incluído
-- Radar de Empresas Novas: lista empresas recém-abertas (negócio novo = oportunidade quente). Exclusivo do plano Agency
-- Exportação: CSV/Excel dos leads e do CRM
+- Rede B2B: conecta o cliente com outras empresas da plataforma via chat interno. Starter gasta 1 crédito por conexão; Pro e Agency têm incluído
+- Radar / Feed de oportunidades: na página inicial e na aba Radar, mostra empresas recém-abertas e que apareceram na imprensa (negócio novo ou em movimento = oportunidade quente). Exclusivo do plano Agency
+- Gestão de equipe (plano Agency): o titular da conta (conta-mãe) pode adicionar até 4 funcionários informando o e-mail de cada um. O funcionário entra com a própria conta Google ou Microsoft daquele e-mail e passa a compartilhar a MESMA base, CRM e cota de leads da empresa. O titular vê o "Desempenho por funcionário" (quantos leads cada um tem no funil, fechados no mês, em negociação, taxa de conversão e última atividade), define METAS mensais de fechamento por funcionário, pode REATRIBUIR um lead de uma pessoa para outra e EXPORTAR o desempenho da equipe em CSV. Os funcionários têm acesso operacional (busca, CRM, leads), mas não acessam planos, configuração da conta nem a gestão de equipe — essas áreas são exclusivas da conta-mãe.
+- Exportação: CSV/Excel dos leads, do CRM e do desempenho da equipe (com acentuação correta para Excel)
 
 PLANOS (pagamento avulso, cada plano vale 30 dias e expira sem renovação automática — o cliente paga só quando precisar):
 - Free: gratuito, 10 consultas/30 dias, filtros básicos, score parcial, Wex limitada. Sem CRM, sem rede, sem radar
 - Starter R$97 / 30 dias: 100 consultas, filtros completos, score 0-100, selo verificado, CSV, CRM leve (lista), Rede B2B (1 crédito por conexão), Wex essencial
 - Pro R$197 / 30 dias: 300 consultas, tudo do Starter, CRM completo (funil e Kanban), Rede B2B incluída, Wex completa, suporte prioritário
-- Agency R$397 / 30 dias: consultas ilimitadas, tudo do Pro, Radar de Empresas Novas exclusivo, multi-usuário e gestão de equipe, onboarding dedicado, suporte WhatsApp
+- Agency R$397 / 30 dias: consultas ilimitadas, tudo do Pro, Radar/Feed de oportunidades exclusivo, gestão de equipe com até 4 funcionários (desempenho, metas, reatribuição), onboarding dedicado, suporte WhatsApp
 
 O QUE VOCÊ FAZ:
 - Sugere termos e filtros de busca para o que o cliente procura
 - Ajuda a escrever mensagens e e-mails de prospecção
 - Dá dicas de abordagem por perfil de lead e por setor
 - Explica funcionalidades e planos, recomendando o ideal para o perfil
-- Orienta sobre como usar CRM, Rede B2B e Radar
+- Orienta sobre como usar o CRM, a Rede B2B, o Radar e a gestão de equipe
 
-REGRAS: responda sempre em português brasileiro, de forma concisa (máximo 3 parágrafos). Seja honesta — se algo não existe na plataforma, diga. Nunca prometa recursos que não listei acima. Nunca use emojis.
+REGRAS: responda no MESMO idioma da mensagem do usuário — se ele escrever em inglês, responda em inglês; em espanhol, responda em espanhol; caso contrário, use português brasileiro (padrão). Seja concisa (máximo 3 parágrafos). Seja honesta — se algo não existe na plataforma ou se a base tem poucos dados de um setor, diga. Nunca prometa recursos que não listei acima. Nunca use emojis.
 
 Apresentação padrão: "Olá! Sou a Wex, sua assistente no WexioLead. Posso ajudar com busca de leads, estratégia de prospecção, uso da plataforma ou recomendação de plano. O que você procura hoje?"`;
 
@@ -4655,7 +4836,7 @@ function previaSocio(v) {
 }
 
 function initWex() {
-  addWexMessage('Olá! Sou a Wex, sua assistente no WexioLead. Pode me perguntar sobre leads, estratégia de prospecção ou o mercado de construção civil — estou aqui para te ajudar a fechar mais negócios!', 'bot');
+  addWexMessage('Olá! Sou a Wex, sua assistente no WexioLead. Pode me perguntar sobre leads, estratégia de prospecção ou como usar a plataforma — estou aqui para te ajudar a fechar mais negócios!', 'bot');
 }
 
 function toggleWex() {
@@ -4822,6 +5003,7 @@ async function loadTickets() {
 // NAVIGATION
 // 
 function showPage(page) {
+  if (page === 'perfil') setTimeout(applyAppearanceUI, 0);
   // Conta-filha não acessa áreas exclusivas da conta-mãe
   if (isChildAccount && ['planos','perfil','equipe'].includes(page)) {
     showToast('Essa área é exclusiva do administrador da conta.', true);
@@ -5602,6 +5784,13 @@ const radarItemsById = {};
 function radarMapEmbed(q){
   return `<iframe title="Mapa" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=${encodeURIComponent(q)}&z=16&output=embed" style="width:100%;height:100%;border:0;display:block;"></iframe>`;
 }
+function radarMapLink(q){
+  const el = document.getElementById('ldmMapLink');
+  if (!el) return;
+  el.innerHTML = '<a href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q) + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--accent);text-decoration:none;">' +
+    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
+    'Abrir no Google Maps</a>';
+}
 function radarTitle(s){ return (s||'').toLowerCase().replace(/\b([a-zà-ú])/g,(m)=>m.toUpperCase()); }
 function radarBRL(s){
   const n = parseFloat(String(s||'').replace(/\./g,'').replace(',','.'));
@@ -5626,6 +5815,8 @@ function renderLeadRadar(lead){
   sec.style.display = 'block';
   if (gate) gate.style.display = 'none';
   if (mapBox && cidade) mapBox.innerHTML = radarMapEmbed(cidade + ', Brasil'); // fallback nível cidade enquanto carrega
+  if (cidade) radarMapLink(cidade + ', Brasil');
+  renderLeadNews(cnpjDigits);
   if (listBox) listBox.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:6px 0;">Buscando dados públicos da empresa…</div>';
 
   if (cnpjDigits.length !== 14){
@@ -5643,6 +5834,7 @@ function renderLeadRadar(lead){
       const endParts = [d.tipo_logradouro, d.logradouro].filter(Boolean).join(' ');
       const endFull = `${endParts}, ${d.numero||''} - ${d.bairro||''}, ${d.municipio||''} - ${d.uf||''}`.replace(/\s+/g,' ').trim();
       if (mapBox && d.logradouro) mapBox.innerHTML = radarMapEmbed(endFull + ', Brasil');
+      if (d.logradouro) radarMapLink(endFull + ', Brasil');
 
       const cnaePrinc = (d.cnaes||[]).find(c=>c.is_principal) || (d.cnaes||[])[0];
       const sit = d.situacao_cadastral||'';
@@ -5687,6 +5879,29 @@ function renderLeadRadar(lead){
       if (listBox) listBox.innerHTML = `<div style="font-size:12.5px;color:var(--muted);padding:4px 0;line-height:1.5;">Não foi possível buscar os dados públicos desta empresa agora. O mapa mostra a região informada.</div>`;
     }
   })();
+}
+
+// Notícias da empresa (discreto) — some se não houver nada
+async function renderLeadNews(cnpjDigits){
+  const box = document.getElementById('ldmRadarNews');
+  if (!box) return;
+  box.innerHTML = '';
+  if (!cnpjDigits || cnpjDigits.length !== 14) return;
+  try {
+    const { data, error } = await sb.rpc('radar_por_lead', { p_cnpj: cnpjDigits });
+    if (error || !data || !data.length) return;
+    const items = data.slice(0, 4);
+    box.innerHTML = '<div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin:2px 0 8px;">Notícias da empresa</div>' +
+      items.map(function(n){
+        const dt = n.data_evento ? new Date(n.data_evento+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'}) : '';
+        const meta = [n.fonte ? radarEsc(n.fonte) : '', dt].filter(Boolean).join(' · ');
+        const inner = '<div style="font-size:12.5px;color:var(--text);line-height:1.45;font-weight:500;">' + radarEsc(n.titulo||'') + '</div>' +
+          (meta ? '<div style="font-size:10.5px;color:var(--muted);margin-top:3px;">' + meta + '</div>' : '');
+        return n.fonte_url
+          ? '<a href="' + radarEsc(n.fonte_url) + '" target="_blank" rel="noopener" style="display:block;text-decoration:none;padding:9px 0;border-top:1px solid var(--border);">' + inner + '</a>'
+          : '<div style="padding:9px 0;border-top:1px solid var(--border);">' + inner + '</div>';
+      }).join('');
+  } catch(e) { /* silencioso — seção discreta */ }
 }
 
 function radarModalItemHTML(it){
@@ -5897,8 +6112,8 @@ function abrirOnboardingRadar(){
 }
 
 function openLeadDetailModal(leadId) {
-  const lead = allLeads.find(l => l.id === leadId);
-  if (!lead) return;
+  const lead = (typeof getLeadCrm === 'function' ? getLeadCrm(leadId) : null) || allLeads.find(l => l.id === leadId);
+  if (!lead) { showToast('Não foi possível abrir este lead. Recarregue a página.', true); return; }
 
   const name = lead.nome_fantasia || lead.razao_social || '—';
   const seg = lead.segmento_simplificado || '';
@@ -5983,6 +6198,7 @@ function openLeadDetailModal(leadId) {
   document.getElementById('leadDetailModal').dataset.leadId = leadId;
   renderLdmSocial(lead);
   renderLeadRadar(lead);
+  fetchPncp(lead.cnpj, 'ldmPncpContent');
   atualizarBotaoConexao(lead);
   document.getElementById('leadDetailModal').classList.add('open');
 }
@@ -6139,7 +6355,7 @@ const TOUR_STEPS = [
   {
     targetId: 'nav-leads',
     position: 'right',
-    msg: `Aqui fica o menu <strong>Buscar Leads</strong> — sua porta de entrada para a base de empresas da construção civil brasileira. Clique para acessar a qualquer momento.`
+    msg: `Aqui fica o menu <strong>Buscar Leads</strong> — sua porta de entrada para a base de empresas brasileiras (hoje forte em construção civil e em expansão para outros setores). Clique para acessar a qualquer momento.`
   },
   {
     targetId: 'btnBuscarLeads',
@@ -6149,30 +6365,51 @@ const TOUR_STEPS = [
   {
     targetId: 'leadsTbody',
     position: 'top',
-    msg: `Cada linha é um lead. O nome da empresa e cidade aparecem logo de cara. Para ver <strong>telefone, e-mail e CNPJ completos</strong>, clique em <strong>Ver Lead</strong> — isso consome 1 crédito do seu plano.`
+    msg: `Cada linha é um lead. Ao clicar em <strong>Ver Lead</strong> abre um painel completo com <strong>dados da Receita, mapa da localização, canais de contato e notícias da empresa</strong> — isso consome 1 crédito do seu plano.`
   },
   {
     targetId: 'nav-crm',
     position: 'right',
-    msg: `Após revelar um lead, salve-o no seu <strong>CRM</strong>! Você pode controlar o status (Novo → Contatado → Negociando → Fechado), adicionar anotações e datas de follow-up.`
+    msg: `Salve seus leads no <strong>CRM</strong>! Controle o status (Novo → Contatado → Negociando → Fechado), adicione anotações e datas de follow-up. No Pro e Agency você tem o funil completo em Kanban.`
+  },
+  {
+    targetId: 'nav-radar',
+    position: 'right',
+    msg: `O <strong>Radar</strong> mostra empresas recém-abertas e que apareceram na imprensa — negócio novo ou em movimento é oportunidade quente. Exclusivo do plano Agency.`
+  },
+  {
+    targetId: 'nav-equipe',
+    position: 'right',
+    msg: `Na aba <strong>Equipe</strong> (Agency) você adiciona até 4 funcionários, acompanha o <strong>desempenho de cada um</strong>, define <strong>metas mensais</strong>, reatribui leads e exporta o relatório em CSV.`
   },
   {
     targetId: 'wex-chat',
     position: 'top',
-    msg: `E este botão aqui sou eu, a <strong>Wex</strong>! Me acione quando quiser dicas de prospecção, ajuda com e-mails para leads ou dúvidas sobre o mercado da construção civil. Bons negócios!`
+    msg: `E este botão aqui sou eu, a <strong>Wex</strong>! Me acione para dicas de prospecção, ajuda com e-mails ou dúvidas sobre a plataforma. Bons negócios!`
   }
 ];
+
+// Mantém só os passos cujo alvo existe e está visível (ex: Radar/Equipe só no Agency)
+let activeTourSteps = TOUR_STEPS;
+function computeActiveTourSteps() {
+  activeTourSteps = TOUR_STEPS.filter(s => {
+    const el = document.getElementById(s.targetId);
+    return el && el.offsetParent !== null;
+  });
+  if (!activeTourSteps.length) activeTourSteps = TOUR_STEPS;
+}
 
 function startTour() {
   // Make sure we're on leads page so the elements exist
   showPage('leads');
+  computeActiveTourSteps();
   tourStep = 0;
   document.getElementById('wexTourOverlay').classList.add('active');
   renderTourStep();
 }
 
 function renderTourStep() {
-  const step = TOUR_STEPS[tourStep];
+  const step = activeTourSteps[tourStep];
   const overlay = document.getElementById('wexTourOverlay');
   const highlight = document.getElementById('tourHighlight');
   const card = document.getElementById('tourCard');
@@ -6182,12 +6419,12 @@ function renderTourStep() {
 
   // Update message
   msgEl.innerHTML = step.msg;
-  badge.textContent = `${tourStep + 1} / ${TOUR_STEPS.length}`;
-  nextBtn.textContent = tourStep === TOUR_STEPS.length - 1 ? 'Concluir' : 'Proximo →';
+  badge.textContent = `${tourStep + 1} / ${activeTourSteps.length}`;
+  nextBtn.textContent = tourStep === activeTourSteps.length - 1 ? 'Concluir' : 'Proximo →';
 
   // Build dots
   const dotsEl = document.getElementById('tourDots');
-  dotsEl.innerHTML = TOUR_STEPS.map((_, i) =>
+  dotsEl.innerHTML = activeTourSteps.map((_, i) =>
     `<div class="tour-dot${i === tourStep ? ' active' : ''}"></div>`
   ).join('');
 
@@ -6241,12 +6478,12 @@ function renderTourStep() {
 
 function tourNext() {
   tourStep++;
-  if (tourStep >= TOUR_STEPS.length) {
+  if (tourStep >= activeTourSteps.length) {
     endTour();
     return;
   }
   // If navigating to a step that needs a specific page, navigate first
-  const step = TOUR_STEPS[tourStep];
+  const step = activeTourSteps[tourStep];
   if (step.targetId === 'nav-crm') showPage('crm');
   else if (step.targetId === 'wex-chat') showPage('leads');
   setTimeout(renderTourStep, 150);
@@ -6293,6 +6530,14 @@ const SUPPORT_FAQ = [
       • Anotações por lead<br>
       • Data de follow-up<br><br>
       Para usar: revele o lead com <strong>Ver Lead</strong> e clique em <strong>CRM</strong>.`
+  },
+  {
+    keys: ['equipe', 'funcionario', 'funcionarios', 'membro', 'vendedor', 'time', 'colaborador', 'multi-usuario', 'multiusuario'],
+    answer: `No plano <strong>Agency</strong> você monta sua equipe:<br><br>
+      1. Vá em <strong>Equipe</strong> no menu e clique em <strong>Adicionar funcionário</strong><br>
+      2. Informe o e-mail dele (até 4 funcionários)<br>
+      3. Ele entra com a própria conta Google ou Microsoft desse e-mail e passa a compartilhar a mesma base, CRM e cota da empresa<br><br>
+      Você acompanha o <strong>desempenho de cada um</strong>, define <strong>metas mensais</strong>, reatribui leads e exporta tudo em CSV. Funcionários não acessam planos nem a configuração da conta.`
   },
   {
     keys: ['plano', 'preco', 'valor', 'assinar', 'assinatura', 'starter', 'pro', 'agency'],

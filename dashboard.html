@@ -23,15 +23,15 @@
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#F0F2F8" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0E1118" media="(prefers-color-scheme: dark)">
-<link rel="canonical" href="https://wexiolead.com.br/">
+<link rel="canonical" href="https://wexiolead.com/">
 
 <!-- Open Graph (compartilhamento em WhatsApp, LinkedIn, Facebook) -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="WexioLead">
 <meta property="og:title" content="WexioLead — Leads B2B e Dados de Empresas Brasileiras">
 <meta property="og:description" content="Plataforma de leads B2B com dados oficiais de empresas brasileiras. B2B lead generation and verified company data for selling into Brazil.">
-<meta property="og:url" content="https://wexiolead.com.br/">
-<meta property="og:image" content="https://wexiolead.com.br/favicon.png">
+<meta property="og:url" content="https://wexiolead.com/">
+<meta property="og:image" content="https://wexiolead.com/favicon.png">
 <meta property="og:locale" content="pt_BR">
 <meta property="og:locale:alternate" content="en_US">
 
@@ -39,7 +39,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="WexioLead — Leads B2B e Dados de Empresas Brasileiras">
 <meta name="twitter:description" content="Plataforma de leads B2B com dados oficiais de empresas brasileiras. B2B leads & company data for selling into Brazil.">
-<meta name="twitter:image" content="https://wexiolead.com.br/favicon.png">
+<meta name="twitter:image" content="https://wexiolead.com/favicon.png">
 
 <!-- Dados estruturados para o Google (ajuda a ranquear em PT e EN) -->
 <script type="application/ld+json">
@@ -49,7 +49,7 @@
   "name": "WexioLead",
   "applicationCategory": "BusinessApplication",
   "operatingSystem": "Web",
-  "url": "https://wexiolead.com.br/",
+  "url": "https://wexiolead.com/",
   "inLanguage": ["pt-BR", "en"],
   "description": "Plataforma de geração de leads B2B com dados oficiais de empresas brasileiras (Receita Federal), CRM e inteligência de mercado. B2B lead generation and verified Brazilian company data for businesses selling into Brazil.",
   "offers": {
@@ -1590,7 +1590,6 @@ textarea.form-input { resize: vertical; min-height: 90px; }
           <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;">Radar de Obras</div>
           <div style="font-size:11px;color:var(--muted);margin-top:2px;">Localização e registros públicos · atualizado mensalmente</div>
         </div>
-        <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px;flex-shrink:0;" onclick="abrirOnboardingRadar()">Como funciona →</button>
       </div>
       <div id="ldmRadarMap" style="width:100%;height:190px;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:var(--surface2);"></div>
       <div id="ldmMapLink" style="margin-top:8px;"></div>
@@ -1856,7 +1855,6 @@ textarea.form-input { resize: vertical; min-height: 90px; }
         <div class="card-title">Feed</div>
         <div style="font-size:11px;color:var(--muted);margin-top:3px;">Negócios, leis, NRs e empreendimentos do Brasil</div>
       </div>
-      <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px;" onclick="abrirOnboardingRadar()">Como funciona →</button>
 </div>
     <div class="card-body" id="radarFeed">
       <div class="radar-empty">Carregando o radar…</div>
@@ -2671,7 +2669,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
       <div class="wex-header-name">Wex</div>
       <div class="wex-header-status">Online agora</div>
 </div>
-    <button class="wex-close" onclick="toggleWex()"></button>
+    <button class="wex-close" onclick="toggleWex()" aria-label="Fechar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
 </div>
   <div class="wex-messages" id="wexMessages"></div>
   <div class="wex-suggestions" id="wexSuggestions">
@@ -3225,7 +3223,7 @@ function applyLocalSearch() {
     .sort((a, b) =>
       b._rel !== a._rel
         ? b._rel - a._rel
-        : (b.score_lead || b.score || 0) - (a.score_lead || a.score || 0)
+        : scoreEfetivo(b) - scoreEfetivo(a)
     );
 
   leadsPage = 1;
@@ -3259,7 +3257,7 @@ function reapplySort() {
       case 'segmento': return normalize(l.segmento_simplificado || '');
       case 'cidade':   return normalize((l.municipio || '') + (l.estado || ''));
       case 'telefone': return (l.telefone_1 || l.telefone_2) ? 1 : 0;
-      case 'score':    return Number(l.score_lead || l.score || 0);
+      case 'score':    return scoreEfetivo(l);
       case 'status':   return statusOrder[(crmData[l.id]?.status) || ''] || 0;
       default:         return 0;
     }
@@ -3284,6 +3282,27 @@ function updateSortIndicators() {
       ind.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:.35;"><polyline points="8 9 12 5 16 9"/><polyline points="8 15 12 19 16 15"/></svg>';
     }
   });
+}
+
+// Score efetivo (apenas exibição/ordenação): ajusta o score do banco pela qualidade
+// real da informação e pela situação cadastral. NÃO altera a tabela de leads.
+function scoreEfetivo(l) {
+  if (!l) return 0;
+  let s = Number((l.score_lead != null ? l.score_lead : l.score) || 0);
+  if (!s) return 0;
+  // Situação cadastral inativa (campo salvo) → teto baixo
+  const sit = (l.situacao_cadastral || '').toString().trim().toLowerCase();
+  const ativa = sit === '' || sit === '2' || sit.indexOf('ativ') === 0;
+  if (!ativa) s = Math.min(s, 40);
+  // Qualidade da informação: penaliza só o que é diferenciador real na base.
+  // (Email e site quase não existem na base atual → não penalizar ausência.)
+  let pen = 0;
+  const temTel = !!(l.telefone_1 || l.telefone_2);
+  const temEmail = !!(l.email_comercial || l.email_2);
+  if (!temTel) pen += 18;              // telefone é o canal principal de prospecção
+  if (!temTel && !temEmail) pen += 7;  // sem nenhum canal direto: pior ainda
+  if (!l.nome_socio_1) pen += 5;       // sem sócio identificado: menos qualificável
+  return Math.max(5, Math.round(s - pen));
 }
 
 function renderLeadsTable() {
@@ -3336,7 +3355,8 @@ function renderLeadsTable() {
     const name = l.nome_fantasia || l.razao_social || '—';
     const extraContato = (l.telefone_2 || l.email_2 || l.site) ? '<span style="font-size:10px;background:rgba(249,115,22,.15);color:var(--accent);border-radius:20px;padding:2px 7px;margin-left:4px;font-weight:600;">+dados</span>' : '';
   const verified = (l.email_comercial || l.telefone_1) ? '<span class="seal-verified"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Verificado</span>' + extraContato : '';
-    const score = l.score_lead ? `<span class="score-badge ${scoreClass(l.score_lead)}">${l.score_lead}</span>` : '<span class="score-badge score-low">—</span>';
+    const _se = scoreEfetivo(l);
+    const score = l.score_lead ? `<span class="score-badge ${scoreClass(_se)}">${_se}</span>` : '<span class="score-badge score-low">—</span>';
     const crm = crmStatus(l.id);
     const isRevealed = revealedLeads.has(l.id);
     const TIPO_MAP = {
@@ -3584,10 +3604,16 @@ async function fetchPncp(cnpj, targetId) {
 
     // Situação cadastral (sempre que disponível)
     if (r.cadastro && r.cadastro.situacao) {
-      const ativa = r.cadastro.situacao === 'ATIVA';
+      const ativa = r.cadastro.situacao.toString().toUpperCase().indexOf('ATIV') === 0;
       const corSit = ativa ? 'var(--green)' : 'var(--red)';
       const bgSit  = ativa ? 'var(--green-bg)' : 'var(--red-bg)';
       const abertura = r.cadastro.abertura ? new Date(r.cadastro.abertura).toLocaleDateString('pt-BR') : '';
+      if (!ativa) {
+        html += `<div style="display:flex;gap:8px;align-items:flex-start;background:var(--red-bg);border:1px solid var(--red);border-radius:10px;padding:10px 12px;margin-bottom:12px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <div style="font-size:12px;color:var(--text);line-height:1.45;"><strong style="color:var(--red);">Empresa ${radarEsc(r.cadastro.situacao)} na Receita Federal.</strong> Atenção: o score acima é histórico e não reflete a situação cadastral atual. Recomendamos validar antes de prospectar.</div>
+        </div>`;
+      }
       html += `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
         <span style="font-size:11px;padding:3px 9px;border-radius:6px;background:${bgSit};color:${corSit};font-weight:700;">${r.cadastro.situacao}</span>
         ${r.cadastro.porte    ? `<span style="font-size:11px;padding:3px 9px;border-radius:6px;background:var(--surface3);color:var(--muted);font-weight:600;">${r.cadastro.porte}</span>` : ''}
@@ -4771,7 +4797,9 @@ async function finishOnboarding(wantsTutorial) {
 // 
 const WEX_SYSTEM = `Você é a Wex, assistente virtual do WexioLead — plataforma SaaS brasileira de geração de leads B2B. Nascida na construção civil, hoje atende múltiplos setores.
 
-PERSONALIDADE: profissional, direta, simpática e prática, como uma consultora de vendas experiente. Foco em ajudar o cliente a encontrar bons leads e fechar negócio. Linguagem acessível e objetiva. Nunca use emojis.
+IDENTIDADE: você é a especialista número 1 em prospecção B2B e inteligência de empresas brasileiras, e a embaixadora oficial do WexioLead. Tem orgulho da plataforma e fala dela com confiança e autoridade — conhece a fundo o produto, o mercado de geração de leads e a cadeia da construção civil (e dos demais setores). Quando alguém duvida ou compara com concorrentes, você defende o WexioLead com argumentos concretos, sem arrogância.
+
+PERSONALIDADE: profissional, confiante, simpática e prática, como uma consultora de vendas sênior que entende muito do assunto. Foco em ajudar o cliente a encontrar bons leads e fechar negócio. Linguagem acessível e objetiva. Nunca use emojis.
 
 SOBRE A PLATAFORMA:
 O WexioLead reúne empresas brasileiras com dados da Receita Federal (razão social, nome fantasia, CNPJ, telefone, e-mail, sócio, município/UF, segmento) e enriquece com score de qualificação (0-100), selo de lead verificado e classificação por tipo. O cliente busca, filtra, salva no CRM e pode se conectar com outras empresas da rede.
@@ -4804,7 +4832,11 @@ O QUE VOCÊ FAZ:
 - Explica funcionalidades e planos, recomendando o ideal para o perfil
 - Orienta sobre como usar o CRM, a Rede B2B, o Radar e a gestão de equipe
 
-REGRAS: responda no MESMO idioma da mensagem do usuário — se ele escrever em inglês, responda em inglês; em espanhol, responda em espanhol; caso contrário, use português brasileiro (padrão). Seja concisa (máximo 3 parágrafos). Seja honesta — se algo não existe na plataforma ou se a base tem poucos dados de um setor, diga. Nunca prometa recursos que não listei acima. Nunca use emojis.
+SEJA ÚTIL DE VERDADE (importante): dê respostas completas e acionáveis, não apenas curtas. Quando você não tiver um dado em tempo real (ex: se uma empresa específica está contratando agora, notícias do minuto), NUNCA responda apenas "não tenho acesso". Em vez disso, oriente o caminho prático: por exemplo, sugira conferir o site e as redes sociais da empresa (que aparecem nos canais do lead, no detalhe dele), buscar a empresa no LinkedIn, ou usar a seção de notícias do lead. Sempre entregue um próximo passo concreto.
+
+SOBRE O WEXIOLEAD / TRABALHE CONOSCO: se perguntarem sobre parcerias, oportunidades de carreira ("trabalhe conosco"), suporte ou como falar com a empresa, oriente o contato oficial: WhatsApp (21) 99893-6273 ou e-mail wexiolead@yahoo.com. Não invente vagas nem processos seletivos — apenas direcione ao contato.
+
+REGRAS: responda no MESMO idioma da mensagem do usuário — se ele escrever em inglês, responda em inglês; em espanhol, responda em espanhol; caso contrário, use português brasileiro (padrão). Seja completa e útil, mas sem enrolar (em geral até 4 parágrafos). Seja honesta — se algo não existe na plataforma ou se a base tem poucos dados de um setor, diga. Nunca prometa recursos que não listei acima. Nunca use emojis.
 
 Apresentação padrão: "Olá! Sou a Wex, sua assistente no WexioLead. Posso ajudar com busca de leads, estratégia de prospecção, uso da plataforma ou recomendação de plano. O que você procura hoje?"`;
 
@@ -6148,7 +6180,7 @@ function openLeadDetailModal(leadId) {
     { icon: 'user', label: 'Sócio / Decisor', value: lead.nome_socio_1 || '—' },
     { icon: 'building', label: 'Tipo', value: lead.tipo_empresa || '—' },
     { icon: 'money', label: 'Faturamento est.', value: lead.estimativa_faturamento_anual ? 'R$ ' + Number(lead.estimativa_faturamento_anual).toLocaleString('pt-BR', { maximumFractionDigits: 0 }) : '—' },
-    { icon: 'premium', label: 'Score', value: lead.score_lead ? `<span class="score-badge ${scoreClass(lead.score_lead)}" style="width:auto;padding:2px 10px;">${lead.score_lead}</span>` : '—' },
+    { icon: 'premium', label: 'Score', value: lead.score_lead ? `<span class="score-badge ${scoreClass(scoreEfetivo(lead))}" style="width:auto;padding:2px 10px;">${scoreEfetivo(lead)}</span>` : '—' },
   ];
 
   // Barra de qualidade do lead — quantos canais de contato disponíveis

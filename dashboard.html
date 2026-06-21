@@ -1382,15 +1382,41 @@ textarea.form-input { resize: vertical; min-height: 90px; }
           <label class="form-label">Segmento</label>
           <select class="form-input" id="obSegmento">
             <option value="">Selecione</option>
-            <option>Construção Residencial</option>
-            <option>Construção Comercial</option>
-            <option>Construção Industrial</option>
-            <option>Infraestrutura</option>
-            <option>Reformas e Manutenção</option>
-            <option>Materiais de Construção</option>
-            <option>Instalações Elétricas</option>
-            <option>Hidráulica e Encanamento</option>
-            <option>Tecnologia para Obras</option>
+            <optgroup label="Construção e infraestrutura">
+              <option>Construção Residencial</option>
+              <option>Construção Comercial</option>
+              <option>Construção Industrial</option>
+              <option>Infraestrutura</option>
+              <option>Reformas e Manutenção</option>
+              <option>Materiais de Construção</option>
+              <option>Instalações Elétricas</option>
+              <option>Hidráulica e Encanamento</option>
+              <option>Tecnologia para Obras</option>
+            </optgroup>
+            <optgroup label="Saúde e segurança do trabalho">
+              <option>Saúde Ocupacional / SST</option>
+              <option>Clínicas e Consultórios</option>
+              <option>Equipamentos e EPIs</option>
+            </optgroup>
+            <optgroup label="Serviços profissionais">
+              <option>Jurídico / Advocacia</option>
+              <option>Contabilidade</option>
+              <option>Consultoria e Assessoria</option>
+              <option>Engenharia e Arquitetura</option>
+            </optgroup>
+            <optgroup label="Tecnologia e marketing">
+              <option>Tecnologia / Software</option>
+              <option>Marketing e Publicidade</option>
+              <option>Agências e Serviços Digitais</option>
+            </optgroup>
+            <optgroup label="Outros setores">
+              <option>Indústria</option>
+              <option>Comércio / Varejo</option>
+              <option>Logística e Transporte</option>
+              <option>Imobiliário</option>
+              <option>Serviços em Geral</option>
+              <option>Outro</option>
+            </optgroup>
           </select>
         </div>
       </div>
@@ -1869,7 +1895,7 @@ textarea.form-input { resize: vertical; min-height: 90px; }
 <div class="page-section" id="page-leads">
   <div class="page-header">
     <div class="page-title">Buscar Leads</div>
-    <div class="page-sub">Base de empresas da construção civil brasileira — filtrada para o seu perfil</div>
+    <div class="page-sub">Base de empresas brasileiras — filtrada para o seu perfil</div>
 </div>
 
   <div class="upgrade-banner" id="leadsFreeNote" style="display:none;">
@@ -2491,6 +2517,11 @@ textarea.form-input { resize: vertical; min-height: 90px; }
           <input type="text" class="form-input" id="profileCompany" placeholder="Nome da empresa">
 </div>
         <div class="form-group">
+          <label class="form-label">CNPJ da empresa <span style="color:var(--muted);font-weight:400;">(opcional)</span></label>
+          <input type="text" class="form-input" id="profileCnpj" placeholder="00.000.000/0001-00" maxlength="18" oninput="maskCnpj(this)">
+          <div style="font-size:11px;margin-top:5px;color:var(--muted);line-height:1.45;">Usado para recursos que dependem dos dados públicos da Receita ligados à sua empresa.</div>
+</div>
+        <div class="form-group">
           <label class="form-label">Telefone</label>
           <input type="text" class="form-input" id="profilePhone" placeholder="(00) 00000-0000">
 </div>
@@ -2499,8 +2530,13 @@ textarea.form-input { resize: vertical; min-height: 90px; }
           <select class="form-input" id="profileTipo">
             <option value="">Selecione</option>
             <option value="fornecedor">Fornecedor</option>
+            <option value="prestador">Prestador de Serviços</option>
+            <option value="industria">Indústria</option>
+            <option value="comercio">Comércio / Varejo</option>
             <option value="construtora">Construtora</option>
             <option value="empreiteiro">Empreiteiro</option>
+            <option value="profissional">Profissional Liberal</option>
+            <option value="outro">Outro</option>
 </select>
 </div>
         <div class="form-group">
@@ -2922,6 +2958,7 @@ async function loadProfile() {
   document.getElementById('profileName').value = currentProfile.full_name || '';
   document.getElementById('profileEmail').value = currentProfile.email || currentUser.email || '';
   document.getElementById('profileCompany').value = currentProfile.company || '';
+  document.getElementById('profileCnpj').value = currentProfile.cnpj || '';
   document.getElementById('profilePhone').value = currentProfile.phone || '';
   if (currentProfile.tipo_empresa) document.getElementById('profileTipo').value = currentProfile.tipo_empresa;
   if (currentProfile.estado) document.getElementById('profileEstado').value = currentProfile.estado;
@@ -2930,15 +2967,16 @@ async function loadProfile() {
 async function saveProfile() {
   const full_name = document.getElementById('profileName').value.trim();
   const company = document.getElementById('profileCompany').value.trim();
+  const cnpj = document.getElementById('profileCnpj').value.trim();
   const phone = document.getElementById('profilePhone').value.trim();
   const tipo = document.getElementById('profileTipo').value;
   const estado = document.getElementById('profileEstado').value;
 
-  const { error } = await sb.from('profiles').update({ full_name, company, phone, tipo_empresa: tipo, estado })
+  const { error } = await sb.from('profiles').update({ full_name, company, cnpj, phone, tipo_empresa: tipo, estado })
     .eq('id', currentUser.id);
 
   if (error) { showToast('Erro ao salvar: ' + error.message, true); return; }
-  currentProfile = { ...currentProfile, full_name, company, phone, tipo_empresa: tipo, estado };
+  currentProfile = { ...currentProfile, full_name, company, cnpj, phone, tipo_empresa: tipo, estado };
   const name = full_name.split(' ')[0];
   document.getElementById('userName').textContent = name;
   setAvatar('userAvatar', full_name, full_name.charAt(0).toUpperCase());

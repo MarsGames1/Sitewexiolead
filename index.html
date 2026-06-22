@@ -158,7 +158,8 @@ section{padding:100px 24px;}
 .wc{background:#fff;border:1px solid #ebebeb;border-radius:20px;padding:40px;position:relative;overflow:hidden;transition:border-color .3s,transform .3s,box-shadow .3s;}
 .wc:hover{border-color:rgba(249,115,22,.3);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.06);}
 .wc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#F97316,#fb923c);}
-.wtag{display:inline-flex;align-items:center;gap:6px;background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.18);padding:4px 12px;border-radius:100px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#F97316;font-weight:700;margin-bottom:20px;}
+.wtag{display:inline-flex;align-items:center;gap:6px;background:rgba(249,115,22,.10);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(249,115,22,.18);padding:5px 14px;border-radius:100px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#F97316;font-weight:700;margin-bottom:20px;position:relative;overflow:hidden;box-shadow:inset 0 1px 1px rgba(255,255,255,.65), 0 2px 6px rgba(249,115,22,.10);}
+.wtag::before{content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(180deg,rgba(255,255,255,.75) 0%,rgba(255,255,255,0) 45%,rgba(255,255,255,0) 55%,rgba(249,115,22,.25) 100%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;}
 .wc h3{font-size:18px;font-weight:600;color:#1a1814;margin-bottom:10px;line-height:1.25;letter-spacing:-.02em;}
 .wc p{color:#6b6760;font-size:14px;line-height:1.7;margin-bottom:20px;}
 .wlist{display:flex;flex-direction:column;gap:10px;}
@@ -486,8 +487,8 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px;">
             <div>
-              <div style="font-size:16px;font-weight:500;color:#fff;letter-spacing:-.02em;line-height:1.2;margin-bottom:4px;">Engenharia Constromax</div>
-              <div style="font-size:12px;color:rgba(255,255,255,0.35);letter-spacing:.01em;">São Paulo · SP</div>
+              <div style="font-size:16px;font-weight:500;color:#fff;letter-spacing:-.02em;line-height:1.2;margin-bottom:4px;">MRV Engenharia</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.35);letter-spacing:.01em;">Belo Horizonte · MG</div>
             </div>
             <div style="text-align:right;flex-shrink:0;">
               <div style="font-size:32px;font-weight:300;color:#F97316;letter-spacing:-.04em;line-height:1;">94</div>
@@ -495,12 +496,12 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
             </div>
           </div>
           <div style="height:1px;background:rgba(255,255,255,0.07);margin-bottom:20px;"></div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span style="font-size:11px;color:rgba(255,255,255,0.35);font-weight:400;">CNAE 41.20</span>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span style="font-size:11px;color:rgba(255,255,255,0.35);font-weight:400;">CNAE 4110</span>
             <span style="width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,0.2);flex-shrink:0;display:block;"></span>
-            <span style="font-size:11px;color:#059669;font-weight:400;">Verificado</span>
+            <span style="font-size:11px;color:#059669;font-weight:400;">Capital aberto</span>
             <span style="width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,0.2);flex-shrink:0;display:block;"></span>
-            <span style="font-size:11px;color:rgba(255,255,255,0.35);font-weight:400;">Score 70+</span>
+            <span style="font-size:11px;color:rgba(255,255,255,0.35);font-weight:400;">B3: MRVE3</span>
           </div>
         </div>
       </div>
@@ -656,12 +657,12 @@ footer{background:#f7f7f5;padding:64px 64px 32px;border-top:1px solid #ebebeb;}
     <div class="sec-kicker rv">Funcionalidades</div>
     <h2 class="sec-title rv d1">Tudo que você precisa.<br>Nada que você não usa.</h2>
     <div class="feat-grid">
-      <div class="ft rv"><div class="ft-ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div><h3>Filtros de Construção Civil</h3><p>CNAE específico, tipo de empresa, obras em andamento, porte e região com granularidade total.</p></div>
-      <div class="ft rv d1"><div class="ft-ic"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><h3>Score de Qualidade</h3><p>Pontuação 0–100 baseada em atividade recente, porte, decisor identificado e obras ativas.</p><div class="ft-tag">EXCLUSIVO</div></div>
-      <div class="ft rv d2"><div class="ft-ic"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><h3>Selo Lead Verificado</h3><p>E-mail e telefone confirmados recentemente. Saiba se os dados estão ativos antes de contatar.</p></div>
-      <div class="ft rv"><div class="ft-ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 17h7m-3.5-3.5v7"/></svg></div><h3>CRM Leve Integrado</h3><p>Status, anotações e follow-up — Novo / Contatado / Negociando / Fechado — sem sair da plataforma.</p></div>
-      <div class="ft rv d1"><div class="ft-ic"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div><h3>Exportação CSV</h3><p>Planilhas limpas prontas para seu CRM ou equipe de vendas. Disponível nos planos pagos.</p></div>
-      <div class="ft rv d2"><div class="ft-ic"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div><h3>Alertas de Novos Leads</h3><p>Receba e-mail quando novos leads entram no seu segmento e região. Configure uma vez.</p></div>
+      <div class="ft rv" style="background:linear-gradient(180deg,rgba(249,115,22,.06),#fff);"><div class="ft-ic"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6z"/></svg></div><h3>Wex, sua IA de prospecção</h3><p>Busque em linguagem natural, receba os melhores leads na hora e deixe a Wex escrever seus e-mails de abordagem. Ela entende o seu setor e responde no seu idioma.</p><div class="ft-tag">ÚNICA NO MERCADO</div></div>
+      <div class="ft rv d1"><div class="ft-ic"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 11 2 2 4-4"/></svg></div><h3>Consulta Pública &amp; Conformidade</h3><p>Dossiê da empresa em um clique: situação na Receita, contratos e licitações públicas, sanções (CEIS/CNEP) e Simples/MEI. Saiba com quem fala antes de vender.</p><div class="ft-tag">NOVO</div></div>
+      <div class="ft rv d2"><div class="ft-ic"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><h3>Score de Qualidade</h3><p>Nota 0–100 que reflete os dados reais e a situação cadastral atual da empresa. Foque em quem vale o contato e não perca tempo com lead frio.</p><div class="ft-tag">EXCLUSIVO</div></div>
+      <div class="ft rv"><div class="ft-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5L16 9.5"/></svg></div><h3>Selo Lead Verificado</h3><p>Telefone e e-mail conferidos. Saiba se os dados estão ativos antes de gastar tempo e energia em cada contato.</p></div>
+      <div class="ft rv d1"><div class="ft-ic"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="3.5"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.5a4 4 0 0 1 0 7"/></svg></div><h3>CRM e Gestão de Equipe</h3><p>Funil Novo → Contatado → Negociando → Fechado. No plano Agency, adicione vendedores e acompanhe metas, reatribuição e desempenho de cada um.</p></div>
+      <div class="ft rv d2"><div class="ft-ic"><svg viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg></div><h3>Multi-setor, dados da Receita</h3><p>Construção, saúde, jurídico, contábil, TI e mais — com dados oficiais da Receita Federal, filtros por porte e região, e exportação limpa em CSV.</p></div>
     </div>
   </div>
 </section>
